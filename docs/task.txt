@@ -1,0 +1,21 @@
+write me a simple, static, animated website that demonstrates/visualizes neutrino oscillations (in vacuum and in matter) and the associated probabilities as they vary with time/length and energy
+
+alongside this, I wanna visualize the neutrinos flying in space in 3d and animate their evolution with time/length as they're flying (for some given energy)
+
+color each neutrino flavor and display the flavor with the highest probability (and anything in between using intermediate colors) when you are visualizing the neutrino in vacuum flying through space
+
+make the website dark themed. I want the visualizations to be 3b1b styled (use p5.js for this potentially if needed)
+
+add a third (tau) flavor, make the 3-flavor mixing more detailed, visualize just a single neutrino in the backdrop in 3b1b style as it flies through space and changes between flavors (coded by colors)
+
+make the time evolution adjustable by a slider to slow/speed up the simulation
+
+okay, I want this to be a moving animation with the camera in the same reference frame as the neutrino, i.e., fixed on the neutrino, which is in the center of the screen
+
+the neutrino should move against the backdrop of stars (add motion blur to make it smooth if needed)
+
+also, make the background completely black
+
+I want the plots to also update dynamically with the neutrino animation
+
+make the neutrino to appear to be flying diagonally in the screen

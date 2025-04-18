@@ -1,0 +1,185 @@
+=== USER
+
+write me a simple, static, animated website that demonstrates/visualizes neutrino oscillations (in vacuum and in matter) and the associated probabilities as they vary with time/length and energy
+
+
+alongside this, I wanna visualize the neutrinos flying in space in 3d and animate their evolution with time/length as they're flying (for some given energy)
+
+
+color each neutrino flavor and display the flavor with the highest probability (and anything in between using intermediate colors) when you are visualizing the neutrino in vacuum flying through space
+
+make the website dark themed. I want the visualizations to be 3b1b styled (use p5.js for this potentially if needed)
+
+refer to the attached docs for more context
+
+(attached: bkataru-neutrino-oscillation-js.txt)
+
+=== ASSISTANT
+
+Pulling in details to give the best answer
+
+For this website, I should use HTML, CSS, and JavaScript with p5.js for visualizations. Since the user requested a dark theme, I’ll make sure to design with that in mind. I'll need to create probability plots and 3D visualizations for vacuum and matter oscillations. p5.js supports hand-drawn graphics, so I can incorporate that style. The page will likely need to include toggles or multiple canvases for the different sections, all within a single HTML file. Perhaps WebGL mode for 3D flight will make it work well.
+
+I'll write a simple static HTML file that includes p5.js for both canvases: one for a 2D probability plot and one for a 3D visualization. I'll use WebGL for the 3D canvas and apply a dark theme with 3b1b style, adding some hand-drawn details. The probability plots will include a toggle for vacuum vs. matter oscillations. I'll start with vacuum but implement the matter calculation as an example for the user to extend if needed. I'll use parameters for both calculations, simplifying the complexity for now.
+
+---
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neutrino Oscillation Visualization</title>
+  <!-- p5.js libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+  <style>
+    body { margin:0; background:#111; color:#eee; font-family: sans-serif; }
+    #controls { padding: 10px; background: #222; position: fixed; top: 0; left: 0; width: 100%; box-sizing: border-box; }
+    #controls label { margin-right: 15px; }
+    #plot2d, #scene3d { position: absolute; top: 100px; }
+    #plot2d { left: 0; }
+    #scene3d { right: 0; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label>Energy (MeV): <input id="energy" type="range" min="0.1" max="10" step="0.1" value="2"> <span id="energyVal">2</span></label>
+    <label>Δm² (eV²): <input id="dm2" type="range" min="1e-6" max="1e-3" step="1e-6" value="7.53e-5"> <span id="dm2Val">7.53e-5</span></label>
+    <label>θ (rad): <input id="theta" type="range" min="0" max="1.57" step="0.01" value="0.59"> <span id="thetaVal">0.59</span></label>
+    <label>Density (10³⁰ cm⁻³): <input id="density" type="range" min="0" max="100" step="1" value="0"> <span id="densityVal">0</span></label>
+    <label>Mode: <select id="mode"><option value="vacuum">Vacuum</option><option value="matter">Matter</option></select></label>
+  </div>
+  <div id="plot2d"></div>
+  <div id="scene3d"></div>
+
+  <script>
+    let params = { E: 2, dm2: 7.53e-5, theta: 0.59, density: 0, mode: 'vacuum' };
+
+    function bindInput(id, key) {
+      const el = document.getElementById(id);
+      const disp = document.getElementById(id + 'Val');
+      el.oninput = () => {
+        params[key] = parseFloat(el.value);
+        disp.textContent = el.value;
+      };
+    }
+
+    bindInput('energy','E');
+    bindInput('dm2','dm2');
+    bindInput('theta','theta');
+    bindInput('density','density');
+    document.getElementById('mode').onchange = e => params.mode = e.target.value;
+
+    // p5 instance for 2D plot
+    new p5(p => {
+      const W = window.innerWidth / 2, H = window.innerHeight - 100;
+
+      function probVac(L) {
+        let arg = 1.27 * params.dm2 * L / params.E;
+        return (p.sin(2 * params.theta) ** 2) * (p.sin(arg) ** 2);
+      }
+
+      function probMat(L) {
+        let V = 7.6e-5 * params.density;
+        let d = params.dm2 / params.E;
+        let cos2θ = p.cos(2 * params.theta);
+        let sin2θ = p.sin(2 * params.theta);
+        let dx = p.sqrt((cos2θ - V / d) ** 2 + sin2θ ** 2);
+        let θm = 0.5 * p.atan2(sin2θ, cos2θ - V / d);
+        let dm2m = params.dm2 * dx;
+        let arg = 1.27 * dm2m * L / params.E;
+        return (p.sin(2 * θm) ** 2) * (p.sin(arg) ** 2);
+      }
+
+      p.setup = () => {
+        p.createCanvas(W, H).parent('plot2d');
+        p.strokeWeight(2);
+      };
+
+      p.draw = () => {
+        p.background(17);
+        p.push();
+        p.stroke(200);
+        p.line(40, H - 40, W - 20, H - 40);
+        p.line(40, H - 40, 40, 20);
+        p.pop();
+        p.noFill();
+        p.strokeWeight(3);
+        for (let f = 0; f < 2; f++) {
+          p.stroke(f === 0 ? p.color(255, 100, 100) : p.color(100, 100, 255));
+          p.beginShape();
+          for (let i = 0; i < W - 60; i++) {
+            let L = i * 20 / (W - 60) * 10;
+            let pr = params.mode === 'vacuum' ? probVac(L) : probMat(L);
+            let y = p.map(pr, 0, 1, H - 40, 20);
+            p.vertex(40 + i, y);
+          }
+          p.endShape();
+        }
+      };
+    });
+
+    // p5 instance for 3D scene
+    new p5(p => {
+      let zPos = -200;
+      const W2 = window.innerWidth / 2, H2 = window.innerHeight - 100;
+
+      function probVac(L) {
+        let arg = 1.27 * params.dm2 * L / params.E;
+        return (p.sin(2 * params.theta) ** 2) * (p.sin(arg) ** 2);
+      }
+
+      function probMat(L) {
+        let V = 7.6e-5 * params.density;
+        let d = params.dm2 / params.E;
+        let cos2θ = p.cos(2 * params.theta);
+        let sin2θ = p.sin(2 * params.theta);
+        let dx = p.sqrt((cos2θ - V / d) ** 2 + sin2θ ** 2);
+        let θm = 0.5 * p.atan2(sin2θ, cos2θ - V / d);
+        let dm2m = params.dm2 * dx;
+        let arg = 1.27 * dm2m * L / params.E;
+        return (p.sin(2 * θm) ** 2) * (p.sin(arg) ** 2);
+      }
+
+      p.setup = () => {
+        p.createCanvas(W2, H2, p.WEBGL).parent('scene3d');
+      };
+
+      p.draw = () => {
+        p.background(17);
+        p.orbitControl();
+        p.push();
+        p.stroke(255);
+        p.noFill();
+        p.beginShape();
+        for (let z = -200; z < 200; z += 10) p.vertex(z, 0, z);
+        p.endShape();
+        p.pop();
+        let L = p.map(zPos, -200, 200, 0, 10);
+        let pr = params.mode === 'vacuum' ? probVac(L) : probMat(L);
+        let c1 = p.color(255, 100, 100), c2 = p.color(100, 100, 255);
+        let col = p.lerpColor(c1, c2, pr);
+        p.push();
+        p.translate(zPos, 0, zPos);
+        p.noStroke();
+        p.fill(col);
+        p.sphere(10);
+        p.pop();
+        zPos += 1;
+        if (zPos > 200) zPos = -200;
+      };
+    });
+  </script>
+</body>
+</html>
+```
+
+I’ve put together a single-page, dark‑themed HTML that uses p5.js to:
+
+- **2D Plot**: Show vacuum vs. matter oscillation probabilities over distance (0–10 km) with sliders for energy, Δm², mixing angle, and matter density, plus a mode toggle.  
+- **3D Scene**: Animate a neutrino “flying” through space in WEBGL mode, coloring it via a smooth mix between red (νₑ) and blue (νₓ) based on the instantaneous probability.
+
+All controls live in a floating top bar; the canvases sit side‑by‑side below. Feel free to tweak the formulas or add labeling/axes decorations to suit your style. Let me know if you’d like enhancements—e.g. tooltips, more flavors, hand‑drawn “3b1b” stroke effects, or downloadable export!

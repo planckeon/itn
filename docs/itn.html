@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagining the Neutrino</title>
+    <!-- Chota.css for minimalist styling -->
+    <link rel="stylesheet" href="https://unpkg.com/chota">
+
+    <!-- Load Libraries FIRST -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.162.0/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- Alpine.js (deferred) -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <!-- Custom styles for dark theme and layout -->
+    <style>
+        body {
+            --bg-color: #000;
+            --fg-color: #fff;
+            --grid-color: #111; /* Slightly lighter black for grid */
+            --accent-color: #68b3c8; /* Info color from Paper Dashboard, slightly adjusted */
+            --highlight-color: #f3bb45; /* Warning color */
+            background-color: var(--bg-color);
+            color: var(--fg-color);
+            font-family: 'Fira Mono', 'Consolas', monospace; /* Similar monospace feel */
+            overflow-x: hidden; /* Prevent horizontal scroll due to Three.js */
+        }
+        /* Dark theme overrides from chota.css, ensure pitch black */
+        .dark body { /* This selector might be redundant if body style is already set */
+            background-color: #000;
+            color: #fff;
+        }
+        .container { max-width: 1000px; }
+        .is-dark { background-color: rgba(20,20,30,0.85); border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 16px #000a; }
+        h1, h2 { color: var(--fg-color); text-align: center; }
+        .center { text-align: center; }
+        .button.outline { color: var(--fg-color); border-color: var(--fg-color); }
+        .button.outline:hover { background-color: var(--fg-color); color: var(--bg-color); }
+        .plot-container, .scene-container {
+            position: relative;
+            width: 100%;
+            /* Aspect ratio for plot, Three.js canvas size set by JS */
+            aspect-ratio: 2.5 / 1; /* Wider aspect ratio for plot */
+            min-height: 300px; /* Ensure minimum height */
+        }
+        #plot { width: 100%; height: 100%; }
+         #scene { display: block; margin: auto; width: 100%; height: 100%; } /* Ensure canvas fills container */
+        /* Custom styles for 3b1b feel */
+        .flavor-color-e { color: rgb(80, 180, 255); } /* blue */
+        .flavor-color-mu { color: rgb(255, 140, 40); } /* orange */
+        .flavor-color-tau { color: rgb(220, 60, 255); } /* magenta */
+
+        /* Info box for 3D scene */
+         #neutrino-info {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            pointer-events: none; /* Allow mouse events to pass through */
+            z-index: 1; /* Ensure it's above the canvas if needed */
+         }
+         #neutrino-info p { margin: 4px 0; }
+
+        /* Tooltip/Educational Content */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            border-bottom: 1px dotted var(--fg-color); /* Underline for clickability */
+        }
+        .tooltip-container .tooltip-content {
+            visibility: hidden;
+            background-color: rgba(20,20,30,0.95);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%; /* Position above the text */
+            left: 50%;
+            margin-left: -150px; /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: 300px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            pointer-events: none; /* Allow clicks on elements behind */
+            font-size: 0.9rem;
+        }
+         .tooltip-container .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(20,20,30,0.95) transparent transparent transparent;
+         }
+        .tooltip-container:hover .tooltip-content,
+        .tooltip-container.active .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+             pointer-events: auto; /* Allow interaction when visible */
+        }
+         /* Prevent tooltip from going off screen - basic adjustment */
+         .tooltip-container .tooltip-content.right-aligned {
+             left: auto;
+             right: 0%;
+             margin-left: 0;
+             transform: translateX(0%); /* Reset center transform */
+         }
+         .tooltip-container .tooltip-content.right-aligned::after {
+             left: auto;
+             right: 5px;
+             margin-left: 0; /* Reset center margin */
+         }
+
+
+        /* Slider styling - basic for dark theme */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #555; /* Darker track */
+            outline: none;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-color); /* Use accent color */
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--accent-color); /* Use accent color */
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(0,0,0,0.5);
+             border: none; /* Remove default border */
+        }
+         input[type="range"]:hover { opacity: 1; }
+
+         /* Number input styling */
+         input[type="number"] {
+             background-color: #333;
+             color: #fff;
+             border: 1px solid #555;
+             padding: 5px;
+             border-radius: 4px;
+             width: 80px; /* Give number inputs a bit more width */
+         }
+
+         /* Select styling */
+         select {
+             background-color: #333;
+             color: #fff;
+             border: 1px solid #555;
+             padding: 5px;
+             border-radius: 4px;
+             cursor: pointer;
+         }
+
+    </style>
+</head>
+<body class="dark">
+    <header>
+        <h1>Imagining the Neutrino</h1>
+        <p>Visualize how neutrinos change flavors as they travel through space and matter.</p>
+    </header>
+
+    <main x-data="neutrinoVisualization()">
+        <div class="container">
+            <div class="row">
+                <div class="col-4 is-dark">
+                    <h2>Controls</h2>
+                    <p class="center">
+                        <button class="button outline" @click="playPause()">
+                            <span x-text="isPlaying ? 'Pause' : 'Play'"></span>
+                        </button>
+                         <button class="button outline" @click="reset()">Reset</button>
+                    </p>
+                    <div class="form-group">
+                        <label for="simSpeed">Simulation Speed:</label>
+                        <input type="range" x-model.number="simSpeed" @input="updateSpeedLabel()" min="0.01" max="5" step="0.01" id="simSpeed">
+                        <span x-text="simSpeed.toFixed(2) + 'x'"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="matterToggle">Matter Effect:</label>
+                        <input type="checkbox" x-model="matterEffect" @change="updateVisualization()" id="matterToggle">
+                    </div>
+                    <hr>
+                    <h3>Neutrino Parameters</h3>
+                    <div class="form-group">
+                         <label for="energy">Energy (GeV):</label>
+                         <input type="number" x-model.number="neutrinoEnergy" @input="updateVisualization()" min="0.1" max="100" step="0.1" id="energy">
+                         <span class="tooltip-container" @click="toggleTooltip('energyTooltip')">?
+                            <span class="tooltip-content" x-show="tooltips.energyTooltip" @click.away="hideTooltip('energyTooltip')">
+                                The neutrino's kinetic energy. Higher energy means shorter oscillation lengths.
+                            </span>
+                         </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="initialFlavor">Initial Flavor:</label>
+                        <select x-model.number="initialFlavorIndex" @change="updateVisualization(); reset()" id="initialFlavor">
+                            <option value="0">Electron (νe)</option>
+                            <option value="1">Muon (νμ)</option>
+                            <option value="2">Tau (ντ)</option>
+                        </select>
+                         <span class="tooltip-container" @click="toggleTooltip('flavorTooltip')">?
+                            <span class="tooltip-content" x-show="tooltips.flavorTooltip" @click.away="hideTooltip('flavorTooltip')">
+                                The flavor the neutrino is born as (e.g., in a nuclear reaction).
+                            </span>
+                         </span>
+                    </div>
+                     <template x-if="matterEffect">
+                        <div class="form-group">
+                            <label for="matterDensity">Matter Density (g/cm³):</label>
+                            <input type="number" x-model.number="matterDensity" @input="updateVisualization()" min="0" max="20" step="0.1" id="matterDensity">
+                             <span class="tooltip-container right-aligned" @click="toggleTooltip('densityTooltip')">?
+                                <span class="tooltip-content right-aligned" x-show="tooltips.densityTooltip" @click.away="hideTooltip('densityTooltip')">
+                                    The density of the material the neutrino travels through (e.g., Earth's crust ~2.6, core ~13). Affects oscillations via the MSW effect.
+                                </span>
+                             </span>
+                        </div>
+                     </template>
+                    <hr>
+                    <h3>Mixing Parameters</h3>
+                    <div class="form-group">
+                        <label for="theta12">θ12 (deg):</label>
+                        <input type="number" x-model.number="theta12_deg" @input="updateVisualization()" min="0" max="90" step="0.1" id="theta12">
+                         <span class="tooltip-container" @click="toggleTooltip('theta12Tooltip')">?
+                            <span class="tooltip-content" x-show="tooltips.theta12Tooltip" @click.away="hideTooltip('theta12Tooltip')">
+                                Controls mixing between mass states 1 and 2. Primarily affects solar neutrinos. Standard value ~33.8 degrees.
+                            </span>
+                         </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="theta23">θ23 (deg):</label>
+                        <input type="number" x-model.number="theta23_deg" @input="updateVisualization()" min="0" max="90" step="0.1" id="theta23">
+                         <span class="tooltip-container" @click="toggleTooltip('theta23Tooltip')">?
+                            <span class="tooltip-content" x-show="tooltips.theta23Tooltip" @click.away="hideTooltip('theta23Tooltip')">
+                                Controls mixing between mass states 2 and 3. Primarily affects atmospheric neutrinos. Standard value ~49.2 degrees.
+                            </span>
+                         </span>
+                    </div>
+                     <div class="form-group">
+                        <label for="theta13">θ13 (deg):</label>
+                        <input type="number" x-model.number="theta13_deg" @input="updateVisualization()" min="0" max="15" step="0.01" id="theta13">
+                         <span class="tooltip-container" @click="toggleTooltip('theta13Tooltip')">?
+                            <span class="tooltip-content" x-show="tooltips.theta13Tooltip" @click.away="hideTooltip('theta13Tooltip')">
+                                Controls mixing between all three flavors. Affects reactor and long-baseline neutrinos. Standard value ~8.6 degrees.
+                            </span>
+                         </span>
+                    </div>
+                     <div class="form-group">
+                        <label for="deltaCP">δCP (deg):</label>
+                        <input type="number" x-model.number="deltaCP_deg" @input="updateVisualization()" min="0" max="360" step="1" id="deltaCP">
+                         <span class="tooltip-container right-aligned" @click="toggleTooltip('deltaCPTooltip')">?
+                            <span class="tooltip-content right-aligned" x-show="tooltips.deltaCPTooltip" @click.away="hideTooltip('deltaCPTooltip')">
+                                The CP-violating phase. Its value affects the difference between neutrino and antineutrino oscillations. Standard value ~222 degrees.
+                            </span>
+                         </span>
+                    </div>
+                     <div class="form-group">
+                        <label for="dm21sq">Δm²₂₁ (eV²):</label>
+                        <input type="number" x-model.number="dm21sq_eV2" @input="updateVisualization()" min="1e-6" max="1e-3" step="1e-6" id="dm21sq">
+                         <span class="tooltip-container" @click="toggleTooltip('dm21Tooltip')">?
+                            <span class="tooltip-content" x-show="tooltips.dm21Tooltip" @click.away="hideTooltip('dm21Tooltip')">
+                                Mass squared difference between mass states 2 and 1. Controls the solar oscillation scale. Standard value ~7.39e-5 eV².
+                            </span>
+                         </span>
+                    </div>
+                     <div class="form-group">
+                        <label for="dm31sq">Δm²₃₁ (eV²):</label>
+                        <input type="number" x-model.number="dm31sq_eV2" @input="updateVisualization()" min="1e-4" max="1e-2" step="1e-4" id="dm31sq">
+                         <span class="tooltip-container right-aligned" @click="toggleTooltip('dm31Tooltip')">?
+                            <span class="tooltip-content right-aligned" x-show="tooltips.dm31Tooltip" @click.away="hideTooltip('dm31Tooltip')">
+                                Mass squared difference between mass states 3 and 1 (assuming Normal Ordering). Controls the atmospheric oscillation scale. Standard value ~2.45e-3 eV². Sign determines mass ordering (currently fixed to NO).
+                            </span>
+                         </span>
+                    </div>
+                </div>
+
+                <div class="col-8">
+                    <div class="is-dark plot-container">
+                        <h2>Probabilities vs. Distance</h2>
+                        <div id="plot"></div>
+                    </div>
+                    <br>
+                    <div class="is-dark scene-container">
+                        <h2>Neutrino Flight (3D)</h2>
+                         <div id="neutrino-info">
+                             <p>Distance: <span x-text="currentL.toFixed(1)"></span> km</p>
+                             <p>P(νe): <span class="flavor-color-e" x-text="currentProbs[0].toFixed(3)"></span></p>
+                             <p>P(νμ): <span class="flavor-color-mu" x-text="currentProbs[1].toFixed(3)"></span></p>
+                             <p>P(ντ): <span class="flavor-color-tau" x-text="currentProbs[2].toFixed(3)"></span></p>
+                             <p>Dominant Flavor: <span x-text="dominantFlavor"></span></p>
+                         </div>
+                        <canvas id="scene"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<!-- Main Script Block -->
+<script>
+    // Physics Constants (from NuFast Readme/code)
+    const YERHO_E2A = 1.52588e-4; // Converts Ye * rho (g/cc) * E (GeV) to eV^2
+    const EV_SQ_KM_TO_GEV_OVER4 = 1.26693; // Factor for phase calculation (1.267 in NuFast, using more digits)
+
+    // Flavor colors for 3D sphere material and Plotly traces
+    const flavorColorsRGB = [
+        { r: 80, g: 180, b: 255 },  // Electron (Blue)
+        { r: 255, g: 140, b: 40 },   // Muon (Orange)
+        { r: 220, g: 60, b: 255 }   // Tau (Magenta)
+    ];
+     const flavorNames = ['Electron (νe)', 'Muon (νμ)', 'Tau (ντ)'];
+
+
+    // Ported Probability Calculation Logic from NuFast (Python/C++ versions)
+    // ... (calculateNuFastProbs function remains the same as before) ...
+    function calculateNuFastProbs(s12sq, s13sq, s23sq, delta, Dmsq21, Dmsq31, L, E, rho, Ye, matterEffect) {
+        let c13sq, sind, cosd, Jrr, Jmatter, Dmsqee, Amatter;
+        let Ue1sq, Ue2sq, Ue3sq, Um1sq, Um2sq, Um3sq, Ut1sq, Ut2sq, Ut3sq;
+        let A, B, C;
+        let See, Tee, Smm, Tmm;
+        let xmat, lambda2, lambda3, Dlambda21, Dlambda31, Dlambda32;
+        let Xp2, Xp3, PiDlambdaInv, tmp;
+        let Lover4E, D21, D32;
+        let sinD21, sinD31, sinD32;
+        let sinsqD21_2, sinsqD31_2, sinsqD32_2, triple_sin;
+        let Pme_CPC, Pme_CPV, Pmm, Pee;
+
+        // Add protection against division by zero or non-physical inputs
+        if (E === 0 || L < 0 || s12sq < 0 || s12sq > 1 || s13sq < 0 || s13sq > 1 || s23sq < 0 || s23sq > 1) {
+             // Return identity matrix (no oscillation) if parameters are invalid
+            return [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+        }
+
+        // --------------------------------------------------------------------- //
+        // First calculate useful simple functions of the oscillation parameters //
+        // --------------------------------------------------------------------- //
+        c13sq = 1 - s13sq;
+
+        // Ueisq's
+        Ue2sq = c13sq * s12sq;
+        Ue3sq = s13sq;
+
+        // Umisq's, Utisq's and Jvac
+        Um3sq = c13sq * s23sq;
+        // Um2sq and Ut2sq are used here as temporary variables, will be properly defined later
+        Ut2sq = s13sq * s12sq * s23sq;
+        Um2sq = (1 - s12sq) * (1 - s23sq);
+
+        Jrr = Math.sqrt(Um2sq * Ut2sq);
+        sind = Math.sin(delta);
+        cosd = Math.cos(delta);
+
+        Um2sq = Um2sq + Ut2sq - 2 * Jrr * cosd;
+        Jmatter = 8 * Jrr * c13sq * sind;
+        Amatter = (matterEffect && rho !== 0) ? Ye * rho * E * YERHO_E2A : 0; // Matter potential eV^2
+        Dmsqee = Dmsq31 - s12sq * Dmsq21;
+
+       // Avoid division by zero for Dmsqee if matter effect is relevant
+       if (Amatter !== 0 && Math.abs(Dmsqee) < 1e-30) Dmsqee = (Dmsqee >= 0 ? 1 : -1) * 1e-30; // Use a tiny signed value
+
+
+        // calculate A, B, C, See, Tee, and part of Tmm
+        A = Dmsq21 + Dmsq31; // temporary variable
+        See = A - Dmsq21 * Ue2sq - Dmsq31 * Ue3sq;
+        Tmm = Dmsq21 * Dmsq31; // using Tmm as a temporary variable
+        Tee = Tmm * (1 - Ue3sq - Ue2sq);
+        C = Amatter * Tee;
+        A = A + Amatter;
+
+        // ---------------------------------- //
+        // Get lambda3 from lambda+ of MP/DMP //
+        // ---------------------------------- //
+        // Handle division by zero if Dmsqee is zero
+        xmat = (Dmsqee === 0) ? (Amatter > 0 ? Infinity : (Amatter < 0 ? -Infinity : 0)) : Amatter / Dmsqee;
+
+        tmp = 1 - xmat;
+       // Handle case where argument of sqrt is negative due to floating point errors or specific parameter choices
+        const sqrtArg = tmp * tmp + 4 * s13sq * xmat;
+        const sqrtVal = (sqrtArg < 0) ? 0 : Math.sqrt(sqrtArg); // Ensure non-negative
+
+        lambda3 = Dmsq31 + 0.5 * Dmsqee * (xmat - 1 + sqrtVal);
+
+
+        // ---------------------------------------------------------------------------- //
+        // Newton iterations to improve lambda3 arbitrarily, if needed, (B needed here) //
+        // N_Newton is fixed to 0 for this visualization                            //
+        // ---------------------------------------------------------------------------- //
+        const N_Newton_Sim = 0; // Fixed for simplicity
+        B = Tmm + Amatter * See; // B is only needed for N_Newton >= 1
+        for (let i = 0; i < N_Newton_Sim; i++) {
+            // Avoid division by zero if lambda3 is zero
+             if (lambda3 === 0) {
+                lambda3 = 1e-30; // Use a tiny value
+             }
+             const denom_newton = lambda3 * (2 * (lambda3 - A) + lambda3) + B;
+             if (denom_newton === 0) break; // Avoid division by zero in Newton step
+            lambda3 = (lambda3 * lambda3 * (lambda3 + lambda3 - A) + C) / denom_newton;
+        }
+
+        // ------------------- //
+        // Get  Delta lambda's //
+        // ------------------- //
+        tmp = A - lambda3;
+        // Handle negative argument for sqrt due to floating point errors
+        const Dlambda21_arg_denom = (lambda3 === 0 ? 1e-30 : lambda3); // Avoid division by zero
+        const Dlambda21_arg = tmp * tmp - 4 * C / Dlambda21_arg_denom;
+        Dlambda21 = (Dlambda21_arg < 0) ? 0 : Math.sqrt(Dlambda21_arg); // Ensure non-negative
+
+        lambda2 = 0.5 * (A - lambda3 + Dlambda21);
+        Dlambda32 = lambda3 - lambda2;
+        Dlambda31 = Dlambda32 + Dlambda21;
+
+        // ----------------------- //
+        // Use Rosetta for Ueisq's //
+        // ----------------------- //
+        // denominators
+        const PiDlambdaInv_denom = Dlambda31 * Dlambda32 * Dlambda21;
+        PiDlambdaInv = (Math.abs(PiDlambdaInv_denom) < 1e-30) ? 0 : 1 / PiDlambdaInv_denom; // Avoid division by zero
+
+        Xp3 = PiDlambdaInv * Dlambda21;
+        Xp2 = -PiDlambdaInv * Dlambda31;
+
+        // numerators
+        Ue3sq = (lambda3 * (lambda3 - See) + Tee) * Xp3;
+        Ue2sq = (lambda2 * (lambda2 - See) + Tee) * Xp2;
+
+        Smm = A - Dmsq21 * Um2sq - Dmsq31 * Um3sq;
+        Tmm = Tmm * (1 - Um3sq - Um2sq) + Amatter * (See + Smm - A);
+
+        Um3sq = (lambda3 * (lambda3 - Smm) + Tmm) * Xp3;
+        Um2sq = (lambda2 * (lambda2 - Smm) + Tmm) * Xp2;
+
+        // ------------- //
+        // Use NHS for J //
+        // ------------- //
+        Jmatter = Jmatter * Dmsq21 * Dmsq31 * (Dmsq31 - Dmsq21) * PiDlambdaInv;
+
+        // ----------------------- //
+        // Get all elements of Usq //
+        // ----------------------- //
+        Ue1sq = 1 - Ue3sq - Ue2sq;
+        Um1sq = 1 - Um3sq - Um2sq;
+
+        Ut3sq = 1 - Um3sq - Ue3sq;
+        Ut2sq = 1 - Um2sq - Ue2sq;
+        Ut1sq = 1 - Um1sq - Ue1sq;
+
+        // Ensure Usq values are within [0, 1] due to floating point errors
+        const Usq_elements = [Ue1sq, Ue2sq, Ue3sq, Um1sq, Um2sq, Um3sq, Ut1sq, Ut2sq, Ut3sq];
+        Usq_elements.forEach((val, index, arr) => {
+             arr[index] = Math.max(0, Math.min(1, val));
+        });
+        [Ue1sq, Ue2sq, Ue3sq, Um1sq, Um2sq, Um3sq, Ut1sq, Ut2sq, Ut3sq] = Usq_elements;
+
+
+        // ----------------------- //
+        // Get the kinematic terms //
+        // ----------------------- //
+        Lover4E = EV_SQ_KM_TO_GEV_OVER4 * L / E; // This constant is 1.267...
+        D21 = Dlambda21 * Lover4E; // Dlambda are eV^2 -> D are radians
+        D32 = Dlambda32 * Lover4E;
+        D31 = Dlambda31 * Lover4E; // Calculate D31 as well
+
+        sinD21 = Math.sin(D21);
+        sinD31 = Math.sin(D31); // Use D31 directly
+        sinD32 = Math.sin(D32);
+
+        // The NuFast code uses 2*sin^2(Delta) which is 1-cos(2*Delta)
+        // Let's use the standard formula P = delta - 4*Re*sin^2(Delta/2) + 2*Im*sin(Delta)
+        // where Delta = Delta m^2 L / 4E (in natural units)
+        // Or Delta = 1.267 * Delta m^2 L / E (in standard units, for the argument of sin^2)
+        // The NuFast code seems to use Delta = Dlambda * L / (4E * conversion) = Dlambda * Lover4E
+        // So sinsqD21_2 = 2 * sin^2(D21) = 1 - cos(2*D21) -> This seems incorrect based on standard formulas.
+        // Let's use 2*sin^2(Delta/2) form which is standard.
+        // The argument D21 = Dlambda21 * L / (4E * conversion) * conversion = Delta_lambda21 * L / 4E
+        // So we need sin^2(D21/2)
+
+        sinsqD21_2 = 2 * Math.pow(Math.sin(D21 / 2.0), 2); // 2*sin^2(D21/2)
+        sinsqD31_2 = 2 * Math.pow(Math.sin(D31 / 2.0), 2); // 2*sin^2(D31/2)
+        sinsqD32_2 = 2 * Math.pow(Math.sin(D32 / 2.0), 2); // 2*sin^2(D32/2)
+
+        // Re-evaluate triple_sin for the CPV term which uses sin(2*Delta) = 2*sin(Delta)*cos(Delta)
+        // The standard formula uses sin(Delta_jk L / 2E) which corresponds to sin(Djk) here
+        // So the CPV term is proportional to sin(D21)+sin(D32)-sin(D31) or similar
+        // Let's stick to the NuFast formula structure for Pme_CPC and Pme_CPV
+        // The NuFast code uses sin(D21), sin(D31=D32+D21), sin(D32) in the CPV term
+        triple_sin = Math.sin(D21) * Math.sin(D31) * Math.sin(D32); // Keep as is, assuming NuFast formula is correct
+
+
+        // ------------------------------------------------------------------- //
+        // Calculate the three necessary probabilities, separating CPC and CPV //
+        // ------------------------------------------------------------------- //
+        Pme_CPC = (Ut3sq - Um2sq * Ue1sq - Um1sq * Ue2sq) * sinsqD21_2
+                + (Ut2sq - Um3sq * Ue1sq - Um1sq * Ue3sq) * sinsqD31_2
+                + (Ut1sq - Um3sq * Ue2sq - Um2sq * Ue3sq) * sinsqD32_2;
+        Pme_CPV = -Jmatter * triple_sin; // Check sign convention if needed
+
+        Pmm = 1 - 2 * (Um2sq * Um1sq * sinsqD21_2
+                     + Um3sq * Um1sq * sinsqD31_2
+                     + Um3sq * Um2sq * sinsqD32_2);
+
+        Pee = 1 - 2 * (Ue2sq * Ue1sq * sinsqD21_2
+                     + Ue3sq * Ue1sq * sinsqD31_2
+                     + Ue3sq * Ue2sq * sinsqD32_2);
+
+        // ---------------------------- //
+        // Assign all the probabilities //
+        // ---------------------------- //
+        const probs_returned = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+        probs_returned[0][0] = Pee;														// Pee
+        probs_returned[0][1] = Pme_CPC - Pme_CPV;										// Pem
+        probs_returned[0][2] = 1 - Pee - probs_returned[0][1];  						// Pet
+
+        probs_returned[1][0] = Pme_CPC + Pme_CPV;										// Pme
+        probs_returned[1][1] = Pmm;														// Pmm
+        probs_returned[1][2] = 1 - probs_returned[1][0] - Pmm;						// Pmt
+
+        probs_returned[2][0] = 1 - Pee - probs_returned[1][0];						// Pte
+        probs_returned[2][1] = 1 - probs_returned[0][1] - Pmm;						// Ptm
+        probs_returned[2][2] = 1 - probs_returned[0][2] - probs_returned[1][2];	// Ptt
+
+        // Ensure probabilities are within [0, 1] and rows sum to 1 (within float precision)
+         for(let i=0; i<3; i++) {
+             let rowSum = 0;
+             for(let j=0; j<3; j++) {
+                 probs_returned[i][j] = Math.max(0, Math.min(1, probs_returned[i][j]));
+                 rowSum += probs_returned[i][j];
+             }
+             // Optional: Normalize row if sum is slightly off due to float errors
+             if (rowSum > 1e-9 && Math.abs(rowSum - 1.0) > 1e-9) { // Check rowSum > 0 before dividing
+                  for(let j=0; j<3; j++) {
+                      probs_returned[i][j] /= rowSum;
+                  }
+             } else if (rowSum <= 1e-9 && i === this.initialFlavorIndex) {
+                 // Handle case where all probabilities are zero (shouldn't happen if initial state is valid)
+                 probs_returned[i][i] = 1.0; // Set survival probability to 1
+             }
+         }
+
+
+        return probs_returned;
+    }
+
+
+    // Function to get color from probabilities [Pe, Pmu, Ptau]
+    // ... (getColorFromProbs function remains the same) ...
+    function getColorFromProbs(probs) {
+        const r = Math.floor(probs[0] * flavorColorsRGB[0].r + probs[1] * flavorColorsRGB[1].r + probs[2] * flavorColorsRGB[2].r);
+        const g = Math.floor(probs[0] * flavorColorsRGB[0].g + probs[1] * flavorColorsRGB[1].g + probs[2] * flavorColorsRGB[2].g);
+        const b = Math.floor(probs[0] * flavorColorsRGB[0].b + probs[1] * flavorColorsRGB[1].b + probs[2] * flavorColorsRGB[2].b);
+        // Clamp values just in case
+        return new THREE.Color(`rgb(${Math.min(255,r)}, ${Math.min(255,g)}, ${Math.min(255,b)})`);
+    }
+
+    // Function to get dominant flavor name
+    // ... (getDominantFlavorName function remains the same) ...
+     function getDominantFlavorName(probs) {
+        const maxProb = Math.max(...probs);
+        const maxIndex = probs.indexOf(maxProb);
+        let name = flavorNames[maxIndex];
+        // Optionally add '-like' for mixed states if max prob isn't very high
+         if (maxProb < 0.7 && maxProb > 0.3) { // Threshold can be adjusted
+            name += ' (mixed)';
+         } else if (maxProb <= 0.3) {
+             name = 'Highly Mixed';
+         }
+        return name;
+     }
+
+    // --- Alpine.js Data ---
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('neutrinoVisualization', () => ({
+            // State variables
+            isPlaying: false, // Start paused
+            simSpeed: 1.0,
+            matterEffect: false,
+            neutrinoEnergy: 2.0, // GeV
+            matterDensity: 2.6, // g/cm^3 (approx Earth crust)
+            initialFlavorIndex: 0, // 0: Electron, 1: Muon, 2: Tau
+
+            // Mixing Parameters (default to PDG 2020 NO)
+            theta12_deg: 33.82,
+            theta23_deg: 49.2,
+            theta13_deg: 8.61,
+            deltaCP_deg: 222,
+            dm21sq_eV2: 7.39e-5,
+            dm31sq_eV2: 2.45e-3,
+
+            currentL: 0,
+            currentProbs: [1, 0, 0],
+            dominantFlavor: flavorNames[0],
+            animationFrameId: null,
+            lastFrameTime: null, // For smooth animation timing
+            updateTimeout: null, // For debouncing plot updates
+
+            // Educational Tooltips
+            tooltips: {
+                energyTooltip: false, flavorTooltip: false, matterTooltip: false,
+                densityTooltip: false, theta12Tooltip: false, theta23Tooltip: false,
+                theta13Tooltip: false, deltaCPTooltip: false, dm21Tooltip: false,
+                dm31Tooltip: false,
+            },
+             toggleTooltip(name) {
+                 for(const key in this.tooltips) { if(key !== name) this.tooltips[key] = false; }
+                this.tooltips[name] = !this.tooltips[name];
+             },
+             hideTooltip(name) {
+                 setTimeout(() => { this.tooltips[name] = false; }, 100);
+             },
+
+            // Three.js variables
+            scene: null, camera: null, renderer: null, neutrinoSphere: null,
+            neutrinoMaterial: null, starGeometry: null, starMaterial: null,
+            starField: null, orbitControls: null,
+
+            // Plotly.js variable
+            plotDiv: null, plotTracePe: null, plotTracePmu: null,
+            plotTracePtau: null, plotCurrentLMarker: null,
+
+            // Constants
+            MAX_PLOT_L: 2000,
+            ANIMATION_DURATION_SECONDS: 20,
+
+            // --- Initialization ---
+            init() {
+                console.log('Alpine.js component initialized');
+                this.plotDiv = document.getElementById('plot');
+                const sceneCanvas = document.getElementById('scene');
+                if (!sceneCanvas) { console.error("Scene canvas not found!"); return; }
+
+                this.initPlot(); // Plotly can initialize
+
+                // Wait for Three.js and OrbitControls to be loaded
+                const checkLibraries = setInterval(() => {
+                    if (typeof THREE !== 'undefined' && typeof THREE.OrbitControls !== 'undefined') {
+                        clearInterval(checkLibraries); // Stop checking
+                        console.log('Three.js & OrbitControls loaded.');
+                        this.initThreeJS(sceneCanvas); // Initialize Three.js stuff
+
+                        // Initial reset now that Three.js is ready
+                        this.reset();
+                        this.updatePlayPauseButton();
+
+                        // Start animation loop if needed (respecting initial isPlaying state)
+                        if (this.isPlaying) {
+                            this.playPause(); // Use playPause to correctly start animation loop
+                        }
+                    } else {
+                        console.log('Waiting for Three.js & OrbitControls...');
+                    }
+                }, 100); // Check every 100ms
+            },
+
+
+            // --- Three.js Setup ---
+            // ... (initThreeJS function remains the same as before) ...
+             initThreeJS(canvas) {
+                try {
+                    this.scene = new THREE.Scene();
+                    this.scene.background = new THREE.Color(0x000000); // Ensure black background
+
+                    // Camera
+                    const container = canvas.parentElement;
+                    if (!container) {
+                         console.error("Canvas parent container not found!");
+                         return;
+                    }
+                    const width = container.clientWidth;
+                    const height = container.clientHeight || 300; // Fallback height
+                    this.camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+                    this.camera.position.set(0, 1, 5); // Adjusted initial camera position
+
+                    // Renderer
+                    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+                    this.renderer.setSize(width, height);
+                    this.renderer.setPixelRatio(window.devicePixelRatio);
+
+                    // Orbit Controls
+                    this.orbitControls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                    this.orbitControls.target.set(0, 0, 0); // Look at the origin
+                    this.orbitControls.enablePan = false;
+                    this.orbitControls.maxDistance = 20;
+                    this.orbitControls.minDistance = 2;
+                    this.orbitControls.update();
+
+                    // Neutrino Representation
+                    const geometry = new THREE.SphereGeometry(0.2, 32, 32);
+                    this.neutrinoMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0xaaaaaa });
+                    this.neutrinoSphere = new THREE.Mesh(geometry, this.neutrinoMaterial);
+                    this.neutrinoSphere.position.set(0, 0, 0); // Fixed at origin
+                    this.scene.add(this.neutrinoSphere);
+
+                    // Lighting
+                    const ambientLight = new THREE.AmbientLight(0x606060);
+                    this.scene.add(ambientLight);
+                    const pointLight = new THREE.PointLight(0xffffff, 0.8);
+                    pointLight.position.set(5, 5, 5); // Adjusted light position
+                    this.scene.add(pointLight);
+
+                    // Starfield
+                    this.starGeometry = new THREE.BufferGeometry();
+                    const numStars = 2000;
+                    const starVertices = new Float32Array(numStars * 3);
+                    const starColors = new Float32Array(numStars * 3);
+                    for (let i = 0; i < numStars; i++) {
+                        const r = Math.random() * 200 + 50;
+                        const theta = Math.random() * Math.PI;
+                        const phi = Math.random() * Math.PI * 2;
+                        starVertices[i * 3] = r * Math.sin(theta) * Math.cos(phi);
+                        starVertices[i * 3 + 1] = r * Math.sin(theta) * Math.sin(phi);
+                        starVertices[i * 3 + 2] = r * Math.cos(theta);
+                        const c = Math.random() * 0.5 + 0.5;
+                        starColors[i*3] = c; starColors[i*3+1] = c; starColors[i*3+2] = c;
+                    }
+                    this.starGeometry.setAttribute('position', new THREE.BufferAttribute(starVertices, 3));
+                    this.starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+                    this.starMaterial = new THREE.PointsMaterial({ size: 0.1, vertexColors: true });
+                    this.starField = new THREE.Points(this.starGeometry, this.starMaterial);
+                    this.scene.add(this.starField);
+
+                    // Handle window resize
+                    const onWindowResize = () => {
+                        const parent = canvas.parentElement;
+                         if (!parent) return;
+                        const newWidth = parent.clientWidth;
+                        const newHeight = parent.clientHeight || 300; // Use parent height or fallback
+                        this.camera.aspect = newWidth / newHeight;
+                        this.camera.updateProjectionMatrix();
+                        this.renderer.setSize(newWidth, newHeight);
+                    };
+                    window.addEventListener('resize', onWindowResize, false);
+                    onWindowResize(); // Call once initially
+
+                    console.log('Three.js initialized');
+                } catch (error) {
+                     console.error("Error initializing Three.js:", error);
+                     // Optionally display an error message to the user
+                }
+            },
+
+            // --- Plotly.js Setup ---
+            // ... (initPlot function remains the same) ...
+            initPlot() {
+                const Lvalues = Array.from({length: 200}, (_, i) => (i / 199) * this.MAX_PLOT_L); // 200 points for L
+
+                this.plotTracePe = { x: Lvalues, y: [], mode: 'lines', name: flavorNames[0], line: { color: `rgb(${flavorColorsRGB[0].r}, ${flavorColorsRGB[0].g}, ${flavorColorsRGB[0].b})`, width: 2 } };
+                this.plotTracePmu = { x: Lvalues, y: [], mode: 'lines', name: flavorNames[1], line: { color: `rgb(${flavorColorsRGB[1].r}, ${flavorColorsRGB[1].g}, ${flavorColorsRGB[1].b})`, width: 2 } };
+                this.plotTracePtau = { x: Lvalues, y: [], mode: 'lines', name: flavorNames[2], line: { color: `rgb(${flavorColorsRGB[2].r}, ${flavorColorsRGB[2].g}, ${flavorColorsRGB[2].b})`, width: 2 } };
+
+                const layout = {
+                    title: 'Neutrino Oscillation Probabilities',
+                    xaxis: { title: 'Distance (km)', range: [0, this.MAX_PLOT_L], titlefont: {color: '#fff'}, tickfont: {color: '#aaa'}, gridcolor: '#444' },
+                    yaxis: { title: 'Probability', range: [0, 1.05], titlefont: {color: '#fff'}, tickfont: {color: '#aaa'}, gridcolor: '#444' },
+                    hovermode: 'x unified',
+                    margin: { t: 40, b: 40, l: 50, r: 20 }, // Adjusted margins
+                    font: { color: '#fff' },
+                    paper_bgcolor: 'rgba(0,0,0,0)', // Transparent background for Plotly container
+                    plot_bgcolor: 'rgba(0,0,0,0)', // Transparent background for plot area
+                     shapes: [], // To hold the current L marker
+                     legend: { x: 0.5, y: 1.15, xanchor: 'center', orientation: 'h', font: { size: 10, color: '#fff' } }, // Legend above plot
+                };
+
+                Plotly.newPlot(this.plotDiv, [this.plotTracePe, this.plotTracePmu, this.plotTracePtau], layout, { responsive: true });
+                this.updatePlot(); // Initial plot calculation
+                console.log('Plotly.js initialized');
+            },
+
+            // --- Update Functions ---
+            // ... (updateVisualization, updatePlot, updatePlotLMarker, updateSpeedLabel remain the same) ...
+            updateVisualization() {
+                // Debounce plot updates to avoid excessive recalculation during slider drag
+                clearTimeout(this.updateTimeout);
+                this.updateTimeout = setTimeout(() => {
+                    this.updatePlot();
+                    // Reset animation only if parameters affecting the *initial* state change significantly
+                    // For now, let's reset if energy or mixing params change, but not just matter density
+                    this.reset();
+                }, 250); // 250ms debounce
+            },
+
+            updatePlot() {
+                 if (!this.plotDiv || !this.plotTracePe) return; // Ensure plotDiv and traces exist
+                 const Lvalues = this.plotTracePe.x; // Reuse existing L values
+                 const numPoints = Lvalues.length;
+                 const PeValues = new Array(numPoints);
+                 const PmuValues = new Array(numPoints);
+                 const PtauValues = new Array(numPoints);
+
+                 const s12sq = Math.pow(Math.sin(this.degToRad(this.theta12_deg)), 2);
+                 const s13sq = Math.pow(Math.sin(this.degToRad(this.theta13_deg)), 2);
+                 const s23sq = Math.pow(Math.sin(this.degToRad(this.theta23_deg)), 2);
+                 const delta_rad = this.degToRad(this.deltaCP_deg);
+
+                 for (let i = 0; i < numPoints; i++) {
+                     const L = Lvalues[i];
+                     const probsMatrix = this.calculateNuFastProbs(
+                         s12sq, s13sq, s23sq, delta_rad, this.dm21sq_eV2, this.dm31sq_eV2,
+                         L, this.neutrinoEnergy, this.matterDensity, 0.5, // Ye = 0.5
+                         this.matterEffect
+                     );
+                     // Get probabilities for the selected initial flavor
+                     PeValues[i] = probsMatrix[this.initialFlavorIndex][0]; // P(initial -> e)
+                     PmuValues[i] = probsMatrix[this.initialFlavorIndex][1]; // P(initial -> mu)
+                     PtauValues[i] = probsMatrix[this.initialFlavorIndex][2]; // P(initial -> tau)
+                 }
+
+                 this.plotTracePe.y = PeValues;
+                 this.plotTracePmu.y = PmuValues;
+                 this.plotTracePtau.y = PtauValues;
+
+                 // Update plot data efficiently
+                 Plotly.react(this.plotDiv, [this.plotTracePe, this.plotTracePmu, this.plotTracePtau], this.plotDiv.layout); // Use react
+
+                // Update trace names based on initial flavor
+                const initialFlavorSymbol = flavorNames[this.initialFlavorIndex].match(/ν(.)/)[1]; // Extract e, μ, or τ
+                this.plotTracePe.name = `P(ν<sub>${initialFlavorSymbol}</sub> → ν<sub>e</sub>)`;
+                this.plotTracePmu.name = `P(ν<sub>${initialFlavorSymbol}</sub> → ν<sub>μ</sub>)`;
+                this.plotTracePtau.name = `P(ν<sub>${initialFlavorSymbol}</sub> → ν<sub>τ</sub>)`;
+                Plotly.restyle(this.plotDiv, { name: [this.plotTracePe.name, this.plotTracePmu.name, this.plotTracePtau.name] });
+
+
+                // Update the title and labels based on matter effect
+                const plotTitle = `Neutrino Oscillation Probabilities (${this.matterEffect ? 'in Matter' : 'in Vacuum'})`;
+                Plotly.relayout(this.plotDiv, { title: plotTitle });
+
+                 // Update current L marker position
+                 this.updatePlotLMarker();
+            },
+
+             updatePlotLMarker() {
+                 if (!this.plotDiv) return;
+                 // Define the vertical line marker
+                 this.plotCurrentLMarker = {
+                     type: 'line',
+                     xref: 'x', yref: 'paper',
+                     x0: this.currentL, x1: this.currentL,
+                     y0: 0, y1: 1,
+                     line: { color: 'white', width: 1.5, dash: 'dot' }
+                 };
+                 Plotly.relayout(this.plotDiv, { shapes: [this.plotCurrentLMarker] });
+
+                 // Update the current probability display in the 3D info box
+                  const s12sq = Math.pow(Math.sin(this.degToRad(this.theta12_deg)), 2);
+                  const s13sq = Math.pow(Math.sin(this.degToRad(this.theta13_deg)), 2);
+                  const s23sq = Math.pow(Math.sin(this.degToRad(this.theta23_deg)), 2);
+                  const delta_rad = this.degToRad(this.deltaCP_deg);
+
+                  const currentProbsMatrix = this.calculateNuFastProbs(
+                     s12sq, s13sq, s23sq, delta_rad, this.dm21sq_eV2, this.dm31sq_eV2,
+                     this.currentL, this.neutrinoEnergy, this.matterDensity, 0.5,
+                     this.matterEffect
+                 );
+                 this.currentProbs = [
+                     currentProbsMatrix[this.initialFlavorIndex][0],
+                     currentProbsMatrix[this.initialFlavorIndex][1],
+                     currentProbsMatrix[this.initialFlavorIndex][2]
+                 ];
+                 this.dominantFlavor = getDominantFlavorName(this.currentProbs);
+             },
+
+             updateSpeedLabel() {
+                 // Handled by x-text binding
+             },
+
+
+            // --- Animation Loop ---
+            // ... (animate function remains the same) ...
+            animate() {
+                 if (!this.renderer || !this.scene || !this.camera) {
+                     // console.warn("3D components not ready for animation.");
+                     this.animationFrameId = requestAnimationFrame(() => this.animate()); // Keep trying
+                     return; // Don't run if 3D isn't set up
+                 }
+                 this.animationFrameId = requestAnimationFrame(() => this.animate());
+
+                if (this.isPlaying) {
+                    // Advance simulation time/distance
+                    // Calculate increment based on time elapsed since last frame for smoother animation
+                    const now = performance.now();
+                    const deltaT = (now - (this.lastFrameTime || now)) / 1000.0; // Time in seconds
+                    this.lastFrameTime = now;
+
+                    // Avoid huge jumps if deltaT is large (e.g., tab was inactive)
+                    const safeDeltaT = Math.min(deltaT, 0.1); // Cap deltaT at 0.1s
+
+                    const distanceIncrement = this.simSpeed * (this.MAX_PLOT_L / this.ANIMATION_DURATION_SECONDS) * safeDeltaT;
+                    this.currentL += distanceIncrement;
+
+                    // Loop the animation distance
+                    if (this.currentL > this.MAX_PLOT_L) {
+                        this.currentL = 0;
+                    }
+
+                    // Update Three.js neutrino color based on current probabilities
+                     const s12sq = Math.pow(Math.sin(this.degToRad(this.theta12_deg)), 2);
+                     const s13sq = Math.pow(Math.sin(this.degToRad(this.theta13_deg)), 2);
+                     const s23sq = Math.pow(Math.sin(this.degToRad(this.theta23_deg)), 2);
+                     const delta_rad = this.degToRad(this.deltaCP_deg);
+
+                    const probsMatrix = this.calculateNuFastProbs(
+                        s12sq, s13sq, s23sq, delta_rad, this.dm21sq_eV2, this.dm31sq_eV2,
+                        this.currentL, this.neutrinoEnergy, this.matterDensity, 0.5,
+                        this.matterEffect
+                    );
+                     const currentProbs = [
+                         probsMatrix[this.initialFlavorIndex][0],
+                         probsMatrix[this.initialFlavorIndex][1],
+                         probsMatrix[this.initialFlavorIndex][2]
+                     ];
+
+                    const newColor = getColorFromProbs(currentProbs);
+                    this.neutrinoMaterial.color.copy(newColor);
+                    this.neutrinoMaterial.emissive.copy(newColor).multiplyScalar(0.5); // Adjust emissive intensity
+
+                     // Update starfield position
+                     const starSpeed = 0.3 * this.simSpeed; // Slower star speed
+                     const positions = this.starGeometry.attributes.position.array;
+                     const motionVector = new THREE.Vector3(-1, -0.5, -1).normalize();
+                     motionVector.multiplyScalar(starSpeed * safeDeltaT * 60); // Scale speed by frame time
+
+                     for (let i = 0; i < positions.length; i += 3) {
+                        positions[i + 0] += motionVector.x;
+                        positions[i + 1] += motionVector.y;
+                        positions[i + 2] += motionVector.z;
+
+                         // Simple wrapping logic
+                         const wrapDistance = 300;
+                         if (Math.abs(positions[i]) > wrapDistance || Math.abs(positions[i+1]) > wrapDistance || Math.abs(positions[i+2]) > wrapDistance) {
+                             // Respawn far away in the opposite direction of motion
+                             const r = Math.random() * 100 + wrapDistance;
+                             const theta = Math.random() * Math.PI;
+                             const phi = Math.random() * Math.PI * 2;
+                             positions[i] = r * Math.sin(theta) * Math.cos(phi) - motionVector.x * 5; // Offset opposite to motion
+                             positions[i+1] = r * Math.sin(theta) * Math.sin(phi) - motionVector.y * 5;
+                             positions[i+2] = r * Math.cos(theta) - motionVector.z * 5;
+                         }
+                     }
+                     this.starGeometry.attributes.position.needsUpdate = true;
+
+                     // Update the plot marker position and info box
+                     this.updatePlotLMarker();
+                }
+
+                 // Required for Orbit Controls to update
+                if (this.orbitControls) this.orbitControls.update();
+
+                // Render the scene
+                this.renderer.render(this.scene, this.camera);
+            },
+
+
+            // --- Control Functions ---
+            // ... (playPause, reset, updatePlayPauseButton remain the same) ...
+             playPause() {
+                this.isPlaying = !this.isPlaying;
+                this.updatePlayPauseButton();
+                if (this.isPlaying && !this.animationFrameId) {
+                     this.lastFrameTime = performance.now(); // Reset timer on play
+                     this.animate(); // Restart animation loop if stopped
+                } else if (!this.isPlaying && this.animationFrameId) {
+                     cancelAnimationFrame(this.animationFrameId);
+                     this.animationFrameId = null;
+                }
+            },
+
+            reset() {
+                this.isPlaying = false; // Pause on reset
+                if (this.animationFrameId) {
+                     cancelAnimationFrame(this.animationFrameId);
+                     this.animationFrameId = null;
+                }
+                this.currentL = 0;
+                this.updatePlayPauseButton(); // Update button text
+
+                // Calculate initial probabilities at L=0
+                 const s12sq = Math.pow(Math.sin(this.degToRad(this.theta12_deg)), 2);
+                 const s13sq = Math.pow(Math.sin(this.degToRad(this.theta13_deg)), 2);
+                 const s23sq = Math.pow(Math.sin(this.degToRad(this.theta23_deg)), 2);
+                 const delta_rad = this.degToRad(this.deltaCP_deg);
+
+                 const initialProbsMatrix = this.calculateNuFastProbs(
+                     s12sq, s13sq, s23sq, delta_rad, this.dm21sq_eV2, this.dm31sq_eV2,
+                     this.currentL, this.neutrinoEnergy, this.matterDensity, 0.5,
+                     this.matterEffect
+                 );
+                 this.currentProbs = [
+                    initialProbsMatrix[this.initialFlavorIndex][0],
+                    initialProbsMatrix[this.initialFlavorIndex][1],
+                    initialProbsMatrix[this.initialFlavorIndex][2]
+                 ];
+                 this.dominantFlavor = getDominantFlavorName(this.currentProbs);
+
+                // Update plot marker
+                this.updatePlotLMarker();
+                // Update neutrino color
+                if (this.neutrinoMaterial) {
+                    const initialColor = getColorFromProbs(this.currentProbs);
+                    this.neutrinoMaterial.color.copy(initialColor);
+                    this.neutrinoMaterial.emissive.copy(initialColor).multiplyScalar(0.5);
+                }
+                 // Render reset state immediately
+                 if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                 }
+            },
+
+            updatePlayPauseButton() {
+                 const button = document.getElementById('playPauseButton');
+                 if (!button) return;
+                if (this.isPlaying) {
+                    button.textContent = 'Pause';
+                    button.classList.remove('bg-green', 'hover:bg-green-700');
+                    button.classList.add('bg-yellow', 'hover:bg-yellow-700'); // Use chota classes if available or define them
+                } else {
+                    button.textContent = 'Play';
+                     button.classList.remove('bg-yellow', 'hover:bg-yellow-700');
+                    button.classList.add('bg-green', 'hover:bg-green-700');
+                }
+            },
+
+            // --- Utility ---
+            // ... (degToRad remains the same) ...
+            degToRad(degrees) {
+                return degrees * Math.PI / 180;
+            },
+
+            // Assign the globally defined function to the Alpine data context
+            calculateNuFastProbs: calculateNuFastProbs
+        }));
+    });
+
+</script>
+</body>
+</html>

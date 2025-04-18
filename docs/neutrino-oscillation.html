@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neutrino Oscillation Visualizer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.dom.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      overflow: hidden;
+    }
+    #controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(20,20,30,0.85);
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px #000a;
+    }
+    #controls label {
+      margin-right: 8px;
+    }
+    #plots {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: rgba(20,20,30,0.85);
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px #000a;
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label for="speedSlider">Speed:</label>
+    <input type="range" id="speedSlider" min="0.1" max="3" value="1" step="0.01">
+    <span id="speedValue">1.00x</span>
+    <label for="matterToggle" style="margin-left:20px;">Matter effect:</label>
+    <input type="checkbox" id="matterToggle">
+  </div>
+  <div id="plots">
+    <canvas id="probPlot" width="500" height="120"></canvas>
+  </div>
+  <script>
+// --- Neutrino Oscillation Parameters ---
+// PMNS matrix parameters (approximate, for demonstration)
+const theta12 = 33.44 * Math.PI/180;
+const theta13 = 8.57 * Math.PI/180;
+const theta23 = 49.2 * Math.PI/180;
+const deltaCP = 0; // ignore CP phase for simplicity
+const dm21 = 7.42e-5; // eV^2
+const dm31 = 2.517e-3; // eV^2
+const dm32 = dm31 - dm21; // eV^2
+const E = 2.0; // GeV (can make adjustable)
+const Lmax = 3000; // km
+const c = 299792.458; // km/s
+const hbarc = 1.973269804e-13; // GeV*km
+
+// Colors for flavors
+const flavorColors = {
+  e: [80, 180, 255],    // blue
+  mu: [255, 140, 40],   // orange
+  tau: [220, 60, 255]   // magenta
+};
+
+// --- Oscillation Calculation ---
+function getPMNS() {
+  // Build PMNS matrix (ignoring CP phase for simplicity)
+  const s12 = Math.sin(theta12), c12 = Math.cos(theta12);
+  const s13 = Math.sin(theta13), c13 = Math.cos(theta13);
+  const s23 = Math.sin(theta23), c23 = Math.cos(theta23);
+  // U = R23 * R13 * R12
+  return [
+    [c12*c13, s12*c13, s13],
+    [-s12*c23-c12*s23*s13, c12*c23-s12*s23*s13, s23*c13],
+    [s12*s23-c12*c23*s13, -c12*s23-s12*c23*s13, c23*c13]
+  ];
+}
+
+function getProbabilities(L, E, matter=false) {
+  // L in km, E in GeV
+  // Returns [P_e, P_mu, P_tau] for initial electron neutrino
+  // For matter, use effective parameters (very simplified!)
+  let dm21_eff = dm21, dm31_eff = dm31, theta12_eff = theta12, theta13_eff = theta13;
+  if (matter) {
+    // Very rough matter effect: increase theta13, dm31
+    theta13_eff = theta13 * 1.2;
+    dm31_eff = dm31 * 1.1;
+  }
+  // Oscillation phases
+  const d21 = 1.267 * dm21_eff * L / E;
+  const d31 = 1.267 * dm31_eff * L / E;
+  const d32 = d31 - d21;
+  // PMNS matrix
+  const U = getPMNS();
+  // Probabilities (approximate, for initial electron neutrino)
+  // Use 3-flavor formula, but for demo, use sum of 2-flavor terms
+  const Pee = 1
+    - 4 * Math.pow(U[0][0],2) * Math.pow(U[0][1],2) * Math.pow(Math.sin(d21/2),2)
+    - 4 * Math.pow(U[0][0],2) * Math.pow(U[0][2],2) * Math.pow(Math.sin(d31/2),2)
+    - 4 * Math.pow(U[0][1],2) * Math.pow(U[0][2],2) * Math.pow(Math.sin(d32/2),2);
+  const Pemu = 4 * Math.pow(U[0][0],2) * Math.pow(U[1][0],2) * Math.pow(Math.sin(d21/2),2)
+    + 4 * Math.pow(U[0][2],2) * Math.pow(U[1][2],2) * Math.pow(Math.sin(d31/2),2)
+    + 4 * Math.pow(U[0][1],2) * Math.pow(U[1][1],2) * Math.pow(Math.sin(d32/2),2);
+  const Petau = 1 - Pee - Pemu;
+  return [Math.max(0,Pee), Math.max(0,Pemu), Math.max(0,Petau)];
+}
+
+// --- Starfield ---
+let stars = [];
+function initStars(num=200) {
+  stars = [];
+  for (let i=0; i<num; i++) {
+    let r = random(200, 800);
+    let theta = random(0, Math.PI);
+    let phi = random(0, 2*Math.PI);
+    let x = r * Math.sin(theta) * Math.cos(phi);
+    let y = r * Math.sin(theta) * Math.sin(phi);
+    let z = r * Math.cos(theta);
+    stars.push({x, y, z, px: x, py: y, pz: z});
+  }
+}
+
+// --- p5.js Sketch ---
+let t = 0;
+let speed = 1;
+let matter = false;
+let L = 0;
+let LmaxSim = Lmax;
+let E_sim = E;
+let probHistory = [];
+const probHistoryLen = 500;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight, WEBGL);
+  pixelDensity(1.5);
+  initStars();
+  // UI
+  const speedSlider = select('#speedSlider');
+  speedSlider.input(() => {
+    speed = float(speedSlider.value());
+    select('#speedValue').html(speed.toFixed(2)+'x');
+  });
+  const matterToggle = select('#matterToggle');
+  matterToggle.changed(() => {
+    matter = matterToggle.elt.checked;
+    probHistory = [];
+    t = 0;
+    L = 0;
+  });
+  // Plot
+  drawProbPlot([1,0,0]);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function draw() {
+  background(0,0,0,255);
+  // --- Animate time/length ---
+  t += deltaTime * 0.001 * speed;
+  L = (t * c * 1e-3) % LmaxSim; // L in km, loop for demo
+  // --- Oscillation ---
+  const probs = getProbabilities(L, E_sim, matter);
+  probHistory.push(probs);
+  if (probHistory.length > probHistoryLen) probHistory.shift();
+  // --- Camera fixed on neutrino ---
+  // Neutrino always at (0,0,0), stars move past
+  push();
+  // Diagonal direction
+  let dx = 1, dy = 0.5, dz = 1;
+  let norm = Math.sqrt(dx*dx+dy*dy+dz*dz);
+  dx/=norm; dy/=norm; dz/=norm;
+  let v = 8; // speed of stars
+  // Motion blur: draw faded previous star positions
+  for (let s of stars) {
+    // Save previous position
+    s.px = s.x; s.py = s.y; s.pz = s.z;
+    // Move star
+    s.x -= dx*v*speed;
+    s.y -= dy*v*speed;
+    s.z -= dz*v*speed;
+    // Wrap around
+    if (s.x*dx + s.y*dy + s.z*dz < 0) {
+      let r = random(600, 900);
+      let theta = random(0, Math.PI);
+      let phi = random(0, 2*Math.PI);
+      s.x = r * Math.sin(theta) * Math.cos(phi);
+      s.y = r * Math.sin(theta) * Math.sin(phi);
+      s.z = r * Math.cos(theta);
+      s.px = s.x; s.py = s.y; s.pz = s.z;
+    }
+    // Draw motion blur
+    stroke(255, 255, 255, 60);
+    strokeWeight(1.5);
+    line(s.px, s.py, s.pz, s.x, s.y, s.z);
+    // Draw star
+    stroke(255,255,255,180);
+    strokeWeight(2.5);
+    point(s.x, s.y, s.z);
+  }
+  pop();
+  // --- Draw neutrino ---
+  // Color blend by flavor probabilities
+  let col = [0,0,0];
+  for (let i=0;i<3;i++) {
+    col[0] += probs[i]*flavorColors[Object.keys(flavorColors)[i]][0];
+    col[1] += probs[i]*flavorColors[Object.keys(flavorColors)[i]][1];
+    col[2] += probs[i]*flavorColors[Object.keys(flavorColors)[i]][2];
+  }
+  push();
+  noStroke();
+  ambientLight(60,60,60);
+  pointLight(255,255,255,0,0,200);
+  fill(col[0],col[1],col[2]);
+  sphere(32, 32, 32); // neutrino
+  pop();
+  // --- Draw flavor label ---
+  let maxIdx = probs.indexOf(Math.max(...probs));
+  let flavorNames = ['Electron','Muon','Tau'];
+  push();
+  resetMatrix();
+  textAlign(CENTER,TOP);
+  textSize(28);
+  fill(col[0],col[1],col[2]);
+  text(flavorNames[maxIdx]+" neutrino", width/2, 40);
+  pop();
+  // --- Draw probability plot ---
+  drawProbPlot(probs);
+}
+
+// --- Probability Plot ---
+function drawProbPlot(currentProbs) {
+  let canvas = document.getElementById('probPlot');
+  let ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Axes
+  ctx.strokeStyle = '#888';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(40,10); ctx.lineTo(40,110); ctx.lineTo(490,110);
+  ctx.stroke();
+  // Plot history
+  let n = probHistory.length;
+  let colors = [flavorColors.e, flavorColors.mu, flavorColors.tau];
+  let names = ['e','mu','tau'];
+  for (let j=0;j<3;j++) {
+    ctx.beginPath();
+    for (let i=0;i<n;i++) {
+      let x = 40 + (i/(probHistoryLen-1))*440;
+      let y = 110 - probHistory[i][j]*90;
+      if (i==0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = `rgb(${colors[j][0]},${colors[j][1]},${colors[j][2]})`;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  }
+  // Current values
+  for (let j=0;j<3;j++) {
+    let x = 490;
+    let y = 110 - currentProbs[j]*90;
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, 2*Math.PI);
+    ctx.fillStyle = `rgb(${colors[j][0]},${colors[j][1]},${colors[j][2]})`;
+    ctx.fill();
+  }
+  // Labels
+  ctx.font = '16px Fira Mono, Consolas, monospace';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('Probability', 200, 22);
+  ctx.font = '14px Fira Mono, Consolas, monospace';
+  ctx.fillStyle = `rgb(${flavorColors.e[0]},${flavorColors.e[1]},${flavorColors.e[2]})`;
+  ctx.fillText('e', 60, 30);
+  ctx.fillStyle = `rgb(${flavorColors.mu[0]},${flavorColors.mu[1]},${flavorColors.mu[2]})`;
+  ctx.fillText('μ', 90, 30);
+  ctx.fillStyle = `rgb(${flavorColors.tau[0]},${flavorColors.tau[1]},${flavorColors.tau[2]})`;
+  ctx.fillText('τ', 120, 30);
+  // X axis
+  ctx.fillStyle = '#aaa';
+  ctx.fillText('Time →', 400, 105);
+}
+  </script>
+</body>
+</html>

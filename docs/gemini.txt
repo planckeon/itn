@@ -1,0 +1,687 @@
+=== USER
+
+write me a simple, static, animated website that demonstrates/visualizes neutrino oscillations (in vacuum and in matter) and the associated probabilities as they vary with time/length and energy
+
+alongside this, I wanna visualize the neutrinos flying in space in 3d and animate their evolution with time/length as they're flying (for some given energy)
+
+color each neutrino flavor and display the flavor with the highest probability (and anything in between using intermediate colors) when you are visualizing the neutrino in vacuum flying through space
+
+=== ASSISTANT
+
+The user wants a static website to visualize neutrino oscillations.
+
+This involves two main components:
+
+Probability Plots: Graphs showing the probability of a neutrino being in a certain flavor state (electron, muon, tau) as a function of distance/time and energy. This needs to cover both vacuum oscillations and oscillations in matter (MSW effect).
+3D Visualization: An animation showing a neutrino traveling through space, changing color based on its flavor probability.
+Plan:
+
+HTML Structure: Create the basic HTML layout with sections for the probability plots and the 3D visualization. Include controls (sliders/inputs) for parameters like energy and potentially matter density.
+CSS Styling: Use Tailwind CSS for styling to make it visually appealing and responsive.
+JavaScript Logic:
+Oscillation Physics: Implement the formulas for neutrino oscillation probabilities (both vacuum and matter). This will involve parameters like mixing angles (θ12, θ23, θ13), mass squared differences (Δm²21, Δm²31), CP-violating phase (δCP), and matter potential (A) for the MSW effect.
+Plotting: Use a plotting library (like Plotly.js or Chart.js) to generate the probability graphs based on the calculated values. The plots should update dynamically when parameters change.
+3D Visualization: Use Three.js to create the 3D scene.
+Create a sphere or particle to represent the neutrino.
+Animate its movement along a path.
+Calculate the flavor probabilities at each point in its path (using the same physics logic as the plots).
+Map the probabilities to colors (e.g., Red for electron, Green for muon, Blue for tau). Blend the colors based on the probabilities.
+Add controls for the camera (zoom, pan, rotate).
+Integration: Connect the controls to update both the plots and the 3D animation simultaneously.
+Physics Formulas (Simplified for Vacuum, 2-flavor approximation for simplicity first, then extend):
+
+Vacuum Oscillation Probability (e.g., νμ → νe): P(νμ → νe) = sin²(2θ) * sin²(1.27 * Δm² * L / E) Where:
+θ is the mixing angle.
+Δm² is the mass squared difference (in eV²).
+L is the distance traveled (in km).
+E is the neutrino energy (in GeV).
+Survival Probability (e.g., νμ → νμ): P(νμ → νμ) = 1 - P(νμ → νe)
+3-Flavor Vacuum Oscillation: The formulas are more complex, involving all mixing angles, mass differences, and the CP phase. I'll need to look up the precise formulas or use a library if available.
+
+Matter Effects (MSW): This modifies the effective mixing angles and mass differences within matter. The potential A depends on the electron density (Ne) and neutrino energy (E):
+A = 2 * sqrt(2) * G_F * Ne * E
+Where G_F is the Fermi constant. The oscillation formulas become significantly more complex.
+
+Implementation Details:
+
+Libraries:
+Tailwind CSS (CDN)
+Three.js (CDN)
+Plotly.js (CDN) - Good for scientific plots.
+Color Mapping:
+Define base colors for νe, νμ, ντ.
+Use linear interpolation or weighted average to blend colors based on probabilities P(νe), P(νμ), P(ντ). Color = P(νe)*Color(νe) + P(νμ)*Color(νμ) + P(ντ)*Color(ντ).
+Controls: Sliders for L (distance), E (energy), and potentially matter density (or a toggle for vacuum/matter).
+Initial State: Start with a specific flavor (e.g., νμ) at L=0.
+Refinement:
+
+Start with 2-flavor vacuum oscillations for simplicity in both plots and 3D viz.
+Then, implement 3-flavor vacuum oscillations.
+Finally, add the matter effect (MSW), likely starting with a constant density approximation.
+Code Structure:
+
+index.html: Main structure, containers for plots and 3D canvas, controls.
+style.css (or inline Tailwind): Styling.
+script.js:
+Physics calculation functions.
+Plotting functions (using Plotly).
+Three.js setup and animation loop.
+Event listeners for controls.
+Self-Correction/Improvements:
+
+Calculating 3-flavor oscillations accurately, especially in matter, is complex. I should use established formulas carefully. Using a library like OscProb.js (if one exists and is suitable) could simplify this, but implementing it directly provides more learning value and control. For this task, I'll implement the core formulas directly.
+The 3D visualization needs to be clear. A simple sphere moving along a line is good. The color change should be smooth.
+Performance: Calculating probabilities and updating plots/3D scene frequently (e.g., while dragging a slider) might be intensive. Debouncing or throttling event listeners might be necessary.
+Units: Be consistent with units (km, GeV, eV², etc.). The factor 1.27 in the simplified formula handles unit conversions.
+Provide default values for parameters.
+Add labels and titles to plots and controls.
+Let's start building the HTML structure and basic JavaScript setup. I'll focus on the 3-flavor vacuum oscillation first, as it's a standard case. Matter effects add significant complexity.
+
+Okay, I can create a web page that visualizes neutrino oscillations.
+
+This page will feature:
+
+Interactive Plots: Graphs showing how the probabilities of a neutrino being electron (νe), muon (νμ), or tau (ντ) flavor change over distance for a given energy. You'll be able to adjust the energy and see how the plots update. We'll start with vacuum oscillations.
+3D Animation: A visual representation of a neutrino traveling through space. Its color will dynamically change based on the calculated flavor probabilities at its current position, providing an intuitive look at the oscillation phenomenon.
+Let's get the basic structure and the 3D visualization running first.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neutrino Oscillation Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #neutrinoCanvas { display: block; width: 100%; height: 400px; background-color: #1a202c; } /* Dark background for space */
+        .control-label { min-width: 100px; text-align: right; margin-right: 10px; }
+        .control-value { min-width: 50px; text-align: left; }
+        .plot-container { height: 450px; } /* Fixed height for plot */
+         /* Style sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type=range]:hover {
+            opacity: 1;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4a5568; /* Tailwind gray-700 */
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4a5568;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none; /* Remove default border */
+        }
+        /* Message Box Styling */
+        #messageBox {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            font-size: 0.9rem;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-700">Neutrino Oscillation Visualization (Vacuum)</h1>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-600">Parameters</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="startFlavor" class="block text-sm font-medium text-gray-700 mb-1">Starting Flavor:</label>
+                    <select id="startFlavor" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="electron" selected>Electron Neutrino (νe)</option>
+                        <option value="muon">Muon Neutrino (νμ)</option>
+                        <option value="tau">Tau Neutrino (ντ)</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="energySlider" class="block text-sm font-medium text-gray-700 mb-1">Neutrino Energy (E) [GeV]: <span id="energyValue" class="font-semibold control-value">1.0</span></label>
+                    <input type="range" id="energySlider" min="0.1" max="10" step="0.1" value="1.0" class="w-full">
+                </div>
+                <div>
+                    <label for="distanceSlider" class="block text-sm font-medium text-gray-700 mb-1">Max Distance (L) [km]: <span id="distanceValue" class="font-semibold control-value">1000</span></label>
+                    <input type="range" id="distanceSlider" min="100" max="5000" step="100" value="1000" class="w-full">
+                </div>
+                 <div>
+                    <label for="matterToggle" class="block text-sm font-medium text-gray-700 mb-1">Environment:</label>
+                     <button id="matterToggle" class="w-full p-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600 transition duration-150 ease-in-out" disabled>
+                        Vacuum (Matter Effects Coming Soon)
+                    </button>
+                 </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-600">Oscillation Probabilities vs. Distance</h2>
+                <div id="probabilityPlot" class="plot-container"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-600">Neutrino Flight Path</h2>
+                <div id="neutrinoCanvasContainer" class="relative border border-gray-300 rounded-md overflow-hidden">
+                     <canvas id="neutrinoCanvas"></canvas>
+                     <div id="neutrinoInfo" class="absolute top-2 left-2 bg-gray-800 bg-opacity-75 text-white p-2 rounded text-xs">
+                         <p>Distance: <span id="animDistance">0.0</span> km</p>
+                         <p>P(νe): <span id="animPe">0.00</span></p>
+                         <p>P(νμ): <span id="animPmu">0.00</span></p>
+                         <p>P(ντ): <span id="animPtau">0.00</span></p>
+                         <p>Flavor: <span id="animFlavor">Unknown</span></p>
+                     </div>
+                </div>
+                <div class="flex justify-center mt-4 space-x-4">
+                     <button id="playPauseButton" class="px-4 py-2 bg-green-500 text-white rounded-md shadow hover:bg-green-600 transition duration-150 ease-in-out">Play</button>
+                     <button id="resetButton" class="px-4 py-2 bg-red-500 text-white rounded-md shadow hover:bg-red-600 transition duration-150 ease-in-out">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageBox"></div>
+
+    <script>
+        // --- Constants and Physics Parameters (Approximate values) ---
+        const G_F = 1.1663787e-5; // Fermi constant (GeV^-2) - Needed for matter effects later
+        const N_A = 6.02214076e23; // Avogadro's number
+        // Mass squared differences (eV^2)
+        const dM2_21 = 7.53e-5; // Delta m^2_{21}
+        const dM2_31 = 2.55e-3; // Delta m^2_{31} (Using Normal Hierarchy assumption)
+        const dM2_32 = dM2_31 - dM2_21; // Delta m^2_{32}
+        // Mixing angles (radians) - Using sin^2(theta) values and converting
+        const theta12 = Math.asin(Math.sqrt(0.307));
+        const theta23 = Math.asin(Math.sqrt(0.545)); // Approx. maximal mixing for simplicity
+        const theta13 = Math.asin(Math.sqrt(0.0218));
+        // CP Violating Phase (radians) - Set to 0 for simplicity initially
+        const deltaCP = 0; // 1.36 * Math.PI; // Example non-zero value
+
+        // Pre-calculate sines and cosines of 2*theta
+        const s2_12 = Math.sin(2 * theta12);
+        const s2_23 = Math.sin(2 * theta23);
+        const s2_13 = Math.sin(2 * theta13);
+        const c2_12 = Math.cos(2 * theta12);
+        const c2_23 = Math.cos(2 * theta23);
+        const c2_13 = Math.cos(2 * theta13);
+        // Pre-calculate sines and cosines of theta
+        const s_12 = Math.sin(theta12); const c_12 = Math.cos(theta12);
+        const s_23 = Math.sin(theta23); const c_23 = Math.cos(theta23);
+        const s_13 = Math.sin(theta13); const c_13 = Math.cos(theta13);
+
+        // --- Flavor Colors ---
+        const flavorColors = {
+            electron: new THREE.Color(1, 0, 0), // Red
+            muon: new THREE.Color(0, 1, 0),     // Green
+            tau: new THREE.Color(0, 0, 1)        // Blue
+        };
+        const flavorNames = {
+            electron: 'νe',
+            muon: 'νμ',
+            tau: 'ντ'
+        };
+
+        // --- Global State ---
+        let currentEnergy = 1.0; // GeV
+        let maxDistance = 1000; // km
+        let startFlavor = 'electron'; // 'electron', 'muon', 'tau'
+        let animationState = {
+            isPlaying: false,
+            time: 0, // Corresponds to distance in the animation
+            speed: 50, // km per animation frame update (adjust for desired speed)
+            neutrinoPosition: new THREE.Vector3(-maxDistance / 2, 0, 0) // Start at the left
+        };
+        let animationFrameId = null;
+
+        // --- DOM Elements ---
+        const energySlider = document.getElementById('energySlider');
+        const energyValue = document.getElementById('energyValue');
+        const distanceSlider = document.getElementById('distanceSlider');
+        const distanceValue = document.getElementById('distanceValue');
+        const startFlavorSelect = document.getElementById('startFlavor');
+        const probabilityPlotDiv = document.getElementById('probabilityPlot');
+        const neutrinoCanvas = document.getElementById('neutrinoCanvas');
+        const neutrinoInfo = document.getElementById('neutrinoInfo');
+        const animDistanceSpan = document.getElementById('animDistance');
+        const animPeSpan = document.getElementById('animPe');
+        const animPmuSpan = document.getElementById('animPmu');
+        const animPtauSpan = document.getElementById('animPtau');
+        const animFlavorSpan = document.getElementById('animFlavor');
+        const playPauseButton = document.getElementById('playPauseButton');
+        const resetButton = document.getElementById('resetButton');
+        const messageBox = document.getElementById('messageBox');
+
+        // --- Utility Functions ---
+
+        // Display temporary messages
+        function showMessage(message, duration = 3000) {
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, duration);
+        }
+
+        // Debounce function to limit update frequency
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // --- Physics Calculation (3-Flavor Vacuum Oscillation) ---
+        // Calculates P(alpha -> beta) where alpha, beta are 0 (e), 1 (mu), 2 (tau)
+        // L in km, E in GeV
+        // Formula from PDG (simplified for vacuum, ignoring CP violation for now)
+        function calculateVacuumProbability(alpha, beta, L, E) {
+            if (E <= 0) return (alpha === beta) ? 1.0 : 0.0; // Avoid division by zero
+
+            // Oscillation arguments (dimensionless)
+            const arg21 = 1.267 * dM2_21 * L / E;
+            const arg31 = 1.267 * dM2_31 * L / E;
+            const arg32 = 1.267 * dM2_32 * L / E; // arg31 - arg21
+
+            // PMNS Matrix Elements (Real part only, ignoring deltaCP)
+            // U = R(23) * R(13) * R(12) (standard parameterization, ignoring CP phase matrix)
+            const U = [ // Rows: e, mu, tau; Columns: 1, 2, 3
+                [c_12*c_13, s_12*c_13, s_13], // Ue
+                [-s_12*c_23 - c_12*s_23*s_13, c_12*c_23 - s_12*s_23*s_13, s_23*c_13], // Umu
+                [s_12*s_23 - c_12*c_23*s_13, -c_12*s_23 - s_12*c_23*s_13, c_23*c_13]  // Utau
+            ];
+
+             // Probability calculation using the standard formula:
+             // P(alpha -> beta) = delta_{alpha,beta} - 4 * Sum_{j>i} Re(U_{alpha,i}* U_{beta,i} U_{alpha,j} U_{beta,j}) * sin^2(Delta m^2_{ji} L / 4E)
+             //                  + 2 * Sum_{j>i} Im(U_{alpha,i}* U_{beta,i} U_{alpha,j} U_{beta,j}) * sin(Delta m^2_{ji} L / 2E)  <-- CP violating term (ignored for deltaCP=0)
+
+             let prob = (alpha === beta) ? 1.0 : 0.0;
+
+             // j=2, i=1 term
+             let re_term_21 = U[alpha][0] * U[beta][0] * U[alpha][1] * U[beta][1];
+             prob -= 4 * re_term_21 * Math.pow(Math.sin(arg21 / 2), 2); // Factor 1.267 includes the 1/2 needed here
+
+             // j=3, i=1 term
+             let re_term_31 = U[alpha][0] * U[beta][0] * U[alpha][2] * U[beta][2];
+             prob -= 4 * re_term_31 * Math.pow(Math.sin(arg31 / 2), 2);
+
+             // j=3, i=2 term
+             let re_term_32 = U[alpha][1] * U[beta][1] * U[alpha][2] * U[beta][2];
+             prob -= 4 * re_term_32 * Math.pow(Math.sin(arg32 / 2), 2);
+
+             // Add CP violating terms here if deltaCP is non-zero (more complex)
+
+             // Ensure probability is within [0, 1] due to potential floating point errors
+             return Math.max(0, Math.min(1, prob));
+        }
+
+        // Get probabilities for a given initial flavor
+        function getProbabilities(initialFlavorIndex, L, E) {
+            const Pe = calculateVacuumProbability(initialFlavorIndex, 0, L, E);
+            const Pmu = calculateVacuumProbability(initialFlavorIndex, 1, L, E);
+            // Ptau can be calculated from unitarity: Ptau = 1 - Pe - Pmu
+            const Ptau = Math.max(0, 1.0 - Pe - Pmu); // Ensure non-negative
+
+            return { Pe, Pmu, Ptau };
+        }
+
+        // --- Plotting ---
+        function updateProbabilityPlot() {
+            const Lvalues = [];
+            const PeValues = [];
+            const PmuValues = [];
+            const PtauValues = [];
+            const steps = 200; // Number of points to plot
+            const initialFlavorIndex = ['electron', 'muon', 'tau'].indexOf(startFlavor);
+
+            for (let i = 0; i <= steps; i++) {
+                const L = (i / steps) * maxDistance;
+                Lvalues.push(L);
+                const probs = getProbabilities(initialFlavorIndex, L, currentEnergy);
+                PeValues.push(probs.Pe);
+                PmuValues.push(probs.Pmu);
+                PtauValues.push(probs.Ptau);
+            }
+
+            const traces = [
+                { x: Lvalues, y: PeValues, mode: 'lines', name: 'P(ν<sub>' + flavorNames[startFlavor] + '</sub> → ν<sub>e</sub>)', line: { color: 'red', width: 2 } },
+                { x: Lvalues, y: PmuValues, mode: 'lines', name: 'P(ν<sub>' + flavorNames[startFlavor] + '</sub> → ν<sub>μ</sub>)', line: { color: 'green', width: 2 } },
+                { x: Lvalues, y: PtauValues, mode: 'lines', name: 'P(ν<sub>' + flavorNames[startFlavor] + '</sub> → ν<sub>τ</sub>)', line: { color: 'blue', width: 2 } }
+            ];
+
+            const layout = {
+                xaxis: { title: 'Distance (L) [km]', range: [0, maxDistance], titlefont: { size: 14 }, tickfont: { size: 12 } },
+                yaxis: { title: 'Probability', range: [0, 1.05], titlefont: { size: 14 }, tickfont: { size: 12 } },
+                margin: { l: 60, r: 30, b: 50, t: 30 }, // Adjusted margins
+                legend: { x: 0.5, y: 1.15, xanchor: 'center', orientation: 'h', font: { size: 10 } }, // Legend above plot
+                hovermode: 'x unified', // Show hover info for all traces at once
+                height: 400 // Ensure plot fits container
+            };
+
+            Plotly.react(probabilityPlotDiv, traces, layout, {responsive: true}); // Use react for efficient updates
+        }
+
+        // --- 3D Animation Setup ---
+        let scene, camera, renderer, neutrinoSphere, particleMaterial;
+
+        function init3D() {
+            try {
+                scene = new THREE.Scene();
+
+                // Camera
+                const aspect = neutrinoCanvas.clientWidth / neutrinoCanvas.clientHeight;
+                camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 2000);
+                camera.position.z = 50; // Adjust initial zoom
+                camera.position.y = 20; // Look slightly down
+                camera.lookAt(0, 0, 0);
+
+                // Renderer
+                renderer = new THREE.WebGLRenderer({ canvas: neutrinoCanvas, antialias: true });
+                renderer.setSize(neutrinoCanvas.clientWidth, neutrinoCanvas.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio); // Adjust for high DPI screens
+                renderer.setClearColor(0x1a202c); // Match background color
+
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                scene.add(ambientLight);
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 10, 7);
+                scene.add(directionalLight);
+
+                // Neutrino Representation (a simple sphere)
+                const geometry = new THREE.SphereGeometry(1, 32, 32);
+                // Use MeshStandardMaterial for better lighting interaction
+                particleMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xffffff, // Initial color (will be updated)
+                    emissive: 0xaaaaaa, // Give it a slight glow
+                    roughness: 0.5,
+                    metalness: 0.1
+                 });
+                neutrinoSphere = new THREE.Mesh(geometry, particleMaterial);
+                resetNeutrinoPosition(); // Set initial position
+                scene.add(neutrinoSphere);
+
+                // Add simple stars for background
+                const starGeometry = new THREE.BufferGeometry();
+                const starVertices = [];
+                for (let i = 0; i < 1000; i++) {
+                    const x = THREE.MathUtils.randFloatSpread(1500); // Spread stars wider
+                    const y = THREE.MathUtils.randFloatSpread(1500);
+                    const z = THREE.MathUtils.randFloatSpread(1500);
+                    starVertices.push(x, y, z);
+                }
+                starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+                const starMaterial = new THREE.PointsMaterial({ color: 0x888888, size: 0.5 });
+                const stars = new THREE.Points(starGeometry, starMaterial);
+                scene.add(stars);
+
+
+                // Handle window resize
+                window.addEventListener('resize', onWindowResize, false);
+                onWindowResize(); // Call once initially
+
+                // Initial render
+                renderer.render(scene, camera);
+
+            } catch (error) {
+                console.error("Error initializing Three.js:", error);
+                showMessage("Error initializing 3D view. Please check console.", 5000);
+                // Disable 3D elements if initialization fails
+                neutrinoCanvas.style.display = 'none';
+                document.getElementById('neutrinoCanvasContainer').innerHTML = '<p class="text-red-500 text-center p-4">Failed to load 3D visualization.</p>';
+            }
+        }
+
+        function resetNeutrinoPosition() {
+            // Start the neutrino slightly off-screen to the left
+            const startX = -maxDistance * 0.6; // Adjust starting point based on maxDistance
+            animationState.neutrinoPosition.set(startX, 0, 0);
+            if (neutrinoSphere) {
+                neutrinoSphere.position.copy(animationState.neutrinoPosition);
+            }
+            animationState.time = 0; // Reset animation time/distance
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('neutrinoCanvasContainer');
+            if (!renderer || !camera || !container) return;
+
+            const width = container.clientWidth;
+            // Maintain a fixed height or aspect ratio if desired
+            const height = 400; // Keep height fixed as defined in CSS
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+
+        // --- Animation Loop ---
+        function animate() {
+            if (!animationState.isPlaying) {
+                animationFrameId = null; // Ensure we clear the ID when paused
+                return;
+            }
+
+            animationFrameId = requestAnimationFrame(animate);
+
+            // Update neutrino position
+            const travelDistance = animationState.speed * (1/60.0); // Distance per frame (assuming ~60fps)
+            animationState.time += travelDistance;
+            animationState.neutrinoPosition.x += travelDistance;
+
+            // Reset if it goes too far right
+            const endX = maxDistance * 0.6; // Where to reset
+            if (animationState.neutrinoPosition.x > endX) {
+                resetNeutrinoPosition();
+            }
+
+            // Calculate current distance (L) from the effective start (L=0 at center maybe?)
+            // Let's map the screen width to the maxDistance for probability calculation
+            const L_current = mapRange(animationState.neutrinoPosition.x, -maxDistance * 0.6, maxDistance * 0.6, 0, maxDistance);
+
+            // Calculate probabilities at current distance
+            const initialFlavorIndex = ['electron', 'muon', 'tau'].indexOf(startFlavor);
+            const probs = getProbabilities(initialFlavorIndex, Math.max(0, L_current), currentEnergy); // Ensure L >= 0
+
+            // Update neutrino color based on probabilities
+            const finalColor = new THREE.Color(0, 0, 0);
+            finalColor.addScaledVector(flavorColors.electron, probs.Pe);
+            finalColor.addScaledVector(flavorColors.muon, probs.Pmu);
+            finalColor.addScaledVector(flavorColors.tau, probs.Ptau);
+
+            // Apply color to the material (both color and emissive for visibility)
+            particleMaterial.color.copy(finalColor);
+            particleMaterial.emissive.copy(finalColor).multiplyScalar(0.5); // Make emissive slightly dimmer
+
+            // Update neutrino sphere position
+            neutrinoSphere.position.copy(animationState.neutrinoPosition);
+
+            // Update info overlay
+            animDistanceSpan.textContent = Math.max(0, L_current).toFixed(1);
+            animPeSpan.textContent = probs.Pe.toFixed(2);
+            animPmuSpan.textContent = probs.Pmu.toFixed(2);
+            animPtauSpan.textContent = probs.Ptau.toFixed(2);
+            // Determine dominant flavor for display
+            let dominantFlavor = 'Mixed';
+            if (probs.Pe > 0.8) dominantFlavor = flavorNames.electron;
+            else if (probs.Pmu > 0.8) dominantFlavor = flavorNames.muon;
+            else if (probs.Ptau > 0.8) dominantFlavor = flavorNames.tau;
+            else if (probs.Pe > probs.Pmu && probs.Pe > probs.Ptau) dominantFlavor = flavorNames.electron + '-like';
+            else if (probs.Pmu > probs.Pe && probs.Pmu > probs.Ptau) dominantFlavor = flavorNames.muon + '-like';
+            else if (probs.Ptau > probs.Pe && probs.Ptau > probs.Pmu) dominantFlavor = flavorNames.tau + '-like';
+            animFlavorSpan.textContent = dominantFlavor;
+
+
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+
+        // Helper to map a value from one range to another
+        function mapRange(value, inMin, inMax, outMin, outMax) {
+            return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+        }
+
+
+        // --- Event Listeners ---
+        const debouncedUpdatePlot = debounce(updateProbabilityPlot, 250); // Debounce plot updates
+
+        energySlider.addEventListener('input', (e) => {
+            currentEnergy = parseFloat(e.target.value);
+            energyValue.textContent = currentEnergy.toFixed(1);
+            debouncedUpdatePlot(); // Update plot with debounce
+            // No need to debounce for animation color, it updates continuously anyway if playing
+        });
+
+        distanceSlider.addEventListener('input', (e) => {
+            maxDistance = parseInt(e.target.value);
+            distanceValue.textContent = maxDistance;
+            // Update plot immediately for distance change
+            updateProbabilityPlot();
+            // Adjust animation bounds if needed (optional, could just affect plot)
+            // resetNeutrinoPosition(); // Reset position if maxDistance changes? Maybe not.
+        });
+
+        startFlavorSelect.addEventListener('change', (e) => {
+            startFlavor = e.target.value;
+            updateProbabilityPlot(); // Update plot immediately
+            // Reset animation to reflect new starting state
+            resetAnimation();
+            updatePlayPauseButton(); // Ensure button state is correct
+        });
+
+        playPauseButton.addEventListener('click', () => {
+            animationState.isPlaying = !animationState.isPlaying;
+            updatePlayPauseButton();
+            if (animationState.isPlaying && !animationFrameId) {
+                animate(); // Start animation loop if not already running
+            }
+        });
+
+        resetButton.addEventListener('click', () => {
+            resetAnimation();
+            updatePlayPauseButton(); // Ensure button state is correct
+        });
+
+        function resetAnimation() {
+             animationState.isPlaying = false;
+             if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+             }
+             resetNeutrinoPosition();
+             // Recalculate initial state for L=0
+             const initialFlavorIndex = ['electron', 'muon', 'tau'].indexOf(startFlavor);
+             const initialProbs = getProbabilities(initialFlavorIndex, 0, currentEnergy);
+             const initialColor = new THREE.Color(0, 0, 0);
+             initialColor.addScaledVector(flavorColors.electron, initialProbs.Pe);
+             initialColor.addScaledVector(flavorColors.muon, initialProbs.Pmu);
+             initialColor.addScaledVector(flavorColors.tau, initialProbs.Ptau);
+             particleMaterial.color.copy(initialColor);
+             particleMaterial.emissive.copy(initialColor).multiplyScalar(0.5);
+             animDistanceSpan.textContent = "0.0";
+             animPeSpan.textContent = initialProbs.Pe.toFixed(2);
+             animPmuSpan.textContent = initialProbs.Pmu.toFixed(2);
+             animPtauSpan.textContent = initialProbs.Ptau.toFixed(2);
+             animFlavorSpan.textContent = flavorNames[startFlavor]; // Start with the initial flavor name
+
+             // Render the reset state
+             if(renderer && scene && camera) {
+                renderer.render(scene, camera);
+             }
+        }
+
+        function updatePlayPauseButton() {
+            if (animationState.isPlaying) {
+                playPauseButton.textContent = 'Pause';
+                playPauseButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+                playPauseButton.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+            } else {
+                playPauseButton.textContent = 'Play';
+                playPauseButton.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                playPauseButton.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+        }
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM Loaded. Initializing...");
+            try {
+                init3D(); // Initialize Three.js first
+                updateProbabilityPlot(); // Then generate the initial plot
+                resetAnimation(); // Set the initial state of the animation view
+                updatePlayPauseButton(); // Set initial button state
+                console.log("Initialization complete.");
+            } catch(error) {
+                 console.error("Error during initialization:", error);
+                 showMessage("An error occurred during page initialization. Some features might not work.", 5000);
+            }
+        });
+
+    </script>
+
+</body>
+</html>
+```
+
+This code sets up the HTML structure with Tailwind CSS for styling, includes Plotly.js for the graphs, and Three.js for the 3D animation.
+
+Key parts:
+
+HTML: Defines containers for controls (energy, distance, starting flavor), the probability plot, and the 3D canvas.
+CSS: Basic styling using Tailwind and some custom styles for the canvas and controls.
+JavaScript:
+Sets up physics constants (mixing angles, mass differences).
+Includes the calculateVacuumProbability function implementing the 3-flavor vacuum oscillation formula (currently ignoring CP violation for simplicity).
+updateProbabilityPlot function uses Plotly.js to draw the P(ν_initial → νe), P(ν_initial → νμ), and P(ν_initial → ντ) vs. distance.
+init3D sets up the Three.js scene, camera, renderer, lighting, and the neutrino sphere object.
+animate function (the core loop for the 3D part) updates the neutrino's position, calculates its current flavor probabilities based on its travel distance, updates its color accordingly, and renders the scene.
+Event listeners connect the sliders and dropdown to update the plot and potentially the animation parameters.
+Play/Pause/Reset controls are added for the animation.
+You can preview this HTML file. It should show the layout, the controls, an initial probability plot, and the 3D view with a stationary neutrino (until you press Play). Adjusting the sliders will update the plot. The 3D neutrino's color will change as it moves when you play the animation.
+
+Next steps could include:
+
+Implementing the matter effects (MSW effect), which significantly complicates the probability calculations.
+Adding the CP-violating phase (δCP) to the vacuum calculation.
+Improving the 3D visualization (e.g., adding camera controls, more background elements).
+
+
