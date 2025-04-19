@@ -4,10 +4,270 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
-  </head>
-  <body>
-    <div id="app"></div>
+    <title>Imagining the Neutrino</title>
+    <!-- Chota CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chota@latest/dist/chota.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/src/style.css" />
+
+    <!-- Import main script *after* the component definition -->
     <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body class="dark">
+    <main x-data="neutrinoVisualization()" x-cloak>
+      <!-- Header -->
+      <header class="text-center pa-2 bg-dark text-light">
+        <h1>Imagining the Neutrino</h1>
+        <p class="text-grey text-small">Interactive 3-Flavor Neutrino Oscillation Visualization (using NuFast)</p>
+      </header>
+
+      <!-- Main Content Area -->
+      <div class="container grid" style="padding: 1rem;">
+        <!-- Controls Column -->
+        <div class="col-4 col-md-12 is-dark controls-panel" style="padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <h3 class="text-center">Controls</h3>
+            <!-- Play/Pause/Reset Buttons -->
+            <p class="text-center">
+              <button class="button outline small" @click="playPause()">
+                  <!-- Use direct property access -->
+                  <span x-text="animState.isPlaying ? 'Pause' : 'Play'">Play</span>
+              </button>
+              <button class="button outline small" @click="reset()">Reset Animation</button>
+            </p>
+             <!-- Simulation Speed -->
+            <div class="form-group">
+                <label for="simSpeed">Animation Speed:</label>
+                <div class="flex items-center">
+                  <!-- Use direct property access -->
+                  <input type="range" x-model.number="animState.simSpeed" min="0.1" max="10" step="0.1" id="simSpeed" class="flex-grow">
+                  <span x-text="animState.simSpeed ? animState.simSpeed.toFixed(1) + 'x' : '1.0x'" class="value-display">1.0x</span>
+                </div>
+            </div>
+            <hr class="my-1">
+            <!-- Matter Effect Toggle -->
+            <div class="form-group flex items-center justify-between">
+                <label for="matterToggle" class="mr-2 mb-0">Matter Effect:</label>
+                <div>
+                    <!-- Use direct property access -->
+                    <input type="checkbox" x-model="simParams.matterEffect" @change="updateVisualization()" id="matterToggle">
+                    <span class="tooltip-container" @click.stop="toggleTooltip('matterTooltip')">
+                      <span class="tooltip-icon">?</span>
+                      <span class="tooltip-content" data-tooltip-id="matterTooltip" x-show="tooltipState.visible.matterTooltip" @click.outside="hideTooltip('matterTooltip')">
+                          <h4>Matter Effects (MSW)</h4>
+                          <p>Toggles the calculation between vacuum oscillations and oscillations within matter (MSW effect).</p>
+                          <p>The effective Hamiltonian includes an additional potential term:</p>
+                          <div class="display" x-katex="'H_{eff} = H_{vac} + diag(V_{CC}, 0, 0)'"></div>
+                          <p>Where <span x-katex="'V_{CC} = \\sqrt{2}G_F n_e'"></span> depends on electron density <span x-katex="'n_e'"></span>.</p>
+                      </span>
+                    </span>
+                </div>
+            </div>
+            <!-- Matter Density (Conditional) -->
+            <!-- Use direct property access -->
+            <template x-if="simParams.matterEffect">
+                <div class="form-group">
+                    <label for="matterDensity">Matter Density (ρ) [g/cm³]:</label>
+                     <div class="flex items-center">
+                         <!-- Use direct property access -->
+                         <input type="range" x-model.number="simParams.rho" @input="requestPlotUpdate()" min="0" max="20" step="0.1" id="matterDensitySlider" class="flex-grow">
+                         <input type="number" x-model.number="simParams.rho" @input="requestPlotUpdate()" min="0" max="20" step="0.1" id="matterDensityInput" class="input-number">
+                         <span class="tooltip-container right-aligned" @click.stop="toggleTooltip('densityTooltip')">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-content right-aligned" data-tooltip-id="densityTooltip" x-show="tooltipState.visible.densityTooltip" @click.outside="hideTooltip('densityTooltip')">
+                                <h4>Matter Density</h4>
+                                <p>The average electron density (<span x-katex="'n_e = \\rho N_A Y_e / A'"></span>) of the medium, specified via mass density <span x-katex="'\\rho'"></span> in g/cm³. Assumes constant density and <span x-katex="'Y_e=0.5'"></span>.</p>
+                                <p>This generates the Wolfenstein potential:</p>
+                                <div class="display" x-katex="'A [\\text{eV}^2] \\approx 7.6 \\times 10^{-5} \\times Y_e \\times (\\rho) \\times (E [\\text{GeV}])'"></div>
+                                <p>Earth: Crust ~2.7, Avg ~5.5, Core ~13 g/cm³.</p>
+                            </span>
+                        </span>
+                     </div>
+                     <!-- Density Presets -->
+                     <div class="mt-1 text-center">
+                       <span class="text-xs mr-1">Presets:</span>
+                       <button @click="setDensity(0)" class="button clear text-grey text-xs">Vac</button> |
+                       <button @click="setDensity(2.7)" class="button clear text-grey text-xs">Crust</button> |
+                       <button @click="setDensity(5.5)" class="button clear text-grey text-xs">Avg</button> |
+                       <button @click="setDensity(13.0)" class="button clear text-grey text-xs">Core</button>
+                     </div>
+                </div>
+            </template>
+            <hr class="my-1">
+            <!-- Neutrino Parameters -->
+            <h4 class="text-center">Neutrino Parameters</h4>
+             <div class="form-group">
+                 <label for="energy">Energy (E) [GeV]:</label>
+                  <div class="flex items-center">
+                     <!-- Use direct property access -->
+                     <input type="range" x-model.number="simParams.energy" @input="requestPlotUpdate()" min="-10" max="10" step="0.05" id="energySlider" class="flex-grow">
+                     <input type="number" x-model.number="simParams.energy" @input="requestPlotUpdate()" min="-10" max="10" step="0.05" id="energyInput" class="input-number">
+                     <span class="tooltip-container" @click.stop="toggleTooltip('energyTooltip')">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-content" data-tooltip-id="energyTooltip" x-show="tooltipState.visible.energyTooltip" @click.outside="hideTooltip('energyTooltip')">
+                            <h4>Neutrino Energy</h4>
+                            <p>The neutrino's energy (E). Oscillation length <span x-katex="'L_{osc} \\\\propto E / \\\\Delta m^2'"></span>. Matter effects also depend on E.</p>
+                            <p>Use negative E for antineutrinos (<span x-katex="'\\\\bar{\\\\nu}'"></span>).</p>
+                        </span>
+                     </span>
+                 </div>
+            </div>
+             <div class="form-group">
+                <label for="initialFlavor">Initial Flavor:</label>
+                <div class="flex items-center">
+                    <!-- Use direct property access -->
+                    <select x-model.number="simParams.initialFlavorIndex" @change="updateVisualization()" id="initialFlavor" class="w-full flex-grow">
+                        <option value="0">Electron (νe)</option>
+                        <option value="1">Muon (νμ)</option>
+                        <option value="2">Tau (ντ)</option>
+                    </select>
+                     <span class="tooltip-container" @click.stop="toggleTooltip('flavorTooltip')">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-content" data-tooltip-id="flavorTooltip" x-show="tooltipState.visible.flavorTooltip" @click.outside="hideTooltip('flavorTooltip')">
+                            <h4>Initial Flavor</h4>
+                            <p>The flavor state the neutrino is created in (e.g., <span x-katex="'\\nu_e'"></span> from reactors, <span x-katex="'\\nu_\\mu'"></span> from accelerator beams).</p>
+                        </span>
+                     </span>
+                 </div>
+            </div>
+            <!-- Max Distance for Plot -->
+             <div class="form-group">
+                 <label for="maxL">Plot Max Distance (L<sub>max</sub>) [km]:</label>
+                 <div class="flex items-center">
+                     <!-- Use direct property access -->
+                     <input type="range" x-model.number="plotParams.maxL" @input="requestPlotUpdate()" min="100" max="5000" step="50" id="maxLSlider" class="flex-grow">
+                     <input type="number" x-model.number="plotParams.maxL" @input="requestPlotUpdate()" min="100" max="5000" step="50" id="maxLInput" class="input-number">
+                      <span class="tooltip-container" @click.stop="toggleTooltip('maxLTooltip')">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-content" data-tooltip-id="maxLTooltip" x-show="tooltipState.visible.maxLTooltip" @click.outside="hideTooltip('maxLTooltip')">
+                           <h4>Plot Max Distance</h4>
+                           <p>Sets the maximum distance shown on the probability plot. The 3D animation loops over this distance.</p>
+                        </span>
+                     </span>
+                 </div>
+             </div>
+             <hr class="my-1">
+             <!-- Mixing Parameters -->
+             <h4 class="text-center">Mixing Parameters</h4>
+             <details>
+                <summary class="text-center small">Show/Hide Mixing Parameters</summary>
+                <div class="form-group">
+                    <label for="theta12">θ<sub>12</sub> (deg):</label>
+                     <div class="flex items-center">
+                         <!-- Use direct property access -->
+                         <input type="range" x-model.number="simParams.theta12_deg" @input="requestPlotUpdate()" min="0" max="90" step="0.1" class="flex-grow">
+                         <input type="number" x-model.number="simParams.theta12_deg" @input="requestPlotUpdate()" min="0" max="90" step="0.1" class="input-number">
+                         <span class="tooltip-container" @click.stop="toggleTooltip('theta12Tooltip')">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-content" data-tooltip-id="theta12Tooltip" x-show="tooltipState.visible.theta12Tooltip" @click.outside="hideTooltip('theta12Tooltip')">
+                               <h4>Solar Angle θ<sub>12</sub></h4>
+                               <p>Controls mixing between mass states 1 and 2. Primarily affects solar neutrinos. Value ~33.4°.</p>
+                               <span class="display" x-katex="'P_{ee}^{sun} \\approx c_{13}^4 (1 - \\sin^2(2\\theta_{12}) \\sin^2(\\Delta_{21}))'"></span>
+                            </span>
+                        </span>
+                     </div>
+                 </div>
+                 <div class="form-group">
+                    <label for="theta23">θ<sub>23</sub> (deg):</label>
+                     <div class="flex items-center">
+                         <input type="range" x-model.number="simParams.theta23_deg" @input="requestPlotUpdate()" min="0" max="90" step="0.1" class="flex-grow">
+                         <input type="number" x-model.number="simParams.theta23_deg" @input="requestPlotUpdate()" min="0" max="90" step="0.1" class="flex-grow input-number">
+                        <span class="tooltip-container" @click.stop="toggleTooltip('theta23Tooltip')">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-content" data-tooltip-id="theta23Tooltip" x-show="tooltipState.visible.theta23Tooltip" @click.outside="hideTooltip('theta23Tooltip')">
+                               <h4>Atmospheric Angle θ<sub>23</sub></h4>
+                               <p>Controls mixing between mass states 2 and 3. Primarily affects atmospheric/LBL <span x-katex="'\\nu_\\mu \\leftrightarrow \\nu_\\tau'"></span> oscillations. Value near 45° (maximal mixing).</p>
+                               <span class="display" x-katex="'P_{\\mu\\mu}^{atm} \\approx 1 - \\sin^2(2\\theta_{23}) \\sin^2(\\Delta_{31(32)}) '"></span>
+                            </span>
+                        </span>
+                     </div>
+                 </div>
+                  <div class="form-group">
+                    <label for="theta13">θ<sub>13</sub> (deg):</label>
+                     <div class="flex items-center">
+                         <input type="range" x-model.number="simParams.theta13_deg" @input="requestPlotUpdate()" min="0" max="15" step="0.01" class="flex-grow">
+                         <input type="number" x-model.number="simParams.theta13_deg" @input="requestPlotUpdate()" min="0" max="15" step="0.01" class="flex-grow input-number">
+                        <span class="tooltip-container" @click.stop="toggleTooltip('theta13Tooltip')">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-content" data-tooltip-id="theta13Tooltip" x-show="tooltipState.visible.theta13Tooltip" @click.outside="hideTooltip('theta13Tooltip')">
+                               <h4>Reactor Angle θ<sub>13</sub></h4>
+                               <p>Links all three generations. Measured relatively recently (~8.5°). Crucial for CP violation and mass ordering sensitivity.</p>
+                               <span class="display" x-katex="'P_{ee}^{reactor} \\approx 1 - \\sin^2(2\\theta_{13}) \\sin^2(\\Delta_{31(32)}) '"></span>
+                            </span>
+                        </span>
+                     </div>
+                 </div>
+                 <div class="form-group">
+                    <label for="deltaCP">δ<sub>CP</sub> (deg):</label>
+                     <div class="flex items-center">
+                         <input type="range" x-model.number="simParams.deltaCP_deg" @input="requestPlotUpdate()" min="0" max="360" step="1" class="flex-grow">
+                         <input type="number" x-model.number="simParams.deltaCP_deg" @input="requestPlotUpdate()" min="0" max="360" step="1" class="flex-grow input-number">
+                         <span class="tooltip-container right-aligned" @click.stop="toggleTooltip('deltaCPTooltip')">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-content right-aligned" data-tooltip-id="deltaCPTooltip" x-show="tooltipState.visible.deltaCPTooltip" @click.outside="hideTooltip('deltaCPTooltip')">
+                               <h4>CP Phase δ<sub>CP</sub></h4>
+                               <p>The Dirac CP-violating phase. A value <span x-katex="'\\ne 0, 180^\\circ'"></span> causes <span x-katex="'P(\\\\nu_\\\\alpha \\\\to \\\\nu_\\\\beta) \\\\ne P(\\\\bar{\\\\nu}_\\\\alpha \\\\to \\\\bar{\\\\nu}_\\\\beta)'"></span>. Current best fit ~195°.</p>
+                            </span>
+                        </span>
+                     </div>
+                 </div>
+                 <div class="form-group">
+                     <label for="dm21sq">Δm²<sub>21</sub> (10<sup>-5</sup> eV²):</label>
+                     <div class="flex items-center">
+                         <!-- Use direct property access -->
+                         <input type="range" :value="simParams.dm21sq_eV2 * 1e5" @input="simParams.dm21sq_eV2 = $event.target.value / 1e5; requestPlotUpdate()" min="1" max="15" step="0.01" class="flex-grow">
+                         <input type="number" :value="simParams.dm21sq_eV2 * 1e5" @input="simParams.dm21sq_eV2 = $event.target.value / 1e5; requestPlotUpdate()" min="1" max="15" step="0.01" class="flex-grow input-number">
+                         <span class="tooltip-container" @click.stop="toggleTooltip('dm21Tooltip')">
+                             <span class="tooltip-icon">?</span>
+                             <span class="tooltip-content" data-tooltip-id="dm21Tooltip" x-show="tooltipState.visible.dm21Tooltip" @click.outside="hideTooltip('dm21Tooltip')">
+                                 <h4>Solar Mass Splitting Δm²<sub>21</sub></h4>
+                                 <p>The smaller mass-squared difference (<span x-katex="'m_2^2 - m_1^2'"></span>). Primarily drives solar/reactor <span x-katex="'\\nu_e'"></span> disappearance. Value ~<span x-katex="'7.4 \\times 10^{-5} \\text{ eV}^2'"></span>.</p>
+                             </span>
+                         </span>
+                     </div>
+                 </div>
+                 <div class="form-group">
+                     <label for="dm31sq">Δm²<sub>31</sub> (NO) (10<sup>-3</sup> eV²):</label>
+                      <div class="flex items-center">
+                         <!-- Use direct property access -->
+                         <input type="range" :value="simParams.dm31sq_eV2 * 1e3" @input="simParams.dm31sq_eV2 = $event.target.value / 1e3; requestPlotUpdate()" min="-4" max="4" step="0.01" class="flex-grow">
+                         <input type="number" :value="simParams.dm31sq_eV2 * 1e3" @input="simParams.dm31sq_eV2 = $event.target.value / 1e3; requestPlotUpdate()" min="-4" max="4" step="0.01" class="flex-grow input-number">
+                         <span class="tooltip-container right-aligned" @click.stop="toggleTooltip('dm31Tooltip')">
+                             <span class="tooltip-icon">?</span>
+                             <span class="tooltip-content right-aligned" data-tooltip-id="dm31Tooltip" x-show="tooltipState.visible.dm31Tooltip" @click.outside="hideTooltip('dm31Tooltip')">
+                                 <h4>Atmospheric Mass Splitting Δm²<sub>31</sub></h4>
+                                 <p>The larger mass-squared difference (<span x-katex="'m_3^2 - m_1^2'"></span>). Primarily drives atmospheric/LBL <span x-katex="'\\nu_\\mu'"></span> disappearance. Value ~<span x-katex="'2.5 \\times 10^{-3} \\text{ eV}^2'"></span>. Sign determines mass ordering (NO: +, IO: -).</p>
+                             </span>
+                         </span>
+                     </div>
+                 </div>
+             </details>
+
+        </div>
+
+        <!-- Visualization Column -->
+        <div class="col-8 col-md-12 visualization-column">
+          <!-- Main p5.js Container -->
+          <!-- The single p5 sketch will create its canvas inside this div -->
+          <div id="p5-container" class="p5-container is-dark">
+            <!-- The p5 canvas will be created here by the sketch -->
+            
+            <!-- Neutrino Flavor Label -->
+            <div id="neutrino-flavor-label" class="neutrino-flavor-label-style">
+                <!-- Flavor label will be updated by p5 sketch -->
+                <span>Loading...</span>
+            </div>
+
+            <!-- Canvas for Probability Plot -->
+            <!-- The p5 sketch will draw the plot onto this canvas -->
+            <canvas id="probPlotCanvas" class="p5-plot-canvas is-dark"></canvas>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Removed inline script for neutrinoInfoDisplay -->
+
   </body>
 </html>

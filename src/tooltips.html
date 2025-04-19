@@ -1,0 +1,71 @@
+<!-- Tooltip content for neutrino physics parameters -->
+
+<!-- Mixing angles tooltip -->
+<div class="tooltip-content" id="tooltip-mixing-angles">
+  <h4>Neutrino Mixing Angles</h4>
+  <p>The PMNS matrix that describes neutrino mixing is parameterized by three mixing angles (θ12, θ13, θ23) and one CP-violating phase (δCP):</p>
+  <div x-katex="'U = \\begin{pmatrix} c_{12}c_{13} & s_{12}c_{13} & s_{13}e^{-i\\delta_{CP}} \\\\ -s_{12}c_{23}-c_{12}s_{23}s_{13}e^{i\\delta_{CP}} & c_{12}c_{23}-s_{12}s_{23}s_{13}e^{i\\delta_{CP}} & s_{23}c_{13} \\\\ s_{12}s_{23}-c_{12}c_{23}s_{13}e^{i\\delta_{CP}} & -c_{12}s_{23}-s_{12}c_{23}s_{13}e^{i\\delta_{CP}} & c_{23}c_{13} \\end{pmatrix}'"></div>
+  <p>Where c<sub>ij</sub> = cos θ<sub>ij</sub> and s<sub>ij</sub> = sin θ<sub>ij</sub>.</p>
+  <p>The current best fit values (NuFit 5.2, Normal Ordering) are:</p>
+  <ul>
+    <li>θ12 = 33.4° ± 0.8°</li>
+    <li>θ13 = 8.6° ± 0.1°</li>
+    <li>θ23 = 42.8° ± 1.1°</li>
+    <li>δCP = 222° ± 39°</li>
+  </ul>
+</div>
+
+<!-- Mass differences tooltip -->
+<div class="tooltip-content" id="tooltip-mass-differences">
+  <h4>Mass-squared Differences</h4>
+  <p>Neutrino oscillations are driven by the differences in the squared masses of neutrino mass states:</p>
+  <div x-katex="'\\Delta m^2_{ij} = m^2_i - m^2_j'"></div>
+  <p>The current best fit values (NuFit 5.2, Normal Ordering) are:</p>
+  <div x-katex="'\\Delta m^2_{21} = 7.4 \\times 10^{-5} \\, \\text{eV}^2'"></div>
+  <div x-katex="'\\Delta m^2_{31} = 2.5 \\times 10^{-3} \\, \\text{eV}^2'"></div>
+  <p>The sign of Δm²<sub>31</sub> determines the neutrino mass ordering:</p>
+  <ul>
+    <li>Normal Ordering (NO): Δm²<sub>31</sub> > 0</li>
+    <li>Inverted Ordering (IO): Δm²<sub>31</sub> < 0</li>
+  </ul>
+</div>
+
+<!-- Energy tooltip -->
+<div class="tooltip-content" id="tooltip-energy">
+  <h4>Neutrino Energy</h4>
+  <p>The neutrino energy affects oscillation probabilities and oscillation length. The oscillation frequency is inversely proportional to energy:</p>
+  <div x-katex="'P(\\nu_\\alpha \\to \\nu_\\beta) \\sim \\sin^2\\left(\\frac{\\Delta m^2 L}{4E}\\right)'"></div>
+  <p>Higher energy neutrinos oscillate over longer distances.</p>
+  <p>Negative energy values represent antineutrinos, which have different oscillation probabilities in matter and when CP violation is present:</p>
+  <div x-katex="'P(\\bar{\\nu}_\\alpha \\to \\bar{\\nu}_\\beta; E, \\delta_{CP}) = P(\\nu_\\alpha \\to \\nu_\\beta; -E, -\\delta_{CP})'"></div>
+</div>
+
+<!-- Matter effects tooltip -->
+<div class="tooltip-content" id="tooltip-matter">
+  <h4>Matter Effects</h4>
+  <p>When neutrinos travel through matter, they interact with electrons, which affects oscillation probabilities. This is known as the MSW effect (Mikheyev–Smirnov–Wolfenstein).</p>
+  <p>The effective Hamiltonian in matter includes an additional potential term:</p>
+  <div x-katex="'H = \\frac{1}{2E}U\\begin{pmatrix} 0 & 0 & 0 \\\\ 0 & \\Delta m^2_{21} & 0 \\\\ 0 & 0 & \\Delta m^2_{31} \\end{pmatrix}U^\\dagger + \\begin{pmatrix} V_{CC} & 0 & 0 \\\\ 0 & 0 & 0 \\\\ 0 & 0 & 0 \\end{pmatrix}'"></div>
+  <p>Where V<sub>CC</sub> is the charged-current potential:</p>
+  <div x-katex="'V_{CC} = \\sqrt{2}G_F n_e = \\sqrt{2}G_F \\rho N_A Y_e / m_N'"></div>
+  <p>For typical Earth matter:</p>
+  <ul>
+    <li>ρ ≈ 2.6-3.0 g/cm³ (crust density)</li>
+    <li>Y<sub>e</sub> ≈ 0.5 (electron fraction)</li>
+  </ul>
+  <p>Matter effects are opposite for neutrinos and antineutrinos:</p>
+  <div x-katex="'V_{CC} \\to -V_{CC} \\text{ for antineutrinos}'"></div>
+</div>
+
+<!-- NuFast algorithm tooltip -->
+<div class="tooltip-content" id="tooltip-nufast">
+  <h4>NuFast Algorithm</h4>
+  <p>This visualization uses the NuFast algorithm for efficient calculation of neutrino oscillation probabilities.</p>
+  <p>The full Hamiltonian eigenvalue problem is:</p>
+  <div x-katex="'H|\\nu_i\\rangle = E_i|\\nu_i\\rangle'"></div>
+  <p>NuFast bypasses explicit eigendecomposition by using perturbation theory and optimizations to directly compute oscillation amplitudes:</p>
+  <div x-katex="'A_{\\alpha\\beta} = \\langle\\nu_\\beta|e^{-iHL}|\\nu_\\alpha\\rangle'"></div>
+  <div x-katex="'P_{\\alpha\\beta} = |A_{\\alpha\\beta}|^2'"></div>
+  <p>This provides accurate results and is significantly faster than traditional methods.</p>
+  <p>For details, see <a href="https://arxiv.org/abs/2405.02400" target="_blank">arXiv:2405.02400</a>.</p>
+</div>

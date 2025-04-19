@@ -1,0 +1,138 @@
+Directory structure:
+└── blazp-p5js_template/
+    ├── README.md
+    ├── index.html
+    ├── package.json
+    ├── tsconfig.json
+    ├── vite.config.js
+    └── src/
+        └── sketch.ts
+
+================================================
+FILE: README.md
+================================================
+# P5.js empty template with typescript and vite 🚀
+
+## npm scripts
+
+- `pnpm dev` - Starts the development server at port [3000](http://localhost:3000/)
+- `pnpm build` - Builds the application in a `dist` folder
+- `pnpm preview` - Serves the build files (`dist` folder) locally at port [5000](http://localhost:3000/)
+
+Note that if after this last command you do not see anything, you can use instead this other command:
+
+- `pnpm preview --host` - You should then be able to see your files locally at port [5000](http://localhost:3000/)
+
+
+
+================================================
+FILE: index.html
+================================================
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single sketch</title>
+</head>
+
+<body>
+    <script type="module" src="/src/sketch.ts"></script>
+</body>
+
+</html>
+
+
+
+================================================
+FILE: package.json
+================================================
+{
+    "name": "p5js-vite",
+    "version": "0.1.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@types/p5": "^1.4.3",
+        "typescript": "^4.9.4",
+        "vite": "^2.7.2"
+    },
+    "dependencies": {
+        "p5": "^1.5.0"
+    }
+}
+
+
+
+================================================
+FILE: tsconfig.json
+================================================
+{
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "commonjs",
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true,
+        "types": [
+            "vite/client"
+        ]
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
+
+
+
+================================================
+FILE: vite.config.js
+================================================
+// vite.config.js
+import { resolve } from "path"
+import { defineConfig } from 'vite'
+
+module.exports = defineConfig({
+    build: {
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'index.html'),
+            }
+        }
+    }
+})
+
+
+
+================================================
+FILE: src/sketch.ts
+================================================
+import p5 from "p5"
+
+const sketch = (p: p5) => {
+    p.setup = function() {
+        p.createCanvas(1080, 1080);
+    }
+
+    p.draw = function() {
+        p.background(120, 20, 200)
+    }
+
+    p.mousePressed = function() {
+        console.log('here');
+    }
+}
+const myp5 = new p5(sketch)
+
+
+
