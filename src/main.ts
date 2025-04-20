@@ -5,14 +5,13 @@ import './style.css';
 import Alpine from 'alpinejs';
 import { setupAlpine } from './alpine/setupAlpine';
 
-// Import from p5js-wrapper for runtime, use original p5 for types
-import { p5 } from 'p5js-wrapper'; // Use the wrapper's p5 constructor
-import type p5Type from 'p5'; // Use original p5 types with an alias
-// Import the P5SketchInstance type and the default sketch factory function
-import type { P5SketchInstance } from './visualization/p5Sketch';
-import createNeutrinoSketch from './visualization/p5Sketch'; // Import the default export
-import type { OscillationParameters, AnimationState, ProbabilityVector } from './physics/types'; // Keep needed types
-import { getDominantFlavorName } from './alpine/visualizationComponent'; // Keep helper
+import { p5 } from 'p5js-wrapper';
+import type {
+    P5SketchInstance,
+    OscillationParameters,
+    AnimationState,
+    ProbabilityVector
+} from './physics/types';
 
 // Define the expected shape of the simParams store locally
 interface OscParamsStore {
@@ -81,25 +80,24 @@ document.addEventListener('DOMContentLoaded', async () => {
        }
        console.warn('Plot canvas element not found. Plot may not be displayed.');
        // Pass null for plotCanvasElement if not found, sketch should handle this.
-       window.p5Instance = new p5(createNeutrinoSketch(sketchContainer, null as any), sketchContainer); // Pass null if not found
+       window.p5Instance = new p5(createNeutrinoSketch(sketchContainer, null as any), sketchContainer) as P5SketchInstance; // Pass null if not found
 
     } else {
         // --- Create and store the single p5 instance ---
         // Pass the main container and the specific plot canvas element
-        window.p5Instance = new p5(createNeutrinoSketch(sketchContainer, plotCanvasElement), sketchContainer);
+        window.p5Instance = new p5(createNeutrinoSketch(sketchContainer, plotCanvasElement), sketchContainer) as P5SketchInstance;
     }
 
 
     console.log("p5 sketch initialized.");
 
     // --- Set up External Watchers ---
-    // Watchers now inform the single p5 sketch instance about state changes.
-    const notifySketchUpdate = (resetAnimation: boolean = false) => {
-        const simParamsStore = Alpine.store('simParams') as OscParamsStore;
-        const animState = Alpine.store('animation') as AnimationState;
+    // Watchers now inform the single p5 sketch instance about state changes by calling specific methods.
 
+    // Watch simulation parameters and update the sketch's parameters
+    Alpine.effect(() => {
+        const simParamsStore = Alpine.store('simParams') as OscParamsStore;
         // Create a plain OscillationParameters object from the store
-        // The sketch's updateState will handle using getCalculationParams internally if needed
         const plainSimParams: OscillationParameters = {
             theta12_deg: simParamsStore.theta12_deg,
             theta13_deg: simParamsStore.theta13_deg,
@@ -113,54 +111,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             Ye: simParamsStore.Ye,
             matterEffect: simParamsStore.matterEffect,
             initialFlavorIndex: simParamsStore.initialFlavorIndex,
-            // Include calculated fields needed by OscillationParameters type, even if not directly used by p5 state update
+            // Include calculated fields needed by OscillationParameters type (L and E will be set in sketch)
              s12sq: Math.pow(Math.sin(window.degToRad?.(simParamsStore.theta12_deg) ?? 0), 2),
              s13sq: Math.pow(Math.sin(window.degToRad?.(simParamsStore.theta13_deg) ?? 0), 2),
              s23sq: Math.pow(Math.sin(window.degToRad?.(simParamsStore.theta23_deg) ?? 0), 2),
              deltaCP_rad: window.degToRad?.(simParamsStore.deltaCP_deg) ?? 0,
              dm21sq: simParamsStore.dm21sq_eV2,
              dm31sq: simParamsStore.dm31sq_eV2,
-             L: animState.currentL, // Current L might be relevant
-             E: simParamsStore.energy,
+             L: 0, // L is managed by the sketch animation, set to 0 for initial parameter set
+             E: simParamsStore.energy, // E comes from Alpine store
              N_Newton: 0 // Assuming default
         };
+        // Notify the sketch about parameter updates
+        window.p5Instance?.updateSimParams?.(plainSimParams);
+        // No longer trigger a reset on every parameter change.
+        // Reset is now handled by explicit reset actions or initial flavor change if needed elsewhere.
+    });
 
-        // Notify the single sketch instance
-        if (window.p5Instance) {
-            (window.p5Instance as P5SketchInstance).updateState?.(plainSimParams, { ...animState }, resetAnimation);
-             if (resetAnimation) {
-                 (window.p5Instance as P5SketchInstance).resetHistory?.(); // Call resetHistory on the single instance
-             }
-        }
-    };
-
-    // Watch relevant Alpine stores and notify the sketch
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).initialFlavorIndex; notifySketchUpdate(true); }); // Reset on flavor change
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).matterEffect; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).rho; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).energy; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).theta12_deg; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).theta13_deg; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).theta23_deg; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).deltaCP_deg; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).dm21sq_eV2; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).dm31sq_eV2; notifySketchUpdate(false); });
-    Alpine.effect(() => { (Alpine.store('simParams') as OscParamsStore).maxL; notifySketchUpdate(false); }); // Update sketch on maxL change
-
+    // Watch animation playing state and notify the sketch
     Alpine.effect(() => {
         const isPlaying = (Alpine.store('animation') as AnimationState).isPlaying;
-        // Notify the single sketch instance
-        (window.p5Instance as P5SketchInstance)?.setPlaying?.(isPlaying);
+        window.p5Instance?.setPlaying?.(isPlaying);
     });
+
+    // Watch simulation speed and notify the sketch
     Alpine.effect(() => {
         const simSpeed = (Alpine.store('animation') as AnimationState).simSpeed;
-         // Notify the single sketch instance
-        (window.p5Instance as P5SketchInstance)?.setSimSpeed?.(simSpeed);
+        window.p5Instance?.setSimSpeed?.(simSpeed);
     });
 
     // Clean up p5 instance on page unload
     window.addEventListener('beforeunload', () => {
-      window.p5Instance?.remove(); // Remove the single instance
+      if (window.p5Instance) {
+          window.p5Instance.remove();
+      }
     });
 
   } catch (error) {
@@ -169,7 +153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-// Declare globals on the window object
 declare global {
   interface Window {
     Alpine: typeof Alpine;
@@ -184,5 +167,7 @@ declare global {
     };
   }
 }
+
+// No need to declare methods here, they are on the P5SketchInstance interface in p5Sketch.ts
 
 console.log("main.ts loaded - Alpine setup complete. p5 sketch initialized on DOMContentLoaded.");

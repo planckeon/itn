@@ -13,7 +13,19 @@ export type ProbabilityMatrix = number[][];
  * Vector of probabilities for a specific initial flavor.
  * [P(alpha->e), P(alpha->mu), P(alpha->tau)]
  */
+import type p5 from 'p5';
+
 export type ProbabilityVector = [number, number, number];
+
+/**
+ * Extended p5 instance with custom methods for neutrino visualization
+ */
+export interface P5SketchInstance extends p5 {
+    setPlaying?: (isPlaying: boolean) => void;
+    setSimSpeed?: (speed: number) => void;
+    updateSimParams?: (simParams: OscillationParameters) => void;
+    resetSimulation?: () => void;
+}
 
 /**
  * Neutrino flavor enumeration.

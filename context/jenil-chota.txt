@@ -1,0 +1,3789 @@
+Directory structure:
+└── jenil-chota/
+    ├── README.md
+    ├── Gemfile
+    ├── LICENSE
+    ├── package.json
+    ├── postcss.config.js
+    ├── .stylelintrc
+    ├── docs/
+    │   ├── README.md
+    │   ├── doc-styles.css
+    │   ├── index.html
+    │   ├── main.js
+    │   └── _includes/
+    │       ├── buttons.html
+    │       ├── card.html
+    │       ├── grid.html
+    │       ├── navs.html
+    │       ├── tag.html
+    │       └── utilities.html
+    ├── src/
+    │   ├── _base.css
+    │   ├── _card.css
+    │   ├── _dropdown.css
+    │   ├── _form.css
+    │   ├── _grid.css
+    │   ├── _nav.css
+    │   ├── _tab.css
+    │   ├── _tag.css
+    │   ├── _util.css
+    │   └── chota.css
+    ├── test/
+    │   ├── components.html
+    │   └── index.html
+    └── .github/
+        ├── CONTRIBUTING.md
+        ├── FUNDING.yml
+        └── workflows/
+            └── jekyll.yml
+
+================================================
+FILE: README.md
+================================================
+<p align="center">
+<img src="https://jenil.github.io/chota/logo.svg" />
+<br><br>
+A really small CSS framework
+<br><br>
+<img src="https://img.shields.io/npm/v/chota.svg" alt="">
+<a href="https://www.npmjs.com/package/chota"><img src="https://img.shields.io/npm/dt/chota.svg"></a>
+<a href="https://github.com/jenil/chota/issues"><img src="https://img.shields.io/github/issues/jenil/chota.svg"></a>
+<a href="https://bundlephobia.com/result?p=chota@latest"><img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/chota.svg"></a>
+<a href="https://github.com/troxler/awesome-css-frameworks"><img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome CSS Frameworks"/></a>
+</p>
+
+<br>
+
+
+- ⚡️&nbsp; Super light-weight. Just ~3kb (minified + gzipped).
+- ⛔️&nbsp; No preprocessor, just plug-n-play
+- 📐&nbsp; Magical 12 column [grid](https://jenil.github.io/chota/#grid)
+- 🌈&nbsp; Easy to [extend](https://jenil.github.io/chota/#customizing) with CSS variables
+- 🎲&nbsp; Comes with a handful of [components](https://jenil.github.io/chota/#components) &amp; [utilities](https://jenil.github.io/chota/#utilities)
+- ✅&nbsp; Good Semantics
+- 🤡&nbsp; Supports icons from [Icongram](https://icongr.am/)
+
+<br>
+
+### Get started
+
+CDN:
+```html
+<link rel="stylesheet" href="https://unpkg.com/chota">
+```
+
+npm or yarn:
+```bash
+npm install chota
+```
+
+#### SASS support
+Chota is designed keeping in mind *ease-of-use* and *minimalism*, hence it doesn't use any preprocessor or complex build process. If you would still like to extend it further using SASS, head to [palmiak's fork](https://github.com/palmiak/chota).
+
+<br>
+
+## Browsers support
+
+| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari-ios/safari-ios_48x48.png" alt="iOS Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>iOS Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/samsung-internet/samsung-internet_48x48.png" alt="Samsung" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Samsung | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Opera |
+| --------- | --------- | --------- | --------- | --------- | --------- | --------- |
+| IE11, Edge| last 2 versions| last 2 versions| last 2 versions| last 2 versions| last 2 versions| last 2 versions
+
+## Contributing
+Welcome! Please see our [contributing guidelines](https://github.com/jenil/chota/blob/master/.github/CONTRIBUTING.md).
+
+## License
+&copy; Jenil Gogari 2017-present. Code released under the [MIT license](https://github.com/jenil/chota/blob/master/LICENSE).
+
+
+
+================================================
+FILE: Gemfile
+================================================
+source "https://rubygems.org"
+
+gem "github-pages", "~> 227", group: :jekyll_plugins
+
+gem "webrick", "~> 1.7"
+
+
+
+================================================
+FILE: LICENSE
+================================================
+MIT License
+
+Copyright (c) 2017 Jenil Gogari
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+
+================================================
+FILE: package.json
+================================================
+{
+  "name": "chota",
+  "version": "0.9.2",
+  "description": "A really small CSS framework",
+  "main": "dist/chota.min.css",
+  "scripts": {
+    "start": "run-p docs watch",
+    "docs": "bundle exec jekyll s -s docs",
+    "build": "rimraf dist/* && stylelint src/*.css --fix && yarn postcss &&  cross-env NODE_ENV=production yarn postcss --ext .min.css && gzip -c dist/chota.min.css  | wc -c | xargs echo 'Size:'",
+    "postcss": "postcss ./src/chota.css -d dist/",
+    "watch": "cross-env NODE_ENV=development yarn postcss -w",
+    "test": "stylelint src/*.css"
+  },
+  "keywords": [
+    "css",
+    "minimal",
+    "web"
+  ],
+  "author": "Jenil Gogari",
+  "license": "MIT",
+  "homepage": "https://jenil.github.io/chota",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jenil/chota.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jenil/chota/issues"
+  },
+  "devDependencies": {
+    "autoprefixer": "10.4.8",
+    "caniuse-lite": "1.0.30001468",
+    "cross-env": "7.0.2",
+    "cssnano": "5.1.13",
+    "npm-run-all": "4.1.5",
+    "postcss": "8.4.16",
+    "postcss-banner": "4.0.1",
+    "postcss-cli": "10.0.0",
+    "postcss-csso": "6.0.1",
+    "postcss-import": "15.0.0",
+    "postcss-reporter": "7.0.5",
+    "prettier": "2.7.1",
+    "rimraf": "3.0.0",
+    "stylelint": "14.11.0",
+    "stylelint-config-prettier": "9.0.3",
+    "stylelint-config-standard": "28.0.0"
+  },
+  "files": [
+    "src/",
+    "dist/",
+    "README.md"
+  ],
+  "browserslist": [
+    "last 2 versions"
+  ],
+  "prettier": {
+    "tabWidth": 2
+  },
+  "dependencies": {}
+}
+
+
+
+================================================
+FILE: postcss.config.js
+================================================
+const { version } = require("./package.json");
+
+let plugins = [
+  require("postcss-banner")({
+    banner: `chota.css v${version} | MIT License | https://github.com/jenil/chota`,
+    important: true,
+  }),
+  require("postcss-import")({
+    plugins: [require("stylelint")({ fix: true, formatter: "compact" })],
+  }),
+  require("autoprefixer")(),
+  require("postcss-reporter")({ clearReportedMessages: true }),
+];
+
+// if (process.env.NODE_ENV == 'production') plugins.push(require("postcss-csso"))
+if (process.env.NODE_ENV == "production")
+  plugins.push(
+    require("cssnano")({
+      preset: "default",
+    })
+  );
+
+module.exports = {
+  plugins,
+};
+
+
+
+================================================
+FILE: .stylelintrc
+================================================
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-prettier"
+  ],
+  "ignorePath": [
+    "dist/**"
+  ],
+  "rules": {
+    "custom-property-pattern": null
+  }
+}
+
+
+================================================
+FILE: docs/README.md
+================================================
+# chota
+A really small CSS framework. 
+
+Full details on [master](https://github.com/jenil/chota/blob/master/README.md)
+
+To run docs locally first install Jekyll and then run:
+```
+jekyll serve
+```
+
+
+
+================================================
+FILE: docs/doc-styles.css
+================================================
+/* stylelint-disable color-function-notation */
+/* stylelint-disable length-zero-no-unit */
+/* stylelint-disable property-no-vendor-prefix */
+body.dark {
+  --bg-color: #000;
+  --bg-secondary-color: #262626;
+  --font-color: #f5f5f5;
+  --color-grey: #bbb;
+  --color-darkGrey: #888;
+  --color-primary: #17c16f;
+  --color-error: #ea4f4f;
+}
+
+body > .container {
+  max-width: 720px;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  flex: 1;
+  flex-direction: column;
+}
+
+.logo svg {
+  width: 100%;
+  max-width: 300px;
+}
+
+.logo h3 {
+  font-weight: 300;
+}
+
+body > footer {
+  background-color: #fafafa;
+  padding: 4rem;
+}
+
+body.dark > footer {
+  background-color: #262626;
+}
+
+section {
+  margin: 5rem auto;
+}
+
+#features ul {
+  list-style-type: none;
+  padding: 0;
+  font-size: 1.2em;
+  font-weight: 200;
+}
+
+figure.highlight {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+hr {
+  margin: 3rem 0;
+}
+
+body.dark .card {
+  box-shadow: 0 1px 3px var(--color-darkGrey);
+}
+
+#grid .card {
+  padding: 1rem 0rem;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  background-color: rgba(26, 159, 96, 20%);
+  font-size: 1.2rem;
+}
+
+body.dark #grid .card {
+  background-color: rgba(26, 159, 96, 40%);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.buttons > * {
+  margin: 0.5rem;
+}
+
+.buttons > .button + .button {
+  margin-left: 0.5rem;
+}
+
+.highlight,
+code {
+  background-color: var(--bg-secondary-color);
+}
+
+.highlight .c {
+  color: #93a1a1;
+} /* Comment */
+.highlight .err {
+  color: #586e75;
+} /* Error */
+.highlight .g {
+  color: #586e75;
+} /* Generic */
+.highlight .k {
+  color: #859900;
+} /* Keyword */
+.highlight .l {
+  color: #586e75;
+} /* Literal */
+.highlight .n {
+  color: #586e75;
+} /* Name */
+.highlight .o {
+  color: #859900;
+} /* Operator */
+.highlight .x {
+  color: #cb4b16;
+} /* Other */
+.highlight .p {
+  color: #586e75;
+} /* Punctuation */
+.highlight .cm {
+  color: #93a1a1;
+} /* Comment.Multiline */
+.highlight .cp {
+  color: #859900;
+} /* Comment.Preproc */
+.highlight .c1 {
+  color: #93a1a1;
+} /* Comment.Single */
+.highlight .cs {
+  color: #859900;
+} /* Comment.Special */
+.highlight .gd {
+  color: #2aa198;
+} /* Generic.Deleted */
+.highlight .ge {
+  color: #586e75;
+  font-style: italic;
+} /* Generic.Emph */
+.highlight .gr {
+  color: #dc322f;
+} /* Generic.Error */
+.highlight .gh {
+  color: #cb4b16;
+} /* Generic.Heading */
+.highlight .gi {
+  color: #859900;
+} /* Generic.Inserted */
+.highlight .go {
+  color: #586e75;
+} /* Generic.Output */
+.highlight .gp {
+  color: #586e75;
+} /* Generic.Prompt */
+.highlight .gs {
+  color: #586e75;
+  font-weight: bold;
+} /* Generic.Strong */
+.highlight .gu {
+  color: #cb4b16;
+} /* Generic.Subheading */
+.highlight .gt {
+  color: #586e75;
+} /* Generic.Traceback */
+.highlight .kc {
+  color: #cb4b16;
+} /* Keyword.Constant */
+.highlight .kd {
+  color: #22b3eb;
+} /* Keyword.Declaration */
+.highlight .kn {
+  color: #859900;
+} /* Keyword.Namespace */
+.highlight .kp {
+  color: #859900;
+} /* Keyword.Pseudo */
+.highlight .kr {
+  color: #22b3eb;
+} /* Keyword.Reserved */
+.highlight .kt {
+  color: #dc322f;
+} /* Keyword.Type */
+.highlight .ld {
+  color: #586e75;
+} /* Literal.Date */
+.highlight .m {
+  color: #2aa198;
+} /* Literal.Number */
+.highlight .s {
+  color: #2aa198;
+} /* Literal.String */
+.highlight .na {
+  color: #586e75;
+} /* Name.Attribute */
+.highlight .nb {
+  color: #b58900;
+} /* Name.Builtin */
+.highlight .nc {
+  color: #22b3eb;
+} /* Name.Class */
+.highlight .no {
+  color: #cb4b16;
+} /* Name.Constant */
+.highlight .nd {
+  color: #22b3eb;
+} /* Name.Decorator */
+.highlight .ni {
+  color: #cb4b16;
+} /* Name.Entity */
+.highlight .ne {
+  color: #cb4b16;
+} /* Name.Exception */
+.highlight .nf {
+  color: #22b3eb;
+} /* Name.Function */
+.highlight .nl {
+  color: #586e75;
+} /* Name.Label */
+.highlight .nn {
+  color: #586e75;
+} /* Name.Namespace */
+.highlight .nx {
+  color: #586e75;
+} /* Name.Other */
+.highlight .py {
+  color: #586e75;
+} /* Name.Property */
+.highlight .nt {
+  color: #22b3eb;
+} /* Name.Tag */
+.highlight .nv {
+  color: #22b3eb;
+} /* Name.Variable */
+.highlight .ow {
+  color: #859900;
+} /* Operator.Word */
+.highlight .w {
+  color: #586e75;
+} /* Text.Whitespace */
+.highlight .mf {
+  color: #2aa198;
+} /* Literal.Number.Float */
+.highlight .mh {
+  color: #2aa198;
+} /* Literal.Number.Hex */
+.highlight .mi {
+  color: #2aa198;
+} /* Literal.Number.Integer */
+.highlight .mo {
+  color: #2aa198;
+} /* Literal.Number.Oct */
+.highlight .sb {
+  color: #93a1a1;
+} /* Literal.String.Backtick */
+.highlight .sc {
+  color: #2aa198;
+} /* Literal.String.Char */
+.highlight .sd {
+  color: #586e75;
+} /* Literal.String.Doc */
+.highlight .s2 {
+  color: #2aa198;
+} /* Literal.String.Double */
+.highlight .se {
+  color: #cb4b16;
+} /* Literal.String.Escape */
+.highlight .sh {
+  color: #586e75;
+} /* Literal.String.Heredoc */
+.highlight .si {
+  color: #2aa198;
+} /* Literal.String.Interpol */
+.highlight .sx {
+  color: #2aa198;
+} /* Literal.String.Other */
+.highlight .sr {
+  color: #dc322f;
+} /* Literal.String.Regex */
+.highlight .s1 {
+  color: #2aa198;
+} /* Literal.String.Single */
+.highlight .ss {
+  color: #2aa198;
+} /* Literal.String.Symbol */
+.highlight .bp {
+  color: #22b3eb;
+} /* Name.Builtin.Pseudo */
+.highlight .vc {
+  color: #22b3eb;
+} /* Name.Variable.Class */
+.highlight .vg {
+  color: #22b3eb;
+} /* Name.Variable.Global */
+.highlight .vi {
+  color: #22b3eb;
+} /* Name.Variable.Instance */
+.highlight .il {
+  color: #2aa198;
+} /* Literal.Number.Integer.Long */
+
+
+
+================================================
+FILE: docs/index.html
+================================================
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <title>chota - A micro CSS framework</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/chota">
+  <!-- for dev -->
+  <!-- <link rel="stylesheet" href="./dist/chota.css"> -->
+  <link rel="stylesheet" href="./doc-styles.css">
+  <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body id="top">
+  <div class="container">
+    <div class="hero is-full-screen">
+      <div class="logo is-center is-vertical-align">
+        <img src="./logo.svg" alt="">
+        <h3>A <strong>micro</strong> (~3kb) CSS framework.</h3>
+        <small><em>FWIW, "choṭā" means "small" in Hindi</em></small>
+      </div>
+      <nav class="tabs is-center">
+        <a href="#features">features</a>
+        <a href="#start">start</a>
+        <a href="#docs">docs</a>
+        <a href="https://github.com/jenil/chota">GitHub</a>
+        <a href="javascript:void(0)" id="theme-switch" onclick="switchMode(this)">☀️</a>
+      </nav>
+    </div>
+
+    <section id="features">
+      <h2>Features</h2>
+      <ul>
+        <li>⚡️&nbsp; Super light-weight. Just ~3kb (minified + gzipped).</li>
+        <li>⛔️&nbsp; No preprocessor, just plug-n-play</li>
+        <li>📐&nbsp; Magical 12 column <a href="#grid">grid</a></li>
+        <li>🌈&nbsp; Easy to <a href="#customizing">extend</a> with CSS variables</li>
+        <li>🎲&nbsp; Comes with a handful of <a href="#components">components</a> &amp; <a href="#utilities">utilities</a></li>
+        <li>✅&nbsp; Good Semantics</li>
+        <li>🌙&nbsp; Easy dark mode switch</li>
+        <li>🤡&nbsp; Supports <a href="#icons">icons</a> out-of-the-box</li>
+      </ul>
+    </section>
+
+    <section id="start">
+      <h2>Getting Started</h2>
+      <p>All you need is 1 CSS file, <code>chota.css</code> to be included in your webpage.</p>
+      <br>
+      <p>Link this CSS in your HTML:</p>
+      {% highlight html %}<link rel="stylesheet" href="https://unpkg.com/chota@latest">{% endhighlight %}
+      <br>
+      <p>You can get the latest release from GitHub</p>
+      <p><a href="https://github.com/jenil/chota/archive/master.zip" class="button outline primary">Download .zip</a></p>
+      <br>
+      <p>Install it from <code>npm</code> or <code>yarn</code></p>
+      {% highlight bash %}npm install chota{% endhighlight %}
+    </section>
+
+    <section id="docs">
+      <header class="row">
+        <div class="col is-vertical-align">
+          <h2 class="is-marginless">Docs</h2>
+        </div>
+        <div class="col is-right">
+          <nav class="tabs">
+            <a href="#customizing">customizing</a>
+            <a href="#components">components</a>
+          </nav>
+        </div>
+      </header>
+      <br>
+      <p>
+        Chota is <em>dead</em> simple to use. It doesn't require learning a lot of class names like other frameworks. It applies a few basic styles to the HTML following the <a href="https://www.w3schools.com/html/html5_semantic_elements.asp" target="_blank">HTML Semantics</a>.
+      </p>
+      <p>Here is a <a href="https://raw.githack.com/jenil/chota/main/test/index.html">demo</a> of the basic HTML elements. A few addons that Chota provides out-of-the-box for some elements are:</p>
+      <ul>
+        <li><a href="https://raw.githack.com/jenil/chota/main/test/index.html#text__tables">Striped tabled</a></li>
+        <li><a href="https://raw.githack.com/jenil/chota/main/test/index.html#forms__input">Input states</a></li>
+        <li><a href="https://raw.githack.com/jenil/chota/main/test/index.html#forms__input">Horizontal input alignment</a> by just wrapping them with <code>grouped</code> class</li>
+        <li><a href="#icons">Icons</a></li>
+      </ul>
+      <br>
+      <h3 id="customizing">Customizing</h3>
+      <p>Chota comes with a basic set of <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_variables" target="_blank">CSS variables</a>:</p>
+{% highlight css %}
+:root {
+  --bg-color: #ffffff;
+  --bg-secondary-color: #f3f3f6;
+  --color-primary: #14854F;
+  --color-lightGrey: #d2d6dd;
+  --color-grey: #747681;
+  --color-darkGrey: #3f4144;
+  --color-error: #d43939;
+  --color-success: #28bd14;
+  --grid-maxWidth: 120rem;
+  --grid-gutter: 2rem;
+  --font-size: 1.6rem;
+  --font-color: #333333;
+  --font-family-sans: sans-serif;
+  --font-family-mono: monaco, "Consolas", "Lucida Console", monospace;
+}
+{% endhighlight %}
+    <br>
+    <p>To override the variables, just add them to your <code>:root</code> selector after importing <code>chota.css</code></p>
+{% highlight css %}
+@import url(chota.css)
+
+:root {
+  --color-primary: #da1d50; /* brand color */
+  --grid-maxWidth: 108rem; /* max container width 1080px */
+}
+
+/* Other styles..... */
+{% endhighlight %}
+<br>
+<p>Addtionally, you can add dark mode to your site, to support devices that prefer dark mode.</p>
+{% highlight html %}
+  <style>
+    body.dark {
+      --bg-color: #000;
+      --bg-secondary-color: #131316;
+      --font-color: #f5f5f5;
+      --color-grey: #ccc;
+      --color-darkGrey: #777;
+    }
+  </style>
+  <script>
+    if (window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark');
+    }
+  </script>
+{% endhighlight %}
+    </section>
+    <section id="components">
+      <div class="row">
+        <div class="col is-vertical-align">
+          <h2 class="is-marginless">Components</h2>
+        </div>
+        <div class="col is-right">
+          <nav class="tabs">
+            <a href="#grid">grid</a>
+            <a href="#buttons">buttons</a>
+            <a href="#nav">nav</a>
+            <a href="#card">card</a>
+            <a href="#tag">tag</a>
+            <a href="#utilities">utilities</a>
+          </nav>
+        </div>
+      </div>
+      {% include grid.html %}
+      <br>
+      {% include buttons.html %}
+      <br>
+      {% include navs.html %}
+      <br>
+      {% include card.html %}
+      <br>
+      {% include tag.html %}
+      <br>
+      {% include utilities.html %}
+      <br>
+      <section id="icons">
+        <h4>Icons</h4>
+        <p>While you are free to use any icon library that you like, I'd just like to drop a link to <a href="http://icongr.am/" target="_blank">Icongram</a> here. It's the <em>quickest</em> way you can add icons to any website.</p>
+      </section>
+      <br>
+      <br>
+      <p class="is-center">
+      <a class="button primary outline" target="_blank" href="https://twitter.com/intent/tweet?url=https://jenil.github.io/chota/&text=chota.css%20-%20A%20micro%20CSS%20framework&via=geekGogari&hashtags=web,css">Give a shout-out 📢</a>
+      </p>
+    </section>
+  </div>
+  <footer class="text-center">
+    <p><a href="#top">🔝 Back to top</a> &bull; <a href="https://github.com/jenil/chota">🐛 Report an issue</a> &bull; <a href="https://paypal.me/jgog/10" target="_blank" onclick="ga('send', 'event', 'navigation', 'click', 'donate');">🎗 Donate</a></p>
+    <p>Want icons for your project too? Checkout <a href="https://icongr.am" target="_blank">Icongr.am 🚀</a></p>
+    <h5>Made by <a href="https://jgog.in" target="_blank">Jenil Gogari</a></h5>
+  </footer>
+  <script>
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      document.body.classList.add("dark");
+      document.querySelector('#theme-switch').innerHTML = "🌙"
+    }
+
+    function switchMode(el) {
+      const bodyClass = document.body.classList;
+      bodyClass.contains("dark")
+        ? ((el.innerHTML = "☀️"), bodyClass.remove("dark"))
+        : ((el.innerHTML = "🌙"), bodyClass.add("dark"));
+    }
+  </script>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-91125324-3', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+
+</html>
+
+
+
+================================================
+FILE: docs/main.js
+================================================
+function switchMode(el) {
+  const bodyClass = document.body.classList;
+  bodyClass.contains('dark')
+    ? (el.innerHTML = '☀️', bodyClass.remove('dark'))
+    : (el.innerHTML = '🌙', bodyClass.add('dark')); 
+}
+
+
+
+================================================
+FILE: docs/_includes/buttons.html
+================================================
+<section id="buttons">
+  <h4>Buttons</h4>
+  <p>chota includes five predefined button styles, each serving its own semantic purpose. It also applies these styles to <code>input, button</code> elements, see the complete <a href="https://rawgit.com/jenil/chota/main/test/index.html#forms__action" target="_blank">demo</a>.</p>
+  <div class="row">
+    <div class="col-4">
+      <div class="buttons">
+        <a href="#!" class="button">Default</a>
+        <a href="#!" class="button primary">Primary</a>
+        <a href="#!" class="button secondary">Secondary</a>
+        <a href="#!" class="button dark">Dark</a>
+        <a href="#!" class="button error">Error</a>
+        <a href="#!" class="button success">Success</a>
+        <a href="#!" class="button outline">Outline</a>
+        <a href="#!" class="button outline primary">Primary outline</a>
+        <a href="#!" class="button outline secondary">Secondary outline</a>
+        <a href="#!" class="button outline dark">Dark outline</a>
+        <a href="#!" class="button clear">Clear</a>
+        <button type="button" class="button primary icon">New file 
+          <img src="https://icongr.am/feather/file.svg?size=16&amp;color=ffffff" alt="icon">
+        </button>
+        <button class="button icon-only">
+          <img src="https://icongr.am/feather/search.svg?size=24">
+        </button>
+      </div>
+    </div>
+    <div class="col">
+{% highlight html %}
+<a class="button">Default</a>
+<a class="button primary">Primary</a>
+<a class="button secondary">Secondary</a>
+<a class="button dark">Dark</a>
+<a class="button error">Error</a>
+<a class="button success">Success</a>
+<a class="button outline">Outline</a>
+<a class="button outline primary">Primary outline</a>
+<a class="button outline secondary">Secondary outline</a>
+<a class="button outline dark">Dark outline</a>
+<a class="button clear">Clear</a>
+<button type="button" class="button primary icon">New file 
+  <img src="https://icongr.am/feather/file.svg?size=16&amp;color=ffffff" alt="icon">
+</button>
+<button class="button icon-only">
+  <img src="https://icongr.am/feather/search.svg?size=24">
+</button>
+{% endhighlight %}
+    </div>
+  </div>
+</section>
+
+
+
+================================================
+FILE: docs/_includes/card.html
+================================================
+<section id="card">
+  <h4>Card</h4>
+  <p>The <code>.card</code> element is simply a container with a shadow, a border, a radius, and some padding.</p>
+  <p>You can add a simple <code>header</code> element with a heading tag in it to add a heading to the card.</p>
+  <div class="row is-center">
+    <div class="col">
+      <div class="card">
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloremque cumque velit id.</p>
+      </div>
+    </div>
+    <div class="col">
+{% highlight html %}
+<div class="card">
+  <p>Lorem ipsum ... nostrud exercit.</p>
+</div>
+{% endhighlight %}
+    </div>
+  </div>
+  <hr>
+  <div class="row is-center">
+    <div class="col-6">
+      <div class="card">
+        <header>
+          <h4>Card title</h4>
+        </header>
+        <p>A nisi ullam impedit molestiae, sapiente id, numquam accusantium eius cum, iste eum iusto blanditiis doloribus beatae. Molestias iste explicabo libero nam, voluptas harum ipsum quod velit enim. Quae, cupiditate?</p>
+        <footer class="is-right">
+          <a href="#!" class="button primary">Submit</a>
+          <a href="#!" class="button">Cancel</a>
+        </footer>
+      </div>
+    </div>
+  </div>
+  <div class="row is-center">
+    <div class="col">
+{% highlight html %}
+<div class="card">
+  <header>
+    <h4>Card title</h4>
+  </header>
+  <p>A nisi ullam ... cupiditate?</p>
+  <footer class="is-right">
+    <a class="button primary">Submit</a>
+    <a class="button">Cancel</a>
+  </footer>
+</div>
+{% endhighlight %}
+    </div>
+  </div>
+</section>
+
+
+
+================================================
+FILE: docs/_includes/grid.html
+================================================
+<section id="grid">
+  <h4>Grid</h4>
+  <p>The grid system is a fluid system with a max width of 120rem (1200px), that shrinks with the viewport. The max
+    width can be controlled by changing the <code>--grid-maxWidth</code> in the <code>:root</code>.</p>
+  <p>Much like other frameworks, wrap your content in a <code>.container</code> to center it on the page.</p>
+  <br>
+  <h5>Flexible grid</h5>
+  <p>A simple way to build flexible responsive columns:</p>
+  <ul>
+    <li>Add a <code>.row</code> container</li>
+    <li>Add as many <code>.col</code> elements as you want</li>
+  </ul>
+  <p>Each column will have an <strong>equal width</strong>, in a row. There is no restriction on number of columns, but
+    it is recommended <strong>not</strong> to add more than 12 columns in a row.</p>
+  <div class="row">
+    <div class="col">
+      <div class="card is-center">.col</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card is-center">.col</div>
+    </div>
+    <div class="col">
+      <div class="card is-center">.col</div>
+    </div>
+    <div class="col">
+      <div class="card is-center">.col</div>
+    </div>
+  </div>
+{% highlight html %}
+<div class="row">
+  <div class="col"> .col </div>
+</div>
+<div class="row">
+  <div class="col"> .col </div>
+  <div class="col"> .col </div>
+  <div class="col"> .col </div>
+</div>
+{% endhighlight %}
+  <hr>
+  <h5>Sized</h5>
+  <p>You can also specify the size of the columns</p>
+  <ul>
+    <li>Add a <code>.row</code> container</li>
+    <li>Add a <code>.col-n</code> child where <strong>n</strong> can be from 1 to 12</li>
+  </ul>
+  <p>Each column class is named after how many columns you want out of 12. So if you want 4 columns out of 12, use
+    <code>.col-4</code>.</p>
+  <div class="row">
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+    <div class="col-1">
+      <div class="card is-center">.col-1</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-4">
+      <div class="card is-center">.col-4</div>
+    </div>
+    <div class="col-4">
+      <div class="card is-center">.col-4</div>
+    </div>
+    <div class="col-4">
+      <div class="card is-center">.col-4</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card is-center">.col-12</div>
+    </div>
+  </div>
+{% highlight html %}
+<div class="row">
+  <div class="col-1"> .col-1 </div>
+  <!-- repeat 11 times -->
+</div>
+<div class="row">
+  <div class="col-4"> .col-4 </div>
+  <!-- repeat twice -->
+</div>
+<div class="row">
+  <div class="col-12"> .col-12 </div>
+</div>
+{% endhighlight %}
+<hr>
+<h5><span class="tag is-small">New</span> Responsive grids:</h5>
+<p>We now have responsive grids that work based on device width.</p>
+<ul>
+  <li>All columns are 100% for device width &lt; 600px</li>
+  <li><code>.col</code> and <code>.col-N</code> for all device sizes &gt;= 600px</li>
+  <li><code>.col-N-md</code> for &gt;= 900px sizes</li>
+  <li><code>.col-N-lg</code> for &gt;= 1200px sizes</li>
+</ul>
+<div class="row">
+  <div class="col-12 col-6-md col-4-lg">
+    <div class="card is-center">.col-12.col-6-md.col-4-lg</div>
+  </div>
+  <div class="col-6 col-3-md col-4-lg">
+    <div class="card is-center">.col-6.col-3-md.col-4-lg</div>
+  </div>
+  <div class="col-6 col-3-md col-4-lg">
+    <div class="card is-center">.col-6.col-3-md.col-4-lg</div>
+  </div>
+</div>
+<div class="row">
+  <div class="col col-6-lg">
+    <div class="card is-center">.col.col-6-lg</div>
+  </div>
+  <div class="col col-3-lg">
+    <div class="card is-center">.col.col-3-lg</div>
+  </div>
+  <div class="col col-3-lg">
+    <div class="card is-center">.col.col-3-lg</div>
+  </div>
+</div>
+{% highlight html %}
+<div class="row">
+<div class="col-12 col-6-md col-4-lg">
+  <div class="card is-center">.col-12.col-6-md.col-4-lg</div>
+</div>
+<div class="col-6 col-3-md col-4-lg">
+  <div class="card is-center">.col-6.col-3-md.col-4-lg</div>
+</div>
+<div class="col-6 col-3-md col-4-lg">
+  <div class="card is-center">.col-6.col-3-md.col-4-lg</div>
+</div>
+</div>
+<div class="row">
+<div class="col col-6-lg">
+  <div class="card is-center">.col.col-6-lg</div>
+</div>
+<div class="col col-3-lg">
+  <div class="card is-center">.col.col-3-lg</div>
+</div>
+<div class="col col-3-lg">
+  <div class="card is-center">.col.col-3-lg</div>
+</div>
+</div>
+{% endhighlight %}
+  <hr>
+  <h5>Mix-n-Match</h5>
+  <p>You can use a combination of <strong>flexible</strong> and <strong>sized</strong> columns.</p>
+  <p>When using a combination, the sized width column takes the size specified and the remaining is filled in by the
+    flexible column.</p>
+  <div class="row">
+    <div class="col-2">
+      <div class="card is-center">.col-2</div>
+    </div>
+    <div class="col-2">
+      <div class="card is-center">.col-2</div>
+    </div>
+    <div class="col">
+      <div class="card is-center">auto</div>
+    </div>
+    <div class="col-3">
+      <div class="card is-center">.col-3</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-10">
+      <div class="card is-center">.col-10</div>
+    </div>
+    <div class="col">
+      <div class="card is-center">auto</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="card is-center">auto</div>
+    </div>
+    <div class="col">
+      <div class="card is-center">auto</div>
+    </div>
+    <div class="is-full-width"></div>
+    <div class="col">
+      <div class="card is-center">auto</div>
+    </div>
+    <div class="col">
+      <div class="card is-center">auto</div>
+    </div>
+  </div>
+{% highlight html %}
+<div class="row">
+  <div class="col-2"> .col-2 </div>
+  <div class="col-2"> .col-2 </div>
+  <div class="col"> auto </div>
+  <div class="col-3"> .col-3 </div>
+</div>
+<div class="row">
+  <div class="col-10"> .col-10 </div>
+  <div class="col"> auto </div>
+</div>
+<div class="row">
+  <div class="col"> auto </div>
+  <div class="col"> auto </div>
+  <div class="is-full-width"></div>
+  <div class="col"> auto </div>
+  <div class="col"> auto </div>
+</div>
+{% endhighlight %}
+  <p><strong>Pro tip:</strong> Create equal-width columns that span multiple rows by inserting a
+    <code>.is-full-width</code> where you want the columns to break to a new line. Here <code>.is-full-width</code> is
+    one of the <a href="#utilities">utility</a> class.</p>
+
+  <hr>
+  <h5>Reverse Direction</h5>
+  <p>Add <code>.reverse</code> to the <code>.row</code> to reverse the column direction. </p>
+  <div class="row reverse">
+    <div class="col-6">
+      <div class="card is-center">.col-6</div>
+    </div>
+    <div class="col-3">
+      <div class="card is-center">.col-3</div>
+    </div>
+    <div class="col-3">
+      <div class="card is-center">.col-3</div>
+    </div>
+  </div>
+{% highlight html %}
+<div class="row reverse">
+  <div class="col-6">
+    <div class="card is-center">.col-6</div>
+  </div>
+  <div class="col-3">
+    <div class="card is-center">.col-3</div>
+  </div>
+  <div class="col-3">
+    <div class="card is-center">.col-3</div>
+  </div>
+</div>
+{% endhighlight %}
+</section>
+
+
+================================================
+FILE: docs/_includes/navs.html
+================================================
+<section id="nav">
+  <h4>Nav</h4>
+  <p>A responsive horizontal nav bar that can contain links, tabs, buttons, icons, and a logo.</p>
+  <p>The <code>.nav</code> container can have 3 parts:</p>
+  <ul>
+    <li><code>.nav-left</code></li>
+    <li><code>.nav-center</code></li>
+    <li><code>.nav-right</code></li>
+  </ul>
+  <p>Each of these containers can have a <code>&lt;a&gt;</code> ,<code>.button</code>, <code>.tabs</code>, <code>.brand</code>. Add a <code>active</code> class to show a active link.</p>
+  <br>
+  <nav class="nav">
+    <div class="nav-left">
+      <a class="brand" href="#">Brand</a>
+      <div class="tabs">
+        <a href="#!">Link 1</a>
+        <a href="#!" class="active">Link 2</a>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a href="#!" class="button outline">Button</a>
+    </div>
+  </nav>
+{% highlight html %}
+<nav class="nav">
+  <div class="nav-left">
+    <a class="brand" href="#">Brand</a>
+    <div class="tabs">
+      <a>Link 1</a>
+      <a class="active">Link 2</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a class="button outline">Button</a>
+  </div>
+</nav>
+{% endhighlight %}
+  <hr>
+  <nav class="nav">
+    <div class="nav-left">
+      <a href="#!" class="active">Link 1</a>
+      <a href="#!">Link 2</a>
+    </div>
+    <div class="nav-center">
+      <a class="brand" href="#">
+        <img src="./logo.svg" alt="">
+      </a>
+    </div>
+    <div class="nav-right">
+        <a href="#!">Link 3</a>
+        <a href="#!">Link 4</a>
+    </div>
+  </nav>
+{% highlight html %}
+<nav class="nav">
+  <div class="nav-left">
+    <a class="active">Link 1</a>
+    <a>Link 2</a>
+  </div>
+  <div class="nav-center">
+    <a class="brand">
+      <img src="logo.svg" alt="">
+    </a>
+  </div>
+  <div class="nav-right">
+      <a>Link 3</a>
+      <a>Link 4</a>
+  </div>
+</nav>
+{% endhighlight %}
+  <hr>
+  <p>You can also have tabs without a nav bar. Simply make a <code>.tabs</code> container and add links in it. To make tabs go full width just add a <code>is-full</code> class</p>
+  <br>
+  <nav class="tabs">
+    <a href="#!">Tab 1</a>
+    <a href="#!">Tab 2</a>
+    <a href="#!" class="active">Tab 3</a>
+  </nav>
+  <br>
+  <nav class="tabs is-full">
+    <a href="#!">Tab 1</a>
+    <a href="#!" class="active">Tab 2</a>
+    <a href="#!">Tab 3</a>
+  </nav>
+{% highlight html %}
+<nav class="tabs">
+  <a>Tab 1</a>
+  <a>Tab 2</a>
+  <a class="active">Tab 3</a>
+</nav>
+<nav class="tabs is-full">
+  <a>Tab 1</a>
+  <a class="active">Tab 2</a>
+  <a>Tab 3</a>
+</nav>
+{% endhighlight %}
+</section>
+
+
+
+================================================
+FILE: docs/_includes/tag.html
+================================================
+<section id="tag">
+  <h4>Tag</h4>
+  <p>Labels to insert anywhere! They come in 3 sizes — small, medium, large</p>
+  <p><span class="tag">One</span><span class="tag">Two</span><span class="tag">Three</span><span class="tag is-small">Small</span><span class="tag is-large">Large</span></p>
+{% highlight html %}
+<p>
+  <span class="tag">One</span>
+  <span class="tag">Two</span>
+  <span class="tag">Three</span>
+  <span class="tag is-small">Small</span>
+  <span class="tag is-large">Large</span>
+</p>
+{% endhighlight %}
+</section>
+
+
+================================================
+FILE: docs/_includes/utilities.html
+================================================
+<section id="utilities">
+  <h4>Utilities</h4>
+  <p>
+    You can apply these helper classes to almost any element, in order to alter
+    its style.
+  </p>
+  <ul>
+    <li>
+      <code>text-primary</code> - <span class="text-primary">Primary text</span>
+    </li>
+    <li>
+      <code>text-light</code> - <span class="text-light">Light text</span>
+    </li>
+    <li>
+      <code>text-white</code> -
+      <span class="bg-primary text-white">White text</span>
+    </li>
+    <li><code>text-dark</code> - <span class="text-dark">Dark text</span></li>
+    <li><code>text-grey</code> - <span class="text-grey">Grey text</span></li>
+    <li>
+      <code>text-error</code> - <span class="text-error">Error text</span>
+    </li>
+    <li>
+      <code>text-success</code> - <span class="text-success">Success text</span>
+    </li>
+    <li>
+      <code>bg-primary</code> -
+      <span class="bg-primary">primary background</span>
+    </li>
+    <li>
+      <code>bg-light</code> - <span class="bg-light">Light background</span>
+    </li>
+    <li><code>bg-dark</code> - <span class="bg-dark">Dark background</span></li>
+    <li><code>bg-grey</code> - <span class="bg-grey">Grey background</span></li>
+    <li>
+      <code>bg-error</code> - <span class="bg-error">Error background</span>
+    </li>
+    <li>
+      <code>bg-success</code> -
+      <span class="bg-success">Success background</span>
+    </li>
+    <li>
+      <code>bd-primary</code> - <span class="bd-primary">primary border</span>
+    </li>
+    <li><code>bd-light</code> - <span class="bd-light">Light border</span></li>
+    <li><code>bd-dark</code> - <span class="bd-dark">Dark border</span></li>
+    <li><code>bd-grey</code> - <span class="bd-grey">Grey border</span></li>
+    <li><code>bd-error</code> - <span class="bd-error">Error border</span></li>
+    <li>
+      <code>bd-success</code> - <span class="bd-success">Success border</span>
+    </li>
+    <li><code>pull-right</code> - floats an element to the right</li>
+    <li><code>pull-left</code> - floats an element to the left</li>
+    <li><code>text-center</code> - center aligns text</li>
+    <li><code>text-left</code> - left aligns text</li>
+    <li><code>text-right</code> - right aligns text</li>
+    <li><code>text-justify</code> - justify aligns text</li>
+    <li><code>text-uppercase</code> - text to uppercase</li>
+    <li><code>text-lowercase</code> - text to lowercase</li>
+    <li><code>text-capitalize</code> - capitalizes text</li>
+    <li><code>is-full-screen</code> - makes the element 100% view height</li>
+    <li><code>is-full-width</code> - make the element 100% width</li>
+    <li>
+      <code>is-vertical-align</code> - vertically centers element using flex
+    </li>
+    <li>
+      <code>is-horizontal-align</code> - horizontal centers element using flex
+    </li>
+    <li><code>is-center</code> - centers element using flex</li>
+    <li><code>is-right</code> - right aligns element using flex</li>
+    <li><code>is-left</code> - left aligns element using flex</li>
+    <li><code>is-fixed</code> - fixed positioned element</li>
+    <li><code>is-paddingless</code> - removes any padding</li>
+    <li><code>is-marginless</code> - removes any margin</li>
+    <li><code>is-rounded</code> - make the element round</li>
+    <li><code>clearfix</code> - clears the floats</li>
+    <li><code>is-hidden</code> - hides the element completely</li>
+    <li><code>hide-xs</code> - hides the element for screens &lt;600px</li>
+    <li>
+      <code>hide-sm</code> - hides the element for screens &gt;=600px and
+      &lt;900px
+    </li>
+    <li>
+      <code>hide-md</code> - hides the element for screens &gt;=900px and
+      &lt;1200px
+    </li>
+    <li><code>hide-lg</code> - hides the element for screens &gt;=1200px</li>
+    <li><code>hide-pr</code> - hides the element for printing</li>
+  </ul>
+  <h4>Details</h4>
+  <p>You can have a <code>&lt;details&gt;</code> to defines a toggle-able block of content with a summary and additional details.</p>
+  <details>
+    <summary>Read more</summary>
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec viverra nec
+      nulla vitae mollis.
+    </p>
+  </details>
+  <p>This can be coupled to a <code>.dropdown</code> and a couple of <code>.button</code> and <code>.card</code> classes to defines a dropdown button.</p>
+  <details class=dropdown>
+      <summary class="button outline">My Profile</summary>
+      <div class=card>
+        <p><a href="#">Edit</a></p>
+        <p><a href="#">Alerts&nbsp;<span class=tag>3</span></a></p>
+        <hr/>
+        <p><a href="#" class=text-error>Logout</a></p>
+    </div>
+  </details>
+  <details class=dropdown>
+    <summary class="button outline">Login</summary>
+    <form class="card row">
+      <input class=col-12 placeholder=username>
+      <input class=col-12 placeholder=password type=password>
+      <footer class=is-right>
+        <a class="button clear">Sign up</a>
+        <button type=submit>Sign in</button>
+      </footer>
+    </form>
+  </details>
+</section>
+
+
+
+
+================================================
+FILE: src/_base.css
+================================================
+:root {
+  --bg-color: #fff;
+  --bg-secondary-color: #f3f3f6;
+  --color-primary: #14854f;
+  --color-lightGrey: #d2d6dd;
+  --color-grey: #747681;
+  --color-darkGrey: #3f4144;
+  --color-error: #d43939;
+  --color-success: #28bd14;
+  --grid-maxWidth: 120rem;
+  --grid-gutter: 2rem;
+  --font-size: 1.6rem;
+  --font-color: #333;
+  --font-family-sans: -apple-system, "BlinkMacSystemFont", "Avenir",
+    "Avenir Next", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --font-family-mono: monaco, "Consolas", "Lucida Console", monospace;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+  line-height: 1.15;
+  text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  background-color: var(--bg-color);
+  line-height: 1.6;
+  font-size: var(--font-size);
+  color: var(--font-color);
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif; /* fallback */
+  font-family: var(--font-family-sans);
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  margin: 0.35em 0 0.7em;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.75em;
+}
+
+h3 {
+  font-size: 1.5em;
+}
+
+h4 {
+  font-size: 1.25em;
+}
+
+h5 {
+  font-size: 1em;
+}
+
+h6 {
+  font-size: 0.85em;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover:not(.button) {
+  opacity: 0.75;
+}
+
+button {
+  font-family: inherit;
+}
+
+p {
+  margin-top: 0;
+}
+
+blockquote {
+  background-color: var(--bg-secondary-color);
+  padding: 1.5rem 2rem;
+  border-left: 3px solid var(--color-lightGrey);
+}
+
+dl dt {
+  font-weight: bold;
+}
+
+hr {
+  border: none;
+  background-color: var(--color-lightGrey);
+  height: 1px;
+  margin: 1rem 0;
+}
+
+table {
+  width: 100%;
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: left;
+}
+
+table.striped tr:nth-of-type(2n) {
+  background-color: var(--bg-secondary-color);
+}
+
+td,
+th {
+  vertical-align: middle;
+  padding: 1.2rem 0.4rem;
+}
+
+thead {
+  border-bottom: 2px solid var(--color-lightGrey);
+}
+
+tfoot {
+  border-top: 2px solid var(--color-lightGrey);
+}
+
+code,
+kbd,
+pre,
+samp,
+tt {
+  font-family: var(--font-family-mono);
+}
+
+code,
+kbd {
+  font-size: 90%;
+  white-space: pre-wrap;
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  background-color: var(--bg-secondary-color);
+  color: var(--color-error);
+}
+
+pre {
+  background-color: var(--bg-secondary-color);
+  font-size: 1em;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+abbr[title] {
+  border-bottom: none;
+  text-decoration: underline;
+  text-decoration: underline dotted;
+}
+
+img {
+  max-width: 100%;
+}
+
+fieldset {
+  border: 1px solid var(--color-lightGrey);
+}
+
+iframe {
+  border: 0;
+}
+
+
+
+================================================
+FILE: src/_card.css
+================================================
+.card {
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  background: var(--bg-color);
+  box-shadow: 0 1px 3px var(--color-grey);
+}
+
+.card p:last-child {
+  margin: 0;
+}
+
+.card header > * {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+
+
+================================================
+FILE: src/_dropdown.css
+================================================
+details.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+details.dropdown > :last-child {
+  position: absolute;
+  left: 0;
+  white-space: nowrap;
+}
+
+
+
+================================================
+FILE: src/_form.css
+================================================
+fieldset {
+  padding: 0.5rem 2rem;
+}
+
+legend {
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.1rem;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="submit"], [type="color"], [type="button"], [type="reset"]),
+select,
+textarea,
+textarea[type="text"] {
+  font-family: inherit;
+  padding: 0.8rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-lightGrey);
+  font-size: 1em;
+  transition: all 0.2s ease;
+  display: block;
+  width: 100%;
+}
+
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+progress {
+  accent-color: var(--color-primary);
+}
+
+select {
+  appearance: none;
+  background: #f3f3f6 no-repeat 100%;
+  background-size: 1ex;
+  background-origin: content-box;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='40' fill='%23555'><polygon points='0,0 60,0 30,40'/></svg>");
+}
+
+.button,
+[type="button"],
+[type="reset"],
+[type="submit"],
+button {
+  padding: 1rem 2.5rem;
+  color: var(--color-darkGrey);
+  background: var(--color-lightGrey);
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: var(--font-size);
+  line-height: 1;
+  text-align: center;
+  transition: opacity 0.2s ease;
+  text-decoration: none;
+  transform: scale(1);
+  display: inline-block;
+  cursor: pointer;
+}
+
+.button.primary,
+.button.secondary,
+.button.dark,
+.button.error,
+.button.success,
+[type="submit"] {
+  color: #fff;
+  z-index: 1; /* hightlight from other button's border when grouped */
+  background-color: #000;
+  background-color: var(--color-primary);
+}
+
+.button:hover,
+[type="button"]:hover,
+[type="reset"]:hover,
+[type="submit"]:hover,
+button:hover {
+  opacity: 0.8;
+}
+
+input:disabled,
+input:disabled:hover,
+button:disabled,
+button:disabled:hover {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.grouped {
+  display: flex;
+}
+
+.grouped > *:not(:last-child) {
+  margin-right: 16px;
+}
+
+.grouped.gapless > * {
+  margin: 0 0 0 -1px !important;
+  border-radius: 0 !important;
+}
+
+.grouped.gapless > *:first-child {
+  margin: 0 !important;
+  border-radius: 4px 0 0 4px !important;
+}
+
+.grouped.gapless > *:last-child {
+  border-radius: 0 4px 4px 0 !important;
+}
+
+input:not([type="checkbox"], [type="radio"], [type="submit"], [type="color"], [type="button"], [type="reset"], :disabled):hover,
+select:hover,
+textarea:hover,
+textarea[type="text"]:hover {
+  border-color: var(--color-grey);
+}
+
+input:not([type="checkbox"], [type="radio"], [type="submit"], [type="color"], [type="button"], [type="reset"]):focus,
+select:focus,
+textarea:focus,
+textarea[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 1px var(--color-primary);
+}
+
+input.error:not([type="checkbox"], [type="radio"], [type="submit"], [type="color"], [type="button"], [type="reset"]),
+textarea.error {
+  border-color: var(--color-error);
+}
+
+input.success:not([type="checkbox"], [type="radio"], [type="submit"], [type="color"], [type="button"], [type="reset"]),
+textarea.success {
+  border-color: var(--color-success);
+}
+
+[type="checkbox"],
+[type="radio"] {
+  width: 2rem;
+  height: 1.6rem;
+}
+
+/* BUTTONS */
+
+.button + .button {
+  margin-left: 1rem;
+}
+
+.button.secondary {
+  background-color: var(--color-grey);
+}
+
+.button.dark {
+  background-color: var(--color-darkGrey);
+}
+
+.button.error {
+  background-color: var(--color-error);
+}
+
+.button.success {
+  background-color: var(--color-success);
+}
+
+.button.outline {
+  background-color: transparent;
+  border-color: var(--color-lightGrey);
+}
+
+.button.outline.primary {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.button.outline.secondary {
+  border-color: var(--color-grey);
+  color: var(--color-grey);
+}
+
+.button.outline.dark {
+  border-color: var(--color-darkGrey);
+  color: var(--color-darkGrey);
+}
+
+.button.clear {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-primary);
+}
+
+.button.icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.button.icon > img {
+  margin-left: 2px;
+}
+
+.button.icon-only {
+  padding: 1rem;
+}
+
+.button:active:not(:disabled),
+[type="button"]:active:not(:disabled),
+[type="reset"]:active:not(:disabled),
+[type="submit"]:active:not(:disabled),
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+::placeholder {
+  color: #bdbfc4;
+}
+
+
+
+================================================
+FILE: src/_grid.css
+================================================
+.container {
+  max-width: var(--grid-maxWidth);
+  margin: 0 auto;
+  width: 96%;
+  padding: 0 calc(var(--grid-gutter) / 2);
+}
+
+.row {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  margin-left: calc(var(--grid-gutter) / -2);
+  margin-right: calc(var(--grid-gutter) / -2);
+}
+
+.row.reverse {
+  flex-direction: row-reverse;
+}
+
+.col {
+  flex: 1;
+}
+
+.col,
+[class*=" col-"],
+[class^="col-"] {
+  margin: 0 calc(var(--grid-gutter) / 2) calc(var(--grid-gutter) / 2);
+}
+
+.col-1 {
+  flex: 0 0 calc((100% / (12/1)) - var(--grid-gutter));
+  max-width: calc((100% / (12/1)) - var(--grid-gutter));
+}
+
+.col-2 {
+  flex: 0 0 calc((100% / (12/2)) - var(--grid-gutter));
+  max-width: calc((100% / (12/2)) - var(--grid-gutter));
+}
+
+.col-3 {
+  flex: 0 0 calc((100% / (12/3)) - var(--grid-gutter));
+  max-width: calc((100% / (12/3)) - var(--grid-gutter));
+}
+
+.col-4 {
+  flex: 0 0 calc((100% / (12/4)) - var(--grid-gutter));
+  max-width: calc((100% / (12/4)) - var(--grid-gutter));
+}
+
+.col-5 {
+  flex: 0 0 calc((100% / (12/5)) - var(--grid-gutter));
+  max-width: calc((100% / (12/5)) - var(--grid-gutter));
+}
+
+.col-6 {
+  flex: 0 0 calc((100% / (12/6)) - var(--grid-gutter));
+  max-width: calc((100% / (12/6)) - var(--grid-gutter));
+}
+
+.col-7 {
+  flex: 0 0 calc((100% / (12/7)) - var(--grid-gutter));
+  max-width: calc((100% / (12/7)) - var(--grid-gutter));
+}
+
+.col-8 {
+  flex: 0 0 calc((100% / (12/8)) - var(--grid-gutter));
+  max-width: calc((100% / (12/8)) - var(--grid-gutter));
+}
+
+.col-9 {
+  flex: 0 0 calc((100% / (12/9)) - var(--grid-gutter));
+  max-width: calc((100% / (12/9)) - var(--grid-gutter));
+}
+
+.col-10 {
+  flex: 0 0 calc((100% / (12/10)) - var(--grid-gutter));
+  max-width: calc((100% / (12/10)) - var(--grid-gutter));
+}
+
+.col-11 {
+  flex: 0 0 calc((100% / (12/11)) - var(--grid-gutter));
+  max-width: calc((100% / (12/11)) - var(--grid-gutter));
+}
+
+.col-12 {
+  flex: 0 0 calc((100% / (12/12)) - var(--grid-gutter));
+  max-width: calc((100% / (12/12)) - var(--grid-gutter));
+}
+
+@media screen and (max-width: 599px) {
+  .container {
+    width: 100%;
+  }
+
+  .col,
+  [class*="col-"],
+  [class^="col-"] {
+    flex: 0 1 100%;
+    max-width: 100%;
+  }
+}
+
+@media screen and (min-width: 900px) {
+  .col-1-md {
+    flex: 0 0 calc((100% / (12/1)) - var(--grid-gutter));
+    max-width: calc((100% / (12/1)) - var(--grid-gutter));
+  }
+
+  .col-2-md {
+    flex: 0 0 calc((100% / (12/2)) - var(--grid-gutter));
+    max-width: calc((100% / (12/2)) - var(--grid-gutter));
+  }
+
+  .col-3-md {
+    flex: 0 0 calc((100% / (12/3)) - var(--grid-gutter));
+    max-width: calc((100% / (12/3)) - var(--grid-gutter));
+  }
+
+  .col-4-md {
+    flex: 0 0 calc((100% / (12/4)) - var(--grid-gutter));
+    max-width: calc((100% / (12/4)) - var(--grid-gutter));
+  }
+
+  .col-5-md {
+    flex: 0 0 calc((100% / (12/5)) - var(--grid-gutter));
+    max-width: calc((100% / (12/5)) - var(--grid-gutter));
+  }
+
+  .col-6-md {
+    flex: 0 0 calc((100% / (12/6)) - var(--grid-gutter));
+    max-width: calc((100% / (12/6)) - var(--grid-gutter));
+  }
+
+  .col-7-md {
+    flex: 0 0 calc((100% / (12/7)) - var(--grid-gutter));
+    max-width: calc((100% / (12/7)) - var(--grid-gutter));
+  }
+
+  .col-8-md {
+    flex: 0 0 calc((100% / (12/8)) - var(--grid-gutter));
+    max-width: calc((100% / (12/8)) - var(--grid-gutter));
+  }
+
+  .col-9-md {
+    flex: 0 0 calc((100% / (12/9)) - var(--grid-gutter));
+    max-width: calc((100% / (12/9)) - var(--grid-gutter));
+  }
+
+  .col-10-md {
+    flex: 0 0 calc((100% / (12/10)) - var(--grid-gutter));
+    max-width: calc((100% / (12/10)) - var(--grid-gutter));
+  }
+
+  .col-11-md {
+    flex: 0 0 calc((100% / (12/11)) - var(--grid-gutter));
+    max-width: calc((100% / (12/11)) - var(--grid-gutter));
+  }
+
+  .col-12-md {
+    flex: 0 0 calc((100% / (12/12)) - var(--grid-gutter));
+    max-width: calc((100% / (12/12)) - var(--grid-gutter));
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .col-1-lg {
+    flex: 0 0 calc((100% / (12/1)) - var(--grid-gutter));
+    max-width: calc((100% / (12/1)) - var(--grid-gutter));
+  }
+
+  .col-2-lg {
+    flex: 0 0 calc((100% / (12/2)) - var(--grid-gutter));
+    max-width: calc((100% / (12/2)) - var(--grid-gutter));
+  }
+
+  .col-3-lg {
+    flex: 0 0 calc((100% / (12/3)) - var(--grid-gutter));
+    max-width: calc((100% / (12/3)) - var(--grid-gutter));
+  }
+
+  .col-4-lg {
+    flex: 0 0 calc((100% / (12/4)) - var(--grid-gutter));
+    max-width: calc((100% / (12/4)) - var(--grid-gutter));
+  }
+
+  .col-5-lg {
+    flex: 0 0 calc((100% / (12/5)) - var(--grid-gutter));
+    max-width: calc((100% / (12/5)) - var(--grid-gutter));
+  }
+
+  .col-6-lg {
+    flex: 0 0 calc((100% / (12/6)) - var(--grid-gutter));
+    max-width: calc((100% / (12/6)) - var(--grid-gutter));
+  }
+
+  .col-7-lg {
+    flex: 0 0 calc((100% / (12/7)) - var(--grid-gutter));
+    max-width: calc((100% / (12/7)) - var(--grid-gutter));
+  }
+
+  .col-8-lg {
+    flex: 0 0 calc((100% / (12/8)) - var(--grid-gutter));
+    max-width: calc((100% / (12/8)) - var(--grid-gutter));
+  }
+
+  .col-9-lg {
+    flex: 0 0 calc((100% / (12/9)) - var(--grid-gutter));
+    max-width: calc((100% / (12/9)) - var(--grid-gutter));
+  }
+
+  .col-10-lg {
+    flex: 0 0 calc((100% / (12/10)) - var(--grid-gutter));
+    max-width: calc((100% / (12/10)) - var(--grid-gutter));
+  }
+
+  .col-11-lg {
+    flex: 0 0 calc((100% / (12/11)) - var(--grid-gutter));
+    max-width: calc((100% / (12/11)) - var(--grid-gutter));
+  }
+
+  .col-12-lg {
+    flex: 0 0 calc((100% / (12/12)) - var(--grid-gutter));
+    max-width: calc((100% / (12/12)) - var(--grid-gutter));
+  }
+}
+
+
+
+================================================
+FILE: src/_nav.css
+================================================
+.nav {
+  display: flex;
+  min-height: 5rem;
+  align-items: stretch;
+}
+
+.nav img {
+  max-height: 3rem;
+}
+
+.nav > .container {
+  display: flex;
+}
+
+.nav-center,
+.nav-left,
+.nav-right {
+  display: flex;
+  flex: 1;
+}
+
+.nav-left {
+  justify-content: flex-start;
+}
+
+.nav-right {
+  justify-content: flex-end;
+}
+
+.nav-center {
+  justify-content: center;
+}
+
+@media screen and (max-width: 480px) {
+  .nav,
+  .nav > .container {
+    flex-direction: column;
+  }
+
+  .nav-center,
+  .nav-left,
+  .nav-right {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.nav a,
+.nav .brand {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  color: var(--color-darkGrey);
+}
+
+.nav [aria-current="page"]:not(.button),
+.nav .active:not(.button) {
+  color: #000; /* fallback */
+  color: var(--color-primary);
+}
+
+.nav .brand {
+  font-size: 1.75em;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.nav .brand img {
+  padding-right: 1rem;
+}
+
+.nav .button {
+  margin: auto 1rem;
+}
+
+
+
+================================================
+FILE: src/_tab.css
+================================================
+.tabs {
+  display: flex;
+}
+
+.tabs a {
+  text-decoration: none;
+}
+
+.tabs > .dropdown > summary,
+.tabs > a {
+  padding: 1rem 2rem;
+  flex: 0 1 auto;
+  color: var(--color-darkGrey);
+  border-bottom: 2px solid var(--color-lightGrey);
+  text-align: center;
+}
+
+.tabs > a[aria-current="page"],
+.tabs > a.active,
+.tabs > a:hover {
+  opacity: 1;
+  border-bottom: 2px solid var(--color-darkGrey);
+}
+
+.tabs > a[aria-current="page"],
+.tabs > a.active {
+  border-color: var(--color-primary);
+}
+
+.tabs.is-full a {
+  flex: 1 1 auto;
+}
+
+
+
+================================================
+FILE: src/_tag.css
+================================================
+.tag {
+  display: inline-block;
+  border: 1px solid var(--color-lightGrey);
+  text-transform: uppercase;
+  color: var(--color-grey);
+  padding: 0.5rem;
+  line-height: 1;
+  letter-spacing: 0.5px;
+}
+
+.tag.is-small {
+  padding: 0.4rem;
+  font-size: 0.75em;
+}
+
+.tag.is-large {
+  padding: 0.7rem;
+  font-size: 1.125em;
+}
+
+.tag + .tag {
+  margin-left: 1rem;
+}
+
+
+
+================================================
+FILE: src/_util.css
+================================================
+/* Colors */
+.bg-primary {
+  background-color: var(--color-primary) !important;
+}
+
+.bg-light {
+  background-color: var(--color-lightGrey) !important;
+}
+
+.bg-dark {
+  background-color: var(--color-darkGrey) !important;
+}
+
+.bg-grey {
+  background-color: var(--color-grey) !important;
+}
+
+.bg-error {
+  background-color: var(--color-error) !important;
+}
+
+.bg-success {
+  background-color: var(--color-success) !important;
+}
+
+.bd-primary {
+  border: 1px solid var(--color-primary) !important;
+}
+
+.bd-light {
+  border: 1px solid var(--color-lightGrey) !important;
+}
+
+.bd-dark {
+  border: 1px solid var(--color-darkGrey) !important;
+}
+
+.bd-grey {
+  border: 1px solid var(--color-grey) !important;
+}
+
+.bd-error {
+  border: 1px solid var(--color-error) !important;
+}
+
+.bd-success {
+  border: 1px solid var(--color-success) !important;
+}
+
+.text-primary {
+  color: var(--color-primary) !important;
+}
+
+.text-light {
+  color: var(--color-lightGrey) !important;
+}
+
+.text-dark {
+  color: var(--color-darkGrey) !important;
+}
+
+.text-grey {
+  color: var(--color-grey) !important;
+}
+
+.text-error {
+  color: var(--color-error) !important;
+}
+
+.text-success {
+  color: var(--color-success) !important;
+}
+
+.text-white {
+  color: #fff !important;
+}
+
+/* Position & alignment */
+.pull-right {
+  float: right !important;
+}
+
+.pull-left {
+  float: left !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.is-full-screen {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.is-full-width {
+  width: 100% !important;
+}
+
+.is-full-height {
+  height: 100% !important;
+}
+
+.is-vertical-align {
+  display: flex;
+  align-items: center;
+}
+
+.is-horizontal-align {
+  display: flex;
+  justify-content: center;
+}
+
+.is-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.is-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.is-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.is-fixed {
+  position: fixed;
+  width: 100%;
+}
+
+.is-paddingless {
+  padding: 0 !important;
+}
+
+.is-marginless {
+  margin: 0 !important;
+}
+
+.is-pointer {
+  cursor: pointer !important;
+}
+
+.is-rounded {
+  border-radius: 100%;
+}
+
+.clearfix {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+@media screen and (max-width: 599px) {
+  .hide-xs {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 600px) and (max-width: 899px) {
+  .hide-sm {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 900px) and (max-width: 1199px) {
+  .hide-md {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .hide-lg {
+    display: none !important;
+  }
+}
+
+@media print {
+  .hide-pr {
+    display: none !important;
+  }
+}
+
+
+
+================================================
+FILE: src/chota.css
+================================================
+@import "_base.css";
+@import "_grid.css";
+@import "_form.css";
+@import "_nav.css";
+@import "_card.css";
+@import "_tab.css";
+@import "_tag.css";
+@import "_dropdown.css";
+@import "_util.css";
+
+
+
+================================================
+FILE: test/components.html
+================================================
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Components</title>
+    <link rel="stylesheet" href="../dist/chota.css" />
+    <style>
+      .nav {
+        border: 1px solid red;
+      }
+
+      body.dark {
+        --bg-color: #000;
+        --bg-secondary-color: #131316;
+        --font-color: #f5f5f5;
+        --color-grey: #ccc;
+        --color-darkGrey: #777;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="pull-right" style="margin: 0;">
+        <a href="javascript:void(0)" onclick="switchMode(this)">☀️</a>
+      </h1>
+      <h1>Nav</h1>
+    </div>
+    <div class="clearfix"></div>
+    <nav class="nav">
+      <div class="container">
+        <div class="nav-left">
+          <a class="brand" href="#">Logo</a>
+        </div>
+        <div class="nav-center">
+          <a class="button outline" href="#">Centered</a>
+        </div>
+        <div class="nav-right">
+          <a href="#!1.html">Link 1</a>
+          <a href="#!2.html">Link 2</a>
+          <a href="#!3.html" class="active">Link 3</a>
+        </div>
+      </div>
+    </nav>
+    <br />
+    <hr />
+    <br />
+    <nav class="nav">
+      <div class="nav-left">
+        <a class="brand" href="#">Logo</a>
+      </div>
+      <div class="nav-center">
+        <a href="#">Centered</a>
+      </div>
+      <div class="nav-right">
+        <a href="#!1.html">Link 1</a>
+        <a href="#!2.html">Link 2</a>
+        <a href="#!3.html">Link 3</a>
+      </div>
+    </nav>
+    <div class="container">
+      <section>
+        <br />
+        <hr />
+        <br />
+        <nav class="nav">
+          <div class="nav-center">
+            <a href="#!1.html">Link 1</a>
+            <a href="#!2.html">Link 2</a>
+            <a href="#!3.html" class="active">Link 3</a>
+            <a href="#!" class="button primary">Button</a>
+          </div>
+        </nav>
+        <br />
+        <hr />
+        <br />
+        <nav class="nav">
+          <div class="nav-left">
+            <a class="brand" href="#">
+              <img
+                src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+                alt=""
+              />
+              Brand</a
+            >
+          </div>
+          <div class="nav-right">
+            <div class="tabs">
+              <a href="#!1.html">Link 1</a>
+              <a href="#!2.html">Link 2</a>
+              <a href="#!3.html" class="active">Link 3</a>
+            </div>
+          </div>
+        </nav>
+        <br />
+        <hr />
+        <br />
+        <nav class="nav">
+          <div class="nav-left">
+            <a class="brand" href="#">
+              <img
+                src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+                alt=""
+              />
+            </a>
+            <div class="tabs">
+              <a href="#!1.html">Link 1</a>
+              <a href="#!2.html">Link 2</a>
+              <a href="#!3.html">Link 3</a>
+            </div>
+          </div>
+        </nav>
+        <br />
+        <hr />
+        <br />
+      </section>
+      <section>
+        <h1>Tabs</h1>
+        <div class="tabs">
+          <a class="active" href="#!1.html">Tab 1</a>
+          <a href="#!2.html">Tab 2</a>
+          <a href="#!3.html">Tab 3</a>
+        </div>
+        <br />
+        <hr />
+        <br />
+        <div class="tabs is-full">
+          <a class="active" href="#!1.html">Tab 1</a>
+          <a href="#!2.html">Tab 2</a>
+          <a href="#!3.html">Tab 3</a>
+        </div>
+      </section>
+      <section>
+        <h1>Card</h1>
+        <div class="row is-center">
+          <div class="col-4">
+            <div class="card">
+              <header>
+                <h4>Card title</h4>
+              </header>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercit.
+              </p>
+              <footer class="is-right">
+                <a href="#!" class="button primary">Submit</a>
+                <a href="#!" class="button">Cancel</a>
+              </footer>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercit.
+              </p>
+              <p>
+                Ipsa magnam consequatur itaque, mollitia non quam voluptate
+                consequuntur dignissimos recusandae ea quas, nobis, debitis
+                officia iure minus et dolore, reprehenderit sapiente iste.
+                Eligendi eveniet ut qui at, deleniti enim!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h1>Tag</h1>
+        <p>
+          <span class="tag">One</span>
+          <span class="tag">Two</span>
+          <span class="tag">Three</span>
+          <span class="tag is-small">Small</span>
+          <span class="tag is-large">Large</span>
+        </p>
+      </section>
+      <section>
+        <h1>Grid</h1>
+        <div class="row">
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-2">
+            <div class="card is-center">.col-2</div>
+          </div>
+          <div class="col-2">
+            <div class="card is-center">.col-2</div>
+          </div>
+          <div class="col-2">
+            <div class="card is-center">.col-2</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-3">
+            <div class="card is-center">.col-3</div>
+          </div>
+          <div class="col-3">
+            <div class="card is-center">.col-3</div>
+          </div>
+          <div class="col-3">
+            <div class="card is-center">.col-3</div>
+          </div>
+          <div class="col-3">
+            <div class="card is-center">.col-3</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <div class="card is-center">.col-4</div>
+          </div>
+          <div class="col-4">
+            <div class="card is-center">.col-4</div>
+          </div>
+          <div class="col-4">
+            <div class="card is-center">.col-4</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-5">
+            <div class="card is-center">.col-5</div>
+          </div>
+          <div class="col-5">
+            <div class="card is-center">.col-5</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+            <div class="card is-center">.col-6</div>
+          </div>
+          <div class="col-6">
+            <div class="card is-center">.col-6</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-7">
+            <div class="card is-center">.col-7</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-8">
+            <div class="card is-center">.col-8</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-9">
+            <div class="card is-center">.col-9</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+          <div class="col-1">
+            <div class="card is-center">.col-1</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-10">
+            <div class="card is-center">.col-10</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-11">
+            <div class="card is-center">.col-11</div>
+          </div>
+          <div class="col">
+            <div class="card is-center">.col</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="card is-center">.col-12</div>
+          </div>
+        </div>
+        <h4>Responsive grids:</h4>
+        <div class="row">
+          <div class="col-12 col-6-md col-4-lg">
+            <div class="card is-center">.col-12.col-6-md.col-4-lg</div>
+          </div>
+          <div class="col-6 col-3-md col-4-lg">
+            <div class="card is-center">.col-6.col-3-md.col-4-lg</div>
+          </div>
+          <div class="col-6 col-3-md col-4-lg">
+            <div class="card is-center">.col-6.col-3-md.col-4-lg</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col col-6-lg">
+            <div class="card is-center">.col.col-6-lg</div>
+          </div>
+          <div class="col col-3-lg">
+            <div class="card is-center">.col.col-3-lg</div>
+          </div>
+          <div class="col col-3-lg">
+            <div class="card is-center">.col.col-3-lg</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col hide-sm">
+            <div class="card is-center">.hide-sm</div>
+          </div>
+          <div class="col hide-md">
+            <div class="card is-center">.hide-md</div>
+          </div>
+          <div class="col hide-lg">
+            <div class="card is-center">.hide-lg</div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h1>Helpers</h1>
+        <h4>Text color</h4>
+        <p class="text-primary">Primary</p>
+        <p class="text-light">Light</p>
+        <p class="text-grey">Grey</p>
+        <p class="text-dark">Dark</p>
+        <p class="text-error">Error</p>
+        <p class="text-success">Success</p>
+        <h4>Background color</h4>
+        <div class="row">
+          <div class="col">
+            <div class="card bg-primary">.bg-primary</div>
+          </div>
+          <div class="col">
+            <div class="card bg-light">.bg-light</div>
+          </div>
+          <div class="col">
+            <div class="card bg-grey">.bg-grey</div>
+          </div>
+          <div class="col">
+            <div class="card bg-dark">.bg-dark</div>
+          </div>
+          <div class="col">
+            <div class="card bg-success">.bg-success</div>
+          </div>
+          <div class="col">
+            <div class="card bg-error">.bg-error</div>
+          </div>
+        </div>
+        <h4>Responsive Helpers</h4>
+        <div class="hide-xs">.hide-xs</div>
+        <div class="hide-sm">.hide-sm</div>
+        <div class="hide-md">.hide-md</div>
+        <div class="hide-lg">.hide-lg</div>
+      </section>
+      <section>
+        <h1>Icons</h1>
+        <button type="button" class="button primary icon">
+          New file
+          <img
+            src="https://icongr.am/feather/file.svg?size=16&color=ffffff"
+            alt="icon"
+          />
+        </button>
+        <button type="button" class="button icon">
+          New file
+          <img src="https://icongr.am/feather/file.svg?size=12" alt="icon" />
+        </button>
+        <button type="button" class="button dark icon">
+          New file
+          <img
+            src="https://icongr.am/feather/file.svg?size=32&color=ffffff"
+            alt="icon"
+          />
+        </button>
+        <button class="button icon-only">
+          <img src="https://icongr.am/feather/search.svg?size=16" />
+        </button>
+        <button class="button icon-only">
+          <img src="https://icongr.am/feather/search.svg" />
+        </button>
+      </section>
+    </div>
+    <p>
+      <br />
+    </p>
+    <script src="../docs/main.js"></script>
+  </body>
+</html>
+
+
+
+================================================
+FILE: test/index.html
+================================================
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elements</title>
+    <link rel="stylesheet" href="../dist/chota.css" />
+    <style>
+      body.dark {
+        --bg-color: #000;
+        --bg-secondary-color: #131316;
+        --font-color: #f5f5f5;
+        --color-grey: #ccc;
+        --color-darkGrey: #777;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="top" class="container" role="document">
+      <header role="banner">
+        <h1 class="pull-right" style="margin: 0;">
+          <a href="javascript:void(0)" onclick="switchMode(this)">☀️</a>
+        </h1>
+        <h1>Chota CSS</h1>
+        <div class="clearfix"></div>
+        <p>A small CSS framework.</p>
+      </header>
+      <nav role="navigation">
+        <ul>
+          <li>
+            <a href="#text">Text</a>
+            <ul>
+              <li><a href="#text__headings">Headings</a></li>
+              <li><a href="#text__paragraphs">Paragraphs</a></li>
+              <li><a href="#text__blockquotes">Blockquotes</a></li>
+              <li><a href="#text__lists">Lists</a></li>
+              <li><a href="#text__hr">Horizontal rules</a></li>
+              <li><a href="#text__tables">Tabular data</a></li>
+              <li><a href="#text__code">Code</a></li>
+              <li><a href="#text__inline">Inline elements</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#embedded">Embedded content</a>
+            <ul>
+              <li><a href="#embedded__images">Images</a></li>
+              <li><a href="#embedded__audio">Audio</a></li>
+              <li><a href="#embedded__video">Video</a></li>
+              <li><a href="#embedded__canvas">Canvas</a></li>
+              <li><a href="#embedded__meter">Meter</a></li>
+              <li><a href="#embedded__progress">Progress</a></li>
+              <li><a href="#embedded__svg">Inline SVG</a></li>
+              <li><a href="#embedded__iframe">IFrames</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#forms">Form elements</a>
+            <ul>
+              <li><a href="#forms__input">Input fields</a></li>
+              <li><a href="#forms__select">Select menus</a></li>
+              <li><a href="#forms__checkbox">Checkboxes</a></li>
+              <li><a href="#forms__radio">Radio buttons</a></li>
+              <li><a href="#forms__textareas">Textareas</a></li>
+              <li><a href="#forms__html5">HTML5 inputs</a></li>
+              <li><a href="#forms__action">Action buttons</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <main role="main">
+        <section id="text">
+          <header>
+            <h1>Text</h1>
+          </header>
+          <article id="text__headings">
+            <header>
+              <h1>Headings</h1>
+            </header>
+            <div>
+              <h1>Heading 1</h1>
+              <h2>Heading 2</h2>
+              <h3>Heading 3</h3>
+              <h4>Heading 4</h4>
+              <h5>Heading 5</h5>
+              <h6>Heading 6</h6>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="text__paragraphs">
+            <header>
+              <h1>Paragraphs</h1>
+            </header>
+            <div>
+              <p>
+                A paragraph (from the Greek paragraphos, “to write beside” or
+                “written beside”) is a self-contained unit of a discourse in
+                writing dealing with a particular point or idea. A paragraph
+                consists of one or more sentences. Though not required by the
+                syntax of any language, paragraphs are usually an expected part
+                of formal writing, used to organize longer prose.
+              </p>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="text__blockquotes">
+            <header>
+              <h1>Blockquotes</h1>
+            </header>
+            <div>
+              <blockquote>
+                <p>
+                  A block quotation (also known as a long quotation or extract)
+                  is a quotation in a written document, that is set off from the
+                  main text as a paragraph, or block of text.
+                </p>
+                <p>
+                  It is typically distinguished visually using indentation and a
+                  different typeface or smaller size quotation. It may or may
+                  not include a citation, usually placed at the bottom.
+                </p>
+                <cite><a href="#!">Said no one, ever.</a></cite>
+              </blockquote>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="text__lists">
+            <header>
+              <h1>Lists</h1>
+            </header>
+            <div>
+              <h3>Definition list</h3>
+              <dl>
+                <dt>Definition List Title</dt>
+                <dd>This is a definition list division.</dd>
+              </dl>
+              <h3>Ordered List</h3>
+              <ol>
+                <li>List Item 1</li>
+                <li>List Item 2</li>
+                <li>List Item 3</li>
+              </ol>
+              <h3>Unordered List</h3>
+              <ul>
+                <li>List Item 1</li>
+                <li>List Item 2</li>
+                <li>List Item 3</li>
+              </ul>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="text__hr">
+            <header>
+              <h1>Horizontal rules</h1>
+            </header>
+            <div>
+              <hr />
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="text__tables">
+            <header>
+              <h1>Tabular data</h1>
+            </header>
+            <table>
+              <caption>
+                Table Caption
+              </caption>
+              <thead>
+                <tr>
+                  <th>Table Heading 1</th>
+                  <th>Table Heading 2</th>
+                  <th>Table Heading 3</th>
+                  <th>Table Heading 4</th>
+                  <th>Table Heading 5</th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th>Table Footer 1</th>
+                  <th>Table Footer 2</th>
+                  <th>Table Footer 3</th>
+                  <th>Table Footer 4</th>
+                  <th>Table Footer 5</th>
+                </tr>
+              </tfoot>
+              <tbody>
+                <tr>
+                  <td>Table Cell 1</td>
+                  <td>Table Cell 2</td>
+                  <td>Table Cell 3</td>
+                  <td>Table Cell 4</td>
+                  <td>Table Cell 5</td>
+                </tr>
+                <tr>
+                  <td>Table Cell 1</td>
+                  <td>Table Cell 2</td>
+                  <td>Table Cell 3</td>
+                  <td>Table Cell 4</td>
+                  <td>Table Cell 5</td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <h4>
+              Table with strips. Just add the <code>striped</code> class to
+              <code>&lt;table&gt;</code>.
+            </h4>
+            <table class="striped">
+              <caption>
+                Table Caption
+              </caption>
+              <thead>
+                <tr>
+                  <th>Table Heading 1</th>
+                  <th>Table Heading 2</th>
+                  <th>Table Heading 3</th>
+                  <th>Table Heading 4</th>
+                  <th>Table Heading 5</th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th>Table Footer 1</th>
+                  <th>Table Footer 2</th>
+                  <th>Table Footer 3</th>
+                  <th>Table Footer 4</th>
+                  <th>Table Footer 5</th>
+                </tr>
+              </tfoot>
+              <tbody>
+                <tr>
+                  <td>Table Cell 1</td>
+                  <td>Table Cell 2</td>
+                  <td>Table Cell 3</td>
+                  <td>Table Cell 4</td>
+                  <td>Table Cell 5</td>
+                </tr>
+                <tr>
+                  <td>Table Cell 1</td>
+                  <td>Table Cell 2</td>
+                  <td>Table Cell 3</td>
+                  <td>Table Cell 4</td>
+                  <td>Table Cell 5</td>
+                </tr>
+                <tr>
+                  <td>Table Cell 1</td>
+                  <td>Table Cell 2</td>
+                  <td>Table Cell 3</td>
+                  <td>Table Cell 4</td>
+                  <td>Table Cell 5</td>
+                </tr>
+                <tr>
+                  <td>Table Cell 1</td>
+                  <td>Table Cell 2</td>
+                  <td>Table Cell 3</td>
+                  <td>Table Cell 4</td>
+                  <td>Table Cell 5</td>
+                </tr>
+              </tbody>
+            </table>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="text__code">
+            <header>
+              <h1>Code</h1>
+            </header>
+            <div>
+              <p><strong>Keyboard input:</strong> <kbd>Cmd</kbd></p>
+              <p>
+                <strong>Inline code:</strong>
+                <code>&lt;div&gt;code&lt;/div&gt;</code>
+              </p>
+              <p>
+                <strong>Sample output:</strong>
+                <samp>This is sample output from a computer program.</samp>
+              </p>
+              <h2>Pre-formatted text</h2>
+              <pre>
+P R E F O R M A T T E D T E X T
+  ! " # $ % &amp; ' ( ) * + , - . /
+  0 1 2 3 4 5 6 7 8 9 : ; &lt; = &gt; ?
+  @ A B C D E F G H I J K L M N O
+  P Q R S T U V W X Y Z [ \ ] ^ _
+  ` a b c d e f g h i j k l m n o
+  p q r s t u v w x y z { | } ~
+  ~ 0 1 2 3 4 5 6 7 8 9 : ; &lt; = &gt; ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h i j k l m n o p q r s t u v w x y z { | } ~ </pre
+              >
+              <pre><code>&#x3C;h2&#x3E;Pre-formatted text&#x3C;/h2&#x3E;</code></pre>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="text__inline">
+            <header>
+              <h1>Inline elements</h1>
+            </header>
+            <div>
+              <p><a href="#!">This is a text link</a>.</p>
+              <p>
+                <strong>Strong is used to indicate strong importance.</strong>
+              </p>
+              <p><em>This text has added emphasis.</em></p>
+              <p>
+                The <b>b element</b> is stylistically different text from normal
+                text, without any special importance.
+              </p>
+              <p>
+                The <i>i element</i> is text that is offset from the normal
+                text.
+              </p>
+              <p>
+                The <u>u element</u> is text with an unarticulated, though
+                explicitly rendered, non-textual annotation.
+              </p>
+              <p>
+                <del>This text is deleted</del> and
+                <ins>This text is inserted</ins>.
+              </p>
+              <p><s>This text has a strikethrough</s>.</p>
+              <p>Superscript<sup>®</sup>.</p>
+              <p>Subscript for things like H<sub>2</sub>O.</p>
+              <p>
+                <small>This small text is small for for fine print, etc.</small>
+              </p>
+              <p>
+                Abbreviation:
+                <abbr title="HyperText Markup Language">HTML</abbr>
+              </p>
+              <p>
+                <q
+                  cite="https://developer.mozilla.org/en-US/docs/HTML/Element/q"
+                  >This text is a short inline quotation.</q
+                >
+              </p>
+              <p><cite>This is a citation.</cite></p>
+              <p>The <dfn>dfn element</dfn> indicates a definition.</p>
+              <p>The <mark>mark element</mark> indicates a highlight.</p>
+              <p>
+                The <var>variable element</var>, such as <var>x</var> =
+                <var>y</var>.
+              </p>
+              <p>
+                The time element:
+                <time datetime="2013-04-06T12:32+00:00">2 weeks ago</time>
+              </p>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+        </section>
+
+        <section id="embedded">
+          <header>
+            <h1>Embedded content</h1>
+          </header>
+          <article id="embedded__images">
+            <header>
+              <h2>Images</h2>
+            </header>
+            <div>
+              <h3>No <code>&lt;figure&gt;</code> element</h3>
+              <p>
+                <img src="http://unsplash.it/480/480" alt="Image alt text" />
+              </p>
+              <h3>
+                Wrapped in a <code>&lt;figure&gt;</code> element, no
+                <code>&lt;figcaption&gt;</code>
+              </h3>
+              <figure>
+                <img src="http://unsplash.it/420/420" alt="Image alt text" />
+              </figure>
+              <h3>
+                Wrapped in a <code>&lt;figure&gt;</code> element, with a
+                <code>&lt;figcaption&gt;</code>
+              </h3>
+              <figure>
+                <img src="http://unsplash.it/420/420" alt="Image alt text" />
+                <figcaption>Here is a caption for this image.</figcaption>
+              </figure>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="embedded__audio">
+            <header>
+              <h2>Audio</h2>
+            </header>
+            <div><audio controls="">audio</audio></div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="embedded__video">
+            <header>
+              <h2>Video</h2>
+            </header>
+            <div><video controls="">video</video></div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="embedded__canvas">
+            <header>
+              <h2>Canvas</h2>
+            </header>
+            <div><canvas>canvas</canvas></div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="embedded__meter">
+            <header>
+              <h2>Meter</h2>
+            </header>
+            <div><meter value="2" min="0" max="10">2 out of 10</meter></div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="embedded__progress">
+            <header>
+              <h2>Progress</h2>
+            </header>
+            <div><progress>progress</progress></div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="embedded__svg">
+            <header>
+              <h2>Inline SVG</h2>
+            </header>
+            <div>
+              <svg width="100px" height="100px">
+                <circle cx="100" cy="100" r="100" fill="#1fa3ec"></circle>
+              </svg>
+            </div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+          <article id="embedded__iframe">
+            <header>
+              <h2>IFrame</h2>
+            </header>
+            <div><iframe src="index.html" height="300"></iframe></div>
+            <footer>
+              <p><a href="#top">[Top]</a></p>
+            </footer>
+          </article>
+        </section>
+        <section id="forms">
+          <header>
+            <h1>Form elements</h1>
+          </header>
+          <form>
+            <fieldset id="forms__input">
+              <legend>Input fields</legend>
+              <p>
+                <label for="input__text">Text Input</label>
+                <input id="input__text" type="text" placeholder="Text Input" />
+              </p>
+              <p>
+                <label for="input__password">Password</label>
+                <input
+                  id="input__password"
+                  type="password"
+                  placeholder="Type your Password"
+                />
+              </p>
+              <p>
+                <label for="input__webaddress">Web Address</label>
+                <input
+                  id="input__webaddress"
+                  type="url"
+                  placeholder="http://yoursite.com"
+                />
+              </p>
+              <p>
+                <label for="input__emailaddress">Email Address</label>
+                <input
+                  id="input__emailaddress"
+                  type="email"
+                  placeholder="name@email.com"
+                />
+              </p>
+              <p>
+                <label for="input__phone">Phone Number</label>
+                <input
+                  id="input__phone"
+                  type="tel"
+                  placeholder="(999) 999-9999"
+                />
+              </p>
+              <p>
+                <label for="input__search">Search</label>
+                <input
+                  id="input__search"
+                  type="search"
+                  placeholder="Enter Search Term"
+                />
+              </p>
+              <p>
+                <label for="input__text2">Number Input</label>
+                <input
+                  id="input__text2"
+                  type="number"
+                  placeholder="Enter a Number"
+                />
+              </p>
+              <p>
+                <label for="input__text3" class="error">Error</label>
+                <input
+                  id="input__text3"
+                  class="error"
+                  type="text"
+                  placeholder="Text Input"
+                />
+              </p>
+              <p>
+                <label for="input__text4" class="success">Valid</label>
+                <input
+                  id="input__text4"
+                  class="success"
+                  type="text"
+                  placeholder="Text Input"
+                />
+              </p>
+              <p>
+                <label for="input__text5">Disabled Text Input</label>
+                <input
+                  id="input__text5"
+                  type="text"
+                  placeholder="Disabled Text Input"
+                  disabled
+                />
+              </p>
+              <p class="grouped">
+                <input
+                  type="search"
+                  name="input__text6"
+                  id="input__text6"
+                  placeholder="Search"
+                />
+                <button class="button icon-only">
+                  <img src="https://icongr.am/feather/search.svg?size=16" />
+                </button>
+              </p>
+              <p class="grouped">
+                <input
+                  type="text"
+                  name="input__text7"
+                  id="input__text7"
+                  placeholder="Username"
+                />
+                <input
+                  type="text"
+                  name="input__text8"
+                  id="input__text8"
+                  placeholder="Password"
+                />
+                <button class="button primary">Submit</button>
+              </p>
+            </fieldset>
+            <p><a href="#top">[Top]</a></p>
+            <fieldset id="forms__select">
+              <legend>Select menus</legend>
+              <p>
+                <label for="select">Select</label>
+                <select id="select">
+                  <optgroup label="Option Group">
+                    <option>Option One</option>
+                    <option>Option Two</option>
+                    <option>Option Three</option>
+                  </optgroup>
+                </select>
+              </p>
+            </fieldset>
+            <p><a href="#top">[Top]</a></p>
+            <fieldset id="forms__checkbox">
+              <legend>Checkboxes</legend>
+              <ul class="list list--bare">
+                <li>
+                  <label for="checkbox1"
+                    ><input
+                      id="checkbox1"
+                      name="checkbox"
+                      type="checkbox"
+                      checked="checked"
+                    />
+                    Choice A</label
+                  >
+                </li>
+                <li>
+                  <label for="checkbox2"
+                    ><input id="checkbox2" name="checkbox" type="checkbox" />
+                    Choice B</label
+                  >
+                </li>
+                <li>
+                  <label for="checkbox3"
+                    ><input id="checkbox3" name="checkbox" type="checkbox" />
+                    Choice C</label
+                  >
+                </li>
+              </ul>
+            </fieldset>
+            <p><a href="#top">[Top]</a></p>
+            <fieldset id="forms__radio">
+              <legend>Radio buttons</legend>
+              <ul class="list list--bare">
+                <li>
+                  <label for="radio1"
+                    ><input
+                      id="radio1"
+                      name="radio"
+                      type="radio"
+                      class="radio"
+                      checked="checked"
+                    />
+                    Option 1</label
+                  >
+                </li>
+                <li>
+                  <label for="radio2"
+                    ><input
+                      id="radio2"
+                      name="radio"
+                      type="radio"
+                      class="radio"
+                    />
+                    Option 2</label
+                  >
+                </li>
+                <li>
+                  <label for="radio3"
+                    ><input
+                      id="radio3"
+                      name="radio"
+                      type="radio"
+                      class="radio"
+                    />
+                    Option 3</label
+                  >
+                </li>
+              </ul>
+            </fieldset>
+            <p><a href="#top">[Top]</a></p>
+            <fieldset id="forms__textareas">
+              <legend>Textareas</legend>
+              <p>
+                <label for="textarea">Textarea</label>
+                <textarea
+                  id="textarea"
+                  rows="8"
+                  cols="48"
+                  placeholder="Enter your message here"
+                ></textarea>
+              </p>
+            </fieldset>
+            <p><a href="#top">[Top]</a></p>
+            <fieldset id="forms__html5">
+              <legend>HTML5 inputs</legend>
+              <p>
+                <label for="ic">Color input</label>
+                <input type="color" id="ic" value="#000000" />
+              </p>
+              <p>
+                <label for="in">Number input</label>
+                <input type="number" id="in" min="0" max="10" value="5" />
+              </p>
+              <p>
+                <label for="ir">Range input</label>
+                <input type="range" id="ir" value="10" />
+              </p>
+              <p>
+                <label for="idd">Date input</label>
+                <input type="date" id="idd" value="1970-01-01" />
+              </p>
+              <p>
+                <label for="idm">Month input</label>
+                <input type="month" id="idm" value="1970-01" />
+              </p>
+              <p>
+                <label for="idw">Week input</label>
+                <input type="week" id="idw" value="1970-W01" />
+              </p>
+              <p>
+                <label for="idt">Datetime input</label>
+                <input type="datetime" id="idt" value="1970-01-01T00:00:00Z" />
+              </p>
+              <p>
+                <label for="idtl">Datetime-local input</label>
+                <input
+                  type="datetime-local"
+                  id="idtl"
+                  value="1970-01-01T00:00"
+                />
+              </p>
+            </fieldset>
+            <p><a href="#top">[Top]</a></p>
+            <fieldset id="forms__action">
+              <legend>Action buttons</legend>
+              <p>
+                <input type="submit" value="<input type=submit>" />
+                <input type="button" value="<input type=button>" />
+                <input type="reset" value="<input type=reset>" />
+                <input type="submit" value="<input disabled>" disabled />
+              </p>
+              <p>
+                <button type="submit">&lt;button type=submit&gt;</button>
+                <button type="button">&lt;button type=button&gt;</button>
+                <button type="reset">&lt;button type=reset&gt;</button>
+                <button type="button" disabled>&lt;button disabled&gt;</button>
+              </p>
+              <p>
+                <a href="#" class="button">a.button</a>
+                <a href="#" class="button primary">a.button.primary</a>
+                <a href="#" class="button secondary">a.button.secondary</a>
+                <a href="#" class="button dark">a.button.dark</a>
+                <a href="#" class="button error">a.button.error</a>
+                <a href="#" class="button success">a.button.success</a>
+              </p>
+              <p>
+                <a href="#" class="button outline">a.button.outline</a>
+                <a href="#" class="button outline primary"
+                  >a.button.outline.primary</a
+                >
+                <a href="#" class="button outline secondary"
+                  >a.button.outline.secondary</a
+                >
+                <a href="#" class="button outline dark"
+                  >a.button.outline.dark</a
+                >
+                <a href="#" class="button clear">a.button.clear</a>
+              </p>
+            </fieldset>
+            <p><a href="#top">[Top]</a></p>
+          </form>
+        </section>
+      </main>
+    </div>
+    <script src="../docs/main.js"></script>
+  </body>
+</html>
+
+
+
+================================================
+FILE: .github/CONTRIBUTING.md
+================================================
+# Contributing Guidelines
+Thanks for wanting to help out with Chota! We appreciate it very much. We decided to outline a couple of things, in order to make your contributing process as smooth as possible.
+
+**Steps**
+1. [Find an Issue](#find-an-issue)
+2. [Work on the fix](#work-on-the-fix)
+3. [Open a Pull Request](#open-a-pull-request)
+4. [Relax](#relax)
+
+## Find an Issue
+Whether you notice the problem by yourself, or found an open issue on our [issue tracker](https://github.com/jenil/chota/issues), it's nice to know that you've got our backs.
+
+**New Issues**
+- If you plan on fixing something you found yourself, **please [open a new issue](https://github.com/jenil/chota/issues/new)** before working on it, so we can discuss the solution together.
+- When opening an issue, please include the browser and its version, operating system, and any other helpful info (such as a screenshot).
+- We may see the issue and not get back to you. That doesn't mean that we object to the issue you raised.
+
+## Work on the Fix
+1. [Fork and clone](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) this repository.
+2. Install dependencies with `yarn install` or `npm install`.
+3. Create a new branch with a name such as `<your_username>/issue-45` or `feature-really-cool`.
+4. When you're ready, start the css compiler (postcss) with `yarn watch` (or `npm run watch`). Write the css code in the `/src` folder, and postcss will compile it and output it to the `/dist` folder.
+5. You can see your changes by opening `/test/index.html` in your browser. There's no local server, so you'll have to open the file itself in your browser (`file://Users/.../test/index.html`). If you are using VS Code, you can use [@ritwickdey](https://github.com/ritwickdey)'s awesome [live-server extension](https://ritwickdey.github.io/vscode-live-server/) to serve and reload the page in real-time.
+
+## Open a Pull Request
+> If you're new to contributing to open source, see <http://makeapullrequest.com/>.
+0. When you're happy with your changes, run `yarn build` or `npm run build`. This will update `/dist/chota.min.css` to reflect any changes you made.
+1. Open a new pull request, and include
+  **a)** a short description of the changes you made, and
+  **b)** a reference to the related issue (just "fixes #45" is fine).
+2. You may be asked to revise your changes, so keep on your toes. Also, we *may* decide not accept the pull request entirely. It's that we don't like you, but...
+3. Advance to [step #4](#relax)
+
+## Relax
+You're done! :unicorn: Thanks for joining the club. Now, go tell everyone about *this great new css framework you heard of*.
+
+
+
+================================================
+FILE: .github/FUNDING.yml
+================================================
+custom: ['https://paypal.me/jgog/10']
+
+
+
+================================================
+FILE: .github/workflows/jekyll.yml
+================================================
+name: Jekyll site CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the site in the jekyll/builder container
+      run: |
+        docker run \
+        -v ${{ github.workspace }}/docs:/srv/jekyll -v ${{ github.workspace }}/docs/_site:/srv/jekyll/_site \
+        jekyll/builder:latest /bin/bash -c "chmod 777 /srv/jekyll && jekyll build --future"
+
+

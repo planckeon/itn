@@ -98,6 +98,7 @@ export function setupAlpine(): void {
           deltaCP_deg: this.deltaCP_deg,
           dm21sq_eV2: this.dm21sq_eV2,
           dm31sq_eV2: this.dm31sq_eV2,
+          maxL: this.maxL, // Add missing maxL property
           energy: this.energy,
           // Calculation Params
           s12sq: Math.pow(Math.sin(degToRad(this.theta12_deg)), 2),

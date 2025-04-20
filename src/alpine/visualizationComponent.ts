@@ -58,7 +58,7 @@ export function getDominantFlavorName(probs: ProbabilityVector): string {
 // --- Simplified Alpine Component ---
 export function neutrinoVisualizationComponent() {
   const Alpine = window.Alpine;
-  let updatePlotDebounced: (() => void) | null = null;
+  // Removed unused updatePlotDebounced variable
 
   // Helper function within component scope
   const getPhysicsParams = (lValue: number): OscillationParameters => {
@@ -77,7 +77,8 @@ export function neutrinoVisualizationComponent() {
       return {
           theta12_deg: simParams.theta12_deg, theta13_deg: simParams.theta13_deg, theta23_deg: simParams.theta23_deg,
           deltaCP_deg: simParams.deltaCP_deg, dm21sq_eV2: simParams.dm21sq_eV2, dm31sq_eV2: simParams.dm31sq_eV2,
-          energy: simParams.energy, s12sq: Math.pow(Math.sin(degToRadFn(simParams.theta12_deg)), 2),
+          energy: simParams.energy, maxL: simParams.maxL, // Add missing maxL property
+          s12sq: Math.pow(Math.sin(degToRadFn(simParams.theta12_deg)), 2),
           s13sq: Math.pow(Math.sin(degToRadFn(simParams.theta13_deg)), 2), s23sq: Math.pow(Math.sin(degToRadFn(simParams.theta23_deg)), 2),
           deltaCP_rad: degToRadFn(simParams.deltaCP_deg), dm21sq: simParams.dm21sq_eV2, dm31sq: simParams.dm31sq_eV2,
           L: lValue, E: simParams.energy, rho: simParams.rho, Ye: simParams.Ye,
@@ -98,21 +99,7 @@ export function neutrinoVisualizationComponent() {
     flavorSymbols: ['νₑ', 'ν<0xE1><0xB5><0x81>', 'ν<0xE1><0xB5><0x8F>'], // νμ, ντ
 
     // --- Methods (Simplified: Only modify stores or handle UI) ---
-    requestPlotUpdate() {
-        // Debounce plot updates triggered by sliders/inputs
-        if (!updatePlotDebounced) {
-            updatePlotDebounced = Alpine.debounce(() => {
-                const plotInstance = window.neutrinoVisualizationData?.plotInstance;
-                if (plotInstance) {
-                    plotInstance.update(
-                        this.simParams.getCalculationParams(0),
-                        this.plotParams.getParameters()
-                    );
-                }
-            }, 300);
-        }
-        updatePlotDebounced();
-    },
+    // Removed requestPlotUpdate method as plotting is handled by p5 sketch draw loop
 
     updateVisualization() {
       // This method is now primarily triggered by watchers reacting to store changes.
