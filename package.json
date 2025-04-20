@@ -1,31 +1,41 @@
 {
-  "name": "imagining-the-neutrino",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
-  },
-  "devDependencies": {
-    "@types/alpinejs": "^3.13.11",
-    "@types/katex": "^0.16.7",
-    "@types/node": "^22.14.1",
-    "@types/p5": "^1.7.6",
-    "typescript": "~5.7.2",
-    "vite": "^6.3.1",
-    "vitest": "^3.1.1"
-  },
-  "dependencies": {
-    "alpinejs": "^3.14.9",
-    "chota": "^0.9.2",
-    "katex": "^0.16.22",
-    "mathjs": "^14.4.0",
-    "p5": "^2.0.0",
-    "p5js-wrapper": "^1.2.3"
-  }
+	"name": "imagining-the-neutrino",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"format": "biome format",
+		"lint": "biome lint",
+		"check": "biome check",
+		"format:write": "biome format --write .",
+		"lint:write": "biome lint --write .",
+		"check:write": "biome check --write .",
+		"stylelint": "stylelint **/*.css"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/alpinejs": "^3.13.11",
+		"@types/katex": "^0.16.7",
+		"@types/node": "^22.14.1",
+		"@types/p5": "^1.7.6",
+		"stylelint": "^16.18.0",
+		"stylelint-config-standard": "^38.0.0",
+		"typescript": "~5.7.2",
+		"vite": "^6.3.1",
+		"vitest": "^3.1.1"
+	},
+	"dependencies": {
+		"alpinejs": "^3.14.9",
+		"chota": "^0.9.2",
+		"katex": "^0.16.22",
+		"mathjs": "^14.4.0",
+		"p5": "^2.0.0",
+		"p5js-wrapper": "^1.2.3"
+	}
 }
