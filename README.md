@@ -38,29 +38,50 @@
 Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://arxiv.org/abs/2405.02400)) for accurate 3-flavor oscillation calculations.
 
 Project structure:
-- `src/core/`: Core physics calculations and types  
-- `src/visualization/`: p5.js visualization components
+- `src/core/`: Core physics calculations, types, and visualization components
 - `src/alpine/`: UI components and stores
 - `src/physics/`: NuFast implementation
+- `src/styles/`: CSS modules and design system
+- `src/utils/`: Utility functions and helpers
+- `src/types/`: TypeScript type definitions
+- `test/`: Test suites organized by module
+  - `test/physics/`: Physics calculation tests
+  - `test/utils/`: Utility function tests
 
 See `ARCHITECTURE.md` for detailed technical documentation.
 
 ## Development
 
 ```bash
-# Install
+# Install dependencies
 npm install
 
-# Dev server
+# Development server with hot reload
 npm run dev
 
-# Build
+# Production build
 npm run build
 
-# Tests
+# Preview production build locally
+npm run preview
+
+# Run all tests
 npm test
+
+# Run tests in watch mode
 npm run test:watch
+
+# Generate test coverage report
 npm run test:coverage
+
+# Lint and check code
+npm run lint
+
+# Format code
+npm run format
+
+# Check formatting
+npm run format:check
 ```
 
 ## License

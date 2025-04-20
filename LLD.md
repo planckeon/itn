@@ -17,7 +17,7 @@
   - Handles both vacuum and matter oscillations
   - Includes numerical stability checks
 
-### 1.2 Visualization (`src/visualization/`)
+### 1.2 Core (`src/core/`)
 * **Main Sketch (`p5Sketch.ts`):**
   - Manages WEBGL canvas
   - Coordinates all visual components
@@ -86,3 +86,5 @@
   - Canvas safety checks
   - Graceful fallbacks
   - Error boundaries
+
+Last Updated: 2025-04-21

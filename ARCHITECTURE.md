@@ -13,16 +13,23 @@ Interactive visualization of neutrino flavor oscillations using:
 
 ```
 ┌───────────────┐      ┌───────────────┐      ┌─────────────────┐
-│   UI Layer    │◄────►│  Alpine.js    │◄────►│  p5.js          │
+│   UI Layer    │◄────►│  Alpine.js    │◄────►│  Core           │
 │  (HTML/CSS)   │      │   Stores      │      │  Visualization  │
 └───────────────┘      └───────────────┘      └─────────────────┘
-                              ▲                       ▲
-                              │                       │
-                              ▼                       │
-                       ┌───────────────┐             │
-                       │    Physics    │             │
-                       │  Calculation  │◄────────────┘
-                       │     Layer     │
+      ▲                       ▲                       ▲
+      │                       │                       │
+      ▼                       ▼                       │
+┌───────────────┐      ┌───────────────┐             │
+│   Styles      │      │    Physics    │             │
+│  (CSS)        │      │  Calculation  │◄────────────┘
+└───────────────┘      │     Layer     │
+                       └───────────────┘
+                              ▲
+                              │
+                              ▼
+                       ┌───────────────┐
+                       │    Tests      │
+                       │  (Vitest)     │
                        └───────────────┘
 ```
 
@@ -37,17 +44,28 @@ Interactive visualization of neutrino flavor oscillations using:
    - Alpine.js stores for parameters and UI state
    - Reactive data flow between components
 
-3. **Visualization (`visualization/`):**
+3. **Core (`core/`):**
+   - Main visualization components
    - **p5 Sketch:** Main animation and rendering
    - **Components:** 
      - Neutrino visualization
      - Probability plot
      - Starfield background
 
-4. **Utilities (`utils/`):**
+4. **Styles (`styles/`):**
+   - CSS modules for consistent styling
+   - Design system variables
+   - Responsive layout components
+
+5. **Utilities (`utils/`):**
    - Color utilities for flavor blending
    - Math helpers for calculations
    - Performance optimizations
+
+6. **Tests (`test/`):**
+   - Unit tests for physics calculations
+   - Component tests
+   - Integration tests
 
 ## Data Flow
 
@@ -87,3 +105,5 @@ Interactive visualization of neutrino flavor oscillations using:
 - Enhanced mobile experience
 - Expanded educational content
 - Performance monitoring
+
+Last Updated: 2025-04-21

@@ -1,0 +1,63 @@
+/* Educational component styles */
+.education-tooltip {
+  --tooltip-bg: var(--color-primary);
+  
+  position: absolute;
+  z-index: 500;
+  background: var(--tooltip-bg);
+  color: var(--color-light);
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  max-width: 300px;
+}
+
+.education-tooltip[data-show] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.info-icon {
+  display: inline-flex;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: color 0.2s ease;
+}
+
+.info-icon:hover,
+.info-icon:focus-visible {
+  color: var(--color-dark);
+}
+
+.latex-formula {
+  font-size: 1.1rem;
+  color: var(--color-dark);
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--color-light);
+  border-radius: var(--border-radius);
+}
+
+.content-card {
+  background: var(--color-light);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (width <= 768px) {
+  .content-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .education-tooltip {
+    max-width: 200px;
+    font-size: 0.9rem;
+  }
+}

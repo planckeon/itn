@@ -1,0 +1,108 @@
+:root {
+  /* From variables.css */
+  --control-bg: var(--surface-2);
+  --control-border: var(--border-1);
+  --control-radius: var(--radius-2);
+  --focus-ring: 0 0 0 3px var(--accent-a5);
+  --transition-base: 0.2s ease-in-out;
+}
+
+/* Slider Styles */
+.slider-container {
+  position: relative;
+  padding: 1rem 0;
+}
+
+.slider-track {
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--accent-9), var(--accent-7));
+  border-radius: var(--control-radius);
+}
+
+.slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent-9);
+  border-radius: 50%;
+  margin-top: -6px;
+  transition: var(--transition-base);
+}
+
+.slider-thumb:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* Unified Inputs */
+.input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--control-bg);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  transition: var(--transition-base);
+}
+
+.input-field:focus-visible {
+  outline: none;
+  border-color: var(--accent-7);
+  box-shadow: var(--focus-ring);
+}
+
+/* Button Variants */
+.button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--control-radius);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.button-primary {
+  background: var(--accent-9);
+  color: var(--accent-0);
+}
+
+.button-primary:hover {
+  background: var(--accent-10);
+}
+
+.button-secondary {
+  background: var(--surface-3);
+  border-color: var(--control-border);
+}
+
+.button-icon {
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+/* Checkbox/Radio */
+.checkbox-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-9);
+}
+
+/* Dark Theme Compatibility */
+@media (prefers-color-scheme: dark) {
+  .input-field {
+    --control-bg: var(--surface-4);
+    --control-border: var(--surface-6);
+  }
+}
