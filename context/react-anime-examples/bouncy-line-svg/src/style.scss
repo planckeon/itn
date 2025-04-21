@@ -1,0 +1,33 @@
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #FFF;
+  background: rgb(84,92,97);
+  background: radial-gradient(circle, rgba(84,92,97,1) 0%, rgba(23,41,48,1) 100%); 
+}
+
+svg {
+  width: 90vw;
+  height: auto;
+  background-color: transparent;
+  //border: 2px dashed #FFF;
+}
+
+#control-point {
+  cursor: grab;
+}
+
+#control-point:active {
+  cursor: grabbing;
+}
+
+.coordinates {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  display: none;
+}
+
