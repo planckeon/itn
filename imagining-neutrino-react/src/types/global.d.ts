@@ -1,6 +1,5 @@
 declare global {
 	interface Window {
-		Alpine: typeof import("alpinejs");
 		physicsEngine?: import("../physics/types").PhysicsEngine;
 		neutrinoVisualizationData?: {
 			currentProbs: import("../physics/types").ProbabilityVector;

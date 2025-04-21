@@ -18,12 +18,12 @@ Create an educational visualization tool that:
 - **Responsive Design:** Works across device sizes
 
 ## Overall Architecture
-- **UI Layer:** Alpine.js + Chota CSS
-- **Visualization:** p5.js (replaced Three.js)
+- **UI Layer:** React + Tailwind CSS
+- **Visualization:** p5.js (wrapped in React components)
 - **Physics Engine:** NuFast TypeScript implementation
 - **Core Modules:**
   - `src/physics/`: Oscillation calculations
   - `src/core/`: Visualization components
-  - `src/alpine/`: State management
+  - `src/state/`: React state management
   - `src/utils/`: Helper functions
 - **Testing:** Vitest test suites
