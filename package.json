@@ -28,7 +28,20 @@
 		"stylelint-config-standard": "^38.0.0",
 		"typescript": "~5.7.2",
 		"vite": "^6.3.1",
-		"vitest": "^3.1.1"
+		"vitest": "^3.1.1",
+		"@eslint/js": "^9.22.0",
+		"@types/animejs": "^3.1.13",
+		"@types/react": "^19.0.10",
+		"@types/react-dom": "^19.0.4",
+		"@vitejs/plugin-react-swc": "^3.8.0",
+		"autoprefixer": "^10.4.21",
+		"eslint": "^9.22.0",
+		"eslint-plugin-react-hooks": "^5.2.0",
+		"eslint-plugin-react-refresh": "^0.4.19",
+		"globals": "^16.0.0",
+		"postcss": "^8.5.3",
+		"tailwindcss": "^4.1.4",
+		"typescript-eslint": "^8.26.1"
 	},
 	"dependencies": {
 		"alpinejs": "^3.14.9",
@@ -36,6 +49,10 @@
 		"katex": "^0.16.22",
 		"mathjs": "^14.4.0",
 		"p5": "^2.0.0",
-		"p5js-wrapper": "^1.2.3"
+		"p5js-wrapper": "^1.2.3",
+		"animejs": "^4.0.1",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"zod": "^3.24.3"
 	}
 }

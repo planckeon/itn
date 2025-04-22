@@ -1,0 +1,44 @@
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0f172a;
+  color: #f8fafc;
+  font-family: 'Courier New', monospace;
+}
+
+.controls-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgb(15 23 42 / 80%);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgb(0 0 0 / 50%);
+  border: 1px solid #334155;
+  max-width: 300px;
+}
+
+.control-group {
+  margin-bottom: 15px;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.control-group select,
+.control-group input[type="range"] {
+  width: 100%;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.control-group input[type="checkbox"] {
+  margin-right: 8px;
+}
