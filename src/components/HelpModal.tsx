@@ -43,13 +43,15 @@ const HelpModal: React.FC = () => {
 	}, [isOpen]);
 
 	if (!isOpen) {
-		// Show small hint in corner
+		// Show small hint in corner - positioned relative to viewport
 		return (
 			<button
 				type="button"
 				onClick={() => setIsOpen(true)}
-				className="fixed bottom-4 right-[340px] z-30 px-2 py-1 rounded text-xs text-white/40 hover:text-white/70 transition-colors"
+				className="fixed bottom-4 z-30 px-2 py-1 rounded text-xs text-white/40 hover:text-white/70 transition-colors hidden sm:block"
 				style={{
+					// Position between center plot and right spectrum plot
+					right: "calc(50% + 240px)",
 					background: "rgba(20, 20, 30, 0.6)",
 					border: "1px solid rgba(255, 255, 255, 0.1)",
 				}}
@@ -66,7 +68,7 @@ const HelpModal: React.FC = () => {
 			onClick={() => setIsOpen(false)}
 		>
 			<div
-				className="rounded-xl p-6 max-w-md w-full mx-4"
+				className="rounded-xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto"
 				style={{
 					background: "rgba(20, 20, 30, 0.95)",
 					border: "1px solid rgba(255, 255, 255, 0.2)",
