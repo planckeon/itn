@@ -23,9 +23,9 @@ const THETA13_DEG = 8.57;
 
 // Flavor colors - vibrant and visible
 const FLAVOR_COLORS = {
-	electron: { r: 96, g: 165, b: 250 },  // Blue-400 (brighter)
+	electron: { r: 96, g: 165, b: 250 },  // Blue-400
 	muon: { r: 251, g: 146, b: 60 },      // Orange-400
-	tau: { r: 232, g: 121, b: 249 },      // Fuchsia-400 (brighter)
+	tau: { r: 232, g: 121, b: 249 },      // Fuchsia-400
 };
 
 /**
@@ -36,10 +36,23 @@ function calculateResonanceEnergy(density: number, Ye = 0.5): number {
 	return (DM31_SQ * cos2theta) / (1.52e-4 * density * Ye);
 }
 
+/**
+ * Lerp between colors
+ */
+function lerpColor(c1: {r: number, g: number, b: number}, c2: {r: number, g: number, b: number}, t: number) {
+	return {
+		r: Math.round(c1.r + (c2.r - c1.r) * t),
+		g: Math.round(c1.g + (c2.g - c1.g) * t),
+		b: Math.round(c1.b + (c2.b - c1.b) * t),
+	};
+}
+
 const NeutrinoSphere: React.FC = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const animationRef = useRef<number>(0);
 	const timeRef = useRef<number>(0);
+	const prevColorRef = useRef<{r: number, g: number, b: number} | null>(null);
+	const colorTransitionRef = useRef<number>(1);
 	const { state } = useSimulation() as { state: SimulationState };
 
 	// Get the latest probabilities
@@ -66,7 +79,7 @@ const NeutrinoSphere: React.FC = () => {
 	}, [state.matter, state.density, state.energy, state.isAntineutrino]);
 
 	// Blend colors based on probabilities
-	const blendedColor = useMemo(() => {
+	const targetColor = useMemo(() => {
 		const { Pe, Pmu, Ptau } = latestProbabilities;
 		const r = Math.round(
 			FLAVOR_COLORS.electron.r * Pe +
@@ -86,6 +99,12 @@ const NeutrinoSphere: React.FC = () => {
 		return { r, g, b };
 	}, [latestProbabilities]);
 
+	// Get individual flavor colors for particles
+	const flavorParticleColors = useMemo(() => {
+		const { Pe, Pmu, Ptau } = latestProbabilities;
+		return { Pe, Pmu, Ptau };
+	}, [latestProbabilities]);
+
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
@@ -101,27 +120,61 @@ const NeutrinoSphere: React.FC = () => {
 
 		const centerX = size / 2;
 		const centerY = size / 2;
-		const baseRadius = 45;
+		const baseRadius = 42;
 
-		const { r, g, b } = blendedColor;
+		// Initialize previous color
+		if (!prevColorRef.current) {
+			prevColorRef.current = { ...targetColor };
+		}
 
 		const render = () => {
-			timeRef.current += 0.02;
+			timeRef.current += 0.016;
+			
+			// Smooth color transition
+			if (colorTransitionRef.current < 1) {
+				colorTransitionRef.current = Math.min(1, colorTransitionRef.current + 0.05);
+			}
+			
+			// Check if target color changed significantly
+			const colorDiff = Math.abs(targetColor.r - (prevColorRef.current?.r || 0)) +
+				Math.abs(targetColor.g - (prevColorRef.current?.g || 0)) +
+				Math.abs(targetColor.b - (prevColorRef.current?.b || 0));
+			
+			if (colorDiff > 20 && colorTransitionRef.current >= 1) {
+				colorTransitionRef.current = 0;
+			}
+			
+			// Interpolate color for smooth transitions
+			const displayColor = prevColorRef.current && colorTransitionRef.current < 1
+				? lerpColor(prevColorRef.current, targetColor, colorTransitionRef.current)
+				: targetColor;
+			
+			if (colorTransitionRef.current >= 1) {
+				prevColorRef.current = { ...targetColor };
+			}
+
+			const { r, g, b } = displayColor;
+			const { Pe, Pmu, Ptau } = flavorParticleColors;
+
 			ctx.clearRect(0, 0, size, size);
 
-			// Breathing animation - subtle size pulsation
-			const breathe = 1 + 0.02 * Math.sin(timeRef.current * 1.5);
+			// Breathing animation
+			const breathe = 1 + 0.02 * Math.sin(timeRef.current * 1.2);
 			const radius = baseRadius * breathe;
 
+			// Matter effect: particles orbit faster in matter
+			const matterSpeedMult = state.matter ? 1.5 : 1;
+			const matterWobbleMult = state.matter ? 1.3 : 1;
+
 			// === Outer glow (quantum probability cloud) ===
-			const glowRadius = radius * 1.8;
+			const glowRadius = radius * 1.9;
 			const glowGradient = ctx.createRadialGradient(
-				centerX, centerY, radius * 0.5,
+				centerX, centerY, radius * 0.4,
 				centerX, centerY, glowRadius
 			);
-			glowGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.4)`);
-			glowGradient.addColorStop(0.4, `rgba(${r}, ${g}, ${b}, 0.15)`);
-			glowGradient.addColorStop(0.7, `rgba(${r}, ${g}, ${b}, 0.05)`);
+			glowGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.35)`);
+			glowGradient.addColorStop(0.3, `rgba(${r}, ${g}, ${b}, 0.15)`);
+			glowGradient.addColorStop(0.6, `rgba(${r}, ${g}, ${b}, 0.05)`);
 			glowGradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
 
 			ctx.beginPath();
@@ -129,56 +182,69 @@ const NeutrinoSphere: React.FC = () => {
 			ctx.fillStyle = glowGradient;
 			ctx.fill();
 
-			// === Wavefunction surface fuzz ===
-			// Draw fuzzy probability cloud particles on the surface
-			const numParticles = 60;
+			// === Wavefunction surface particles ===
+			// Particle count based on total probability variance (more mixing = more particles)
+			const mixing = 1 - Math.max(Pe, Pmu, Ptau); // 0 = pure, ~0.67 = max mixing
+			const baseParticles = 40;
+			const numParticles = Math.floor(baseParticles + mixing * 30);
+
 			for (let i = 0; i < numParticles; i++) {
-				// Distribute particles on sphere surface with time-based animation
-				const theta = (i / numParticles) * Math.PI * 2 + timeRef.current * 0.3;
-				const phi = Math.acos(1 - 2 * ((i * 0.618033988749895) % 1)); // Golden ratio distribution
+				// Determine particle flavor based on probability distribution
+				const flavorRand = (i * 0.618033988749895) % 1;
+				let particleColor: {r: number, g: number, b: number};
+				if (flavorRand < Pe) {
+					particleColor = FLAVOR_COLORS.electron;
+				} else if (flavorRand < Pe + Pmu) {
+					particleColor = FLAVOR_COLORS.muon;
+				} else {
+					particleColor = FLAVOR_COLORS.tau;
+				}
+
+				// Golden ratio distribution on sphere
+				const theta = (i / numParticles) * Math.PI * 2 + timeRef.current * 0.4 * matterSpeedMult;
+				const phi = Math.acos(1 - 2 * ((i * 0.618033988749895) % 1));
 				
-				// Spherical to 2D projection with wobble
-				const wobble = 0.1 * Math.sin(timeRef.current * 2 + i * 0.5);
-				const particleRadius = radius * (1.05 + wobble + 0.15 * Math.sin(theta * 3 + timeRef.current));
+				// Animated wobble
+				const wobble = 0.12 * matterWobbleMult * Math.sin(timeRef.current * 2.5 + i * 0.7);
+				const particleRadius = radius * (1.08 + wobble + 0.1 * Math.sin(theta * 2 + timeRef.current * 1.5));
+				
 				const px = centerX + particleRadius * Math.sin(phi) * Math.cos(theta);
-				const py = centerY + particleRadius * Math.cos(phi) * 0.9; // Slight vertical compression for 3D feel
+				const py = centerY + particleRadius * Math.cos(phi) * 0.85;
 				
-				// Particle opacity based on "depth" (front particles brighter)
+				// Depth-based rendering
 				const depth = Math.sin(phi) * Math.sin(theta);
-				const opacity = 0.3 + 0.4 * (0.5 + 0.5 * depth);
-				const particleSize = 2 + 1.5 * (0.5 + 0.5 * depth);
+				const opacity = 0.25 + 0.45 * (0.5 + 0.5 * depth);
+				const particleSize = 1.5 + 2 * (0.5 + 0.5 * depth);
 				
+				// Bright particle with slight glow
 				ctx.beginPath();
 				ctx.arc(px, py, particleSize, 0, Math.PI * 2);
-				ctx.fillStyle = `rgba(${Math.min(255, r + 50)}, ${Math.min(255, g + 50)}, ${Math.min(255, b + 50)}, ${opacity})`;
+				ctx.fillStyle = `rgba(${Math.min(255, particleColor.r + 40)}, ${Math.min(255, particleColor.g + 40)}, ${Math.min(255, particleColor.b + 40)}, ${opacity})`;
 				ctx.fill();
 			}
 
 			// === Main sphere with 3D shading ===
-			// Light source from top-left
-			const lightOffsetX = -radius * 0.3;
-			const lightOffsetY = -radius * 0.3;
+			const lightOffsetX = -radius * 0.35;
+			const lightOffsetY = -radius * 0.35;
 
-			// Base sphere gradient (3D effect)
 			const sphereGradient = ctx.createRadialGradient(
 				centerX + lightOffsetX, centerY + lightOffsetY, 0,
 				centerX, centerY, radius
 			);
 			
-			// Brighter highlight, smooth falloff to edge
 			const highlight = { 
-				r: Math.min(255, r + 80), 
-				g: Math.min(255, g + 80), 
-				b: Math.min(255, b + 80) 
+				r: Math.min(255, r + 70), 
+				g: Math.min(255, g + 70), 
+				b: Math.min(255, b + 70) 
 			};
 			const shadow = { 
-				r: Math.max(0, r - 40), 
-				g: Math.max(0, g - 40), 
-				b: Math.max(0, b - 40) 
+				r: Math.max(0, r - 50), 
+				g: Math.max(0, g - 50), 
+				b: Math.max(0, b - 50) 
 			};
 
 			sphereGradient.addColorStop(0, `rgb(${highlight.r}, ${highlight.g}, ${highlight.b})`);
-			sphereGradient.addColorStop(0.5, `rgb(${r}, ${g}, ${b})`);
+			sphereGradient.addColorStop(0.4, `rgb(${r}, ${g}, ${b})`);
 			sphereGradient.addColorStop(1, `rgb(${shadow.r}, ${shadow.g}, ${shadow.b})`);
 
 			ctx.beginPath();
@@ -186,13 +252,13 @@ const NeutrinoSphere: React.FC = () => {
 			ctx.fillStyle = sphereGradient;
 			ctx.fill();
 
-			// === Specular highlight (glossy reflection) ===
+			// === Specular highlight ===
 			const specularGradient = ctx.createRadialGradient(
-				centerX + lightOffsetX * 0.8, centerY + lightOffsetY * 0.8, 0,
-				centerX + lightOffsetX * 0.5, centerY + lightOffsetY * 0.5, radius * 0.5
+				centerX + lightOffsetX * 0.7, centerY + lightOffsetY * 0.7, 0,
+				centerX + lightOffsetX * 0.4, centerY + lightOffsetY * 0.4, radius * 0.45
 			);
-			specularGradient.addColorStop(0, "rgba(255, 255, 255, 0.5)");
-			specularGradient.addColorStop(0.5, "rgba(255, 255, 255, 0.1)");
+			specularGradient.addColorStop(0, "rgba(255, 255, 255, 0.55)");
+			specularGradient.addColorStop(0.6, "rgba(255, 255, 255, 0.08)");
 			specularGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
 
 			ctx.beginPath();
@@ -200,28 +266,34 @@ const NeutrinoSphere: React.FC = () => {
 			ctx.fillStyle = specularGradient;
 			ctx.fill();
 
-			// === MSW Resonance ring ===
+			// === MSW Resonance effect ===
 			if (isNearResonance) {
-				const ringRadius = radius + 12;
-				const ringPulse = 1 + 0.1 * Math.sin(timeRef.current * 3);
+				const ringRadius = radius + 10 + 3 * Math.sin(timeRef.current * 4);
+				const pulseAlpha = 0.6 + 0.4 * Math.sin(timeRef.current * 5);
 				
-				ctx.beginPath();
-				ctx.arc(centerX, centerY, ringRadius * ringPulse, 0, Math.PI * 2);
-				ctx.strokeStyle = `rgba(255, 200, 50, ${resonanceStrength * 0.8})`;
-				ctx.lineWidth = 2;
-				ctx.stroke();
+				// Multiple rings for dramatic effect
+				for (let ring = 0; ring < 3; ring++) {
+					const ringR = ringRadius + ring * 6;
+					const ringAlpha = resonanceStrength * pulseAlpha * (1 - ring * 0.3);
+					
+					ctx.beginPath();
+					ctx.arc(centerX, centerY, ringR, 0, Math.PI * 2);
+					ctx.strokeStyle = `rgba(255, 200, 50, ${ringAlpha})`;
+					ctx.lineWidth = 2 - ring * 0.5;
+					ctx.stroke();
+				}
 
-				// Ring glow
+				// Golden glow
 				const ringGlow = ctx.createRadialGradient(
-					centerX, centerY, ringRadius - 5,
-					centerX, centerY, ringRadius + 15
+					centerX, centerY, ringRadius - 8,
+					centerX, centerY, ringRadius + 25
 				);
 				ringGlow.addColorStop(0, `rgba(255, 200, 50, 0)`);
-				ringGlow.addColorStop(0.5, `rgba(255, 200, 50, ${resonanceStrength * 0.3})`);
+				ringGlow.addColorStop(0.4, `rgba(255, 200, 50, ${resonanceStrength * 0.25})`);
 				ringGlow.addColorStop(1, `rgba(255, 200, 50, 0)`);
 
 				ctx.beginPath();
-				ctx.arc(centerX, centerY, ringRadius + 10, 0, Math.PI * 2);
+				ctx.arc(centerX, centerY, ringRadius + 20, 0, Math.PI * 2);
 				ctx.fillStyle = ringGlow;
 				ctx.fill();
 			}
@@ -234,7 +306,7 @@ const NeutrinoSphere: React.FC = () => {
 		return () => {
 			cancelAnimationFrame(animationRef.current);
 		};
-	}, [blendedColor, isNearResonance, resonanceStrength]);
+	}, [targetColor, flavorParticleColors, isNearResonance, resonanceStrength, state.matter]);
 
 	return (
 		<canvas
