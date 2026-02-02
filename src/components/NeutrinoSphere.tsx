@@ -110,7 +110,7 @@ const NeutrinoSphere: React.FC = () => {
 			ctx.clearRect(0, 0, size, size);
 
 			// Breathing animation - subtle size pulsation
-			const breathe = 1 + 0.03 * Math.sin(timeRef.current * 1.5);
+			const breathe = 1 + 0.02 * Math.sin(timeRef.current * 1.5);
 			const radius = baseRadius * breathe;
 
 			// === Outer glow (quantum probability cloud) ===
@@ -128,6 +128,31 @@ const NeutrinoSphere: React.FC = () => {
 			ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
 			ctx.fillStyle = glowGradient;
 			ctx.fill();
+
+			// === Wavefunction surface fuzz ===
+			// Draw fuzzy probability cloud particles on the surface
+			const numParticles = 60;
+			for (let i = 0; i < numParticles; i++) {
+				// Distribute particles on sphere surface with time-based animation
+				const theta = (i / numParticles) * Math.PI * 2 + timeRef.current * 0.3;
+				const phi = Math.acos(1 - 2 * ((i * 0.618033988749895) % 1)); // Golden ratio distribution
+				
+				// Spherical to 2D projection with wobble
+				const wobble = 0.1 * Math.sin(timeRef.current * 2 + i * 0.5);
+				const particleRadius = radius * (1.05 + wobble + 0.15 * Math.sin(theta * 3 + timeRef.current));
+				const px = centerX + particleRadius * Math.sin(phi) * Math.cos(theta);
+				const py = centerY + particleRadius * Math.cos(phi) * 0.9; // Slight vertical compression for 3D feel
+				
+				// Particle opacity based on "depth" (front particles brighter)
+				const depth = Math.sin(phi) * Math.sin(theta);
+				const opacity = 0.3 + 0.4 * (0.5 + 0.5 * depth);
+				const particleSize = 2 + 1.5 * (0.5 + 0.5 * depth);
+				
+				ctx.beginPath();
+				ctx.arc(px, py, particleSize, 0, Math.PI * 2);
+				ctx.fillStyle = `rgba(${Math.min(255, r + 50)}, ${Math.min(255, g + 50)}, ${Math.min(255, b + 50)}, ${opacity})`;
+				ctx.fill();
+			}
 
 			// === Main sphere with 3D shading ===
 			// Light source from top-left
@@ -166,7 +191,7 @@ const NeutrinoSphere: React.FC = () => {
 				centerX + lightOffsetX * 0.8, centerY + lightOffsetY * 0.8, 0,
 				centerX + lightOffsetX * 0.5, centerY + lightOffsetY * 0.5, radius * 0.5
 			);
-			specularGradient.addColorStop(0, "rgba(255, 255, 255, 0.6)");
+			specularGradient.addColorStop(0, "rgba(255, 255, 255, 0.5)");
 			specularGradient.addColorStop(0.5, "rgba(255, 255, 255, 0.1)");
 			specularGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
 
