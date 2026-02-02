@@ -9,6 +9,7 @@ Interactive visualization of neutrino oscillations using modern web technologies
 - **Tailwind CSS** for responsive styling  
 - **TypeScript** for type safety
 - **Vite** for development/build
+- **Rust/WASM** for high-performance physics calculations
 
 ## System Architecture
 
@@ -19,22 +20,35 @@ Interactive visualization of neutrino oscillations using modern web technologies
 └─────────────────┘     └─────────────────┘     └─────────────────┘
        ▲                       ▲                       ▲
        │                       │                       │
-       ▼                       ▼                       │
-┌─────────────────┐     ┌─────────────────┐            │
-│   Visualization │     │   Controls      │            │
-│  (Canvas 2D)    │     │  (TopControlBar)│◄───────────┘
-└─────────────────┘     └─────────────────┘
+       ▼                       ▼                       ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Visualization │     │   Controls      │     │  WASM Bridge    │
+│  (Canvas 2D)    │     │  (TopControlBar)│     │  (wasmBridge.ts)│
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                                       │
+                                                       ▼
+                                                ┌─────────────────┐
+                                                │  Rust/WASM      │
+                                                │  (nufast-wasm)  │
+                                                └─────────────────┘
 ```
 
 ### Core Modules
 
 1. **Physics Layer (`src/physics/`):**
-   - NuFast algorithm implementation
+   - NuFast algorithm implementation (TypeScript fallback)
    - Physical constants (NuFit 5.2 best-fit)
    - Normal/Inverted mass ordering support
    - Type definitions for oscillation parameters
+   - **WASM bridge** for high-performance batch calculations
 
-2. **Components (`src/components/`):**
+2. **Rust/WASM (`crates/nufast-wasm/`):**
+   - Rust port of NuFast oscillation physics
+   - Compiles to ~30KB optimized WASM
+   - `calculate_energy_spectrum()` for batch P(E) calculations
+   - Future: Earth density profile, Monte Carlo
+
+3. **Components (`src/components/`):**
    - **Starfield:** 3D starfield with camera rotation
    - **NeutrinoSphere:** Color-blending sphere with MSW resonance glow
    - **ProbabilityPlot:** P vs L plot with oscillation length markers
@@ -83,7 +97,8 @@ Interactive visualization of neutrino oscillations using modern web technologies
 
 2. **Performance:**
    - Canvas 2D for efficient rendering
-   - Minimal dependencies (~71KB gzipped)
+   - Rust/WASM for compute-heavy physics
+   - Minimal dependencies (~86KB JS + 30KB WASM gzipped)
    - Frame-rate independent physics
 
 3. **Mobile-First:**
@@ -91,7 +106,12 @@ Interactive visualization of neutrino oscillations using modern web technologies
    - Responsive control bar (compact on mobile)
    - Full viewport utilization
 
-4. **Educational:**
+4. **Progressive Enhancement:**
+   - WASM loads async, falls back to TypeScript
+   - Works in all modern browsers
+   - No blocking on WASM init
+
+5. **Educational:**
    - Info tooltips explain physics concepts
    - Oscillation length markers for intuition
    - MSW resonance visualization
@@ -100,9 +120,10 @@ Interactive visualization of neutrino oscillations using modern web technologies
 
 | Feature | Implementation |
 |---------|----------------|
-| 3-flavor oscillations | NuFast algorithm |
+| 3-flavor oscillations | NuFast algorithm (Rust/WASM + TS) |
 | Matter effect (MSW) | Adjustable density |
 | CP violation | δCP slider (0-360°) |
+| Energy spectrum | WASM batch calculation (400 pts) |
 | Mass ordering | NO/IO toggle |
 | Antineutrino | Sign flip on δCP |
 

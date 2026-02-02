@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Rust/WASM Physics Engine** — High-performance oscillation calculations via WebAssembly
+- **Energy Spectrum Boost** — 400 data points with WASM vs 200 with JS fallback
+- **State Persistence** — Simulation settings auto-save to localStorage across sessions
+
+### Changed
+- **Sliding Window Plot** — X-axis now shows actual distance range (min → max km)
+- **Oscillation Markers** — L₃₁/L₂₁ markers update correctly for current visible range
+
+### Fixed
+- **Infinite Scroll Glitch** — Probability plot no longer breaks at high distances
+
 ## [1.3.0] - 2026-02-03
 
 ### Added
