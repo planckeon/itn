@@ -1,5 +1,3 @@
-import type p5 from "p5";
-
 export interface PhysicsEngine {
 	calculateNuFastProbs: (params: OscillationParameters) => ProbabilityMatrix;
 	getProbabilitiesForInitialFlavor: (
@@ -59,14 +57,6 @@ export interface AnimationState {
 	isPlaying: boolean;
 	simSpeed: number;
 	currentL: number;
-}
-
-export interface P5SketchInstance extends p5 {
-	setPlaying?: (isPlaying: boolean) => void;
-	setSimSpeed?: (speed: number) => void;
-	updateSimParams?: (simParams: OscillationParameters) => void;
-	resetSimulation?: () => void;
-	remove: () => void;
 }
 
 export type NeutrinoFlavor = 0 | 1 | 2; // 0: electron, 1: muon, 2: tau

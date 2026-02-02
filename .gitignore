@@ -36,3 +36,12 @@ lerna-debug.log*
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Agent/MCP artifacts
+.archive/
+.tasks/
+*.db
+FileScopeMCP-tree.json
+memory-bank/
+repomix-output.xml
+session-*.md

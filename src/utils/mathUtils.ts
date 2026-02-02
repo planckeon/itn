@@ -55,7 +55,7 @@ export function clamp(value: number, min: number, max: number): number {
  * @param decimals - Number of decimal places
  * @returns Formatted number as a string
  */
-export function formatNumber(value: number, decimals: number = 2): string {
+export function formatNumber(value: number, decimals = 2): string {
 	return value.toFixed(decimals);
 }
 
@@ -69,8 +69,8 @@ export function formatNumber(value: number, decimals: number = 2): string {
  */
 export function formatScientific(
 	value: number,
-	decimals: number = 2,
-	threshold: number = 1e4,
+	decimals = 2,
+	threshold = 1e4,
 ): string {
 	// Use scientific notation if >= threshold OR > 0 and < a small fixed threshold (e.g., 1e-3)
 	const smallThreshold = 1e-3;

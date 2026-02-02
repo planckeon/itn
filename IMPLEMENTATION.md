@@ -12,36 +12,48 @@
   - Includes checks for edge cases
   - Clamps probabilities to valid range [0,1]
 
-## 2. Visualization (p5.js)
+## 2. Visualization (Anime.js)
 
-* **Main Sketch:**
-  - Single p5 instance handles all rendering
-  - Uses WEBGL mode for 3D effects
-  - Efficient animation loop with delta timing
+* **Component Architecture:**
+  - React components manage animation lifecycle
+  - Anime.js handles DOM-based animations
+  - Efficient update cycle with requestAnimationFrame
 
-* **Components:**
-  - **Neutrino:** Sphere with dynamic color blending
-  - **Probability Plot:** 2D canvas for oscillation curves
-  - **Starfield:** Background with motion effects
+* **Key Visual Components:**
+  - **NeutrinoSphere:** Color-blended sphere animation
+  - **ProbabilityPlot:** Canvas-based 2D plotting
+  - **Starfield:** Parallax background effect
 
 * **Performance:**
   - Physics calculations decoupled from rendering
   - Caching of probability results
-  - Optimized drawing operations
+  - Optimized DOM updates
 
 ## 3. State Management
 
-* **Alpine.js Stores:**
-  - Centralized reactive state
-  - Handles all physics parameters
-  - Manages animation state
+* **SimulationContext:**
+  - Centralized state for physics parameters
+  - Custom hooks for state access
+  - Memoized selectors for performance
 
-* **UI Binding:**
-  - Direct HTML bindings to stores
-  - Debounced input handling
-  - Responsive layout
+* **Component Integration:**
+  - Context consumers optimized with memo
+  - Debounced updates for controls
+  - Efficient re-render patterns
 
-## 4. Build Process
+## 4. Styling (Tailwind CSS)
+
+* **Utility-First Approach:**
+  - Responsive design with utility classes
+  - Consistent spacing and typography
+  - Dark mode support
+
+* **Animation Integration:**
+  - Transition utilities for UI elements
+  - Coordinated with Anime.js animations
+  - Performance-optimized styles
+
+## 5. Build Process
 
 * **Vite:**
   - Fast development server
@@ -55,17 +67,19 @@
 
 ## Key Design Decisions
 
-1. **p5.js for Visualization:**
-   - Unified rendering approach
-   - Good performance characteristics
-   - Simplified codebase
+1. **React + Anime.js for Visualization:**
+   - Component-based architecture
+   - Smooth animations with performance
+   - Clean separation of concerns
 
-2. **Modular Architecture:**
-   - Clear separation of concerns
-   - Reusable components
-   - Better maintainability
+2. **Tailwind CSS for Styling:**
+   - Rapid development workflow
+   - Consistent design system
+   - Responsive by default
 
 3. **Type Safety:**
    - Comprehensive type definitions
    - Reduced runtime errors
    - Better developer experience
+
+Last Updated: 2025-04-23

@@ -5,23 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Imagining the Neutrino</title>
-    <!-- MathJax for LaTeX -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-
-    <!-- Import main script -->
-    <script type="module" src="/src/main.tsx"></script>
   </head>
-  <body> <!-- Removed class="dark" as background will be set by p5 -->
-    <main>
-        <div id="p5-container">
-            <!-- The p5 canvas will be created here by the sketch -->
-        </div>
-        <div id="bottom-plot-container">
-            <canvas id="probPlotCanvas" class="control-card"></canvas>
-        </div>
-    </main>
-</body>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
-

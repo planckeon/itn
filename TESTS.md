@@ -1,32 +1,49 @@
 # Testing Strategy: Imagining the Neutrino
 
 ## 1. Overview
-Comprehensive testing strategy using Vitest to ensure:
+Comprehensive testing strategy using Vitest and React Testing Library to ensure:
 
 - Correct physics calculations
 - Reliable utility functions
 - Stable component integration
+- Consistent behavior across states
 
 ## 2. Test Directory Structure
 ```
 test/
+├── components/        # React component tests
+│   ├── NeutrinoSphere.test.tsx
+│   └── ControlsPanel.test.tsx
 ├── physics/          # Physics calculation tests
 │   ├── oscillation.test.ts
 │   └── matter-effect.test.ts
 ├── utils/            # Utility function tests
 │   ├── color.test.ts
 │   └── math.test.ts
-└── integration/      # Integration tests
-    ├── state.test.ts
-    └── visualization.test.ts
+└── context/          # State management tests
+    └── SimulationContext.test.ts
 ```
 
 ## 3. Testing Framework
 * **Vitest:** Fast, Vite-compatible test runner
+* **React Testing Library:** For component tests
 * **Coverage:** Built-in Istanbul coverage reporting
 * **TypeScript:** Full type checking during tests
 
 ## 4. Test Examples
+
+### Component Test Example
+```typescript
+import { render } from '@testing-library/react';
+import NeutrinoSphere from '../src/components/NeutrinoSphere';
+
+describe('NeutrinoSphere', () => {
+  test('renders with default props', () => {
+    const { container } = render(<NeutrinoSphere probabilities={[0.5, 0.3, 0.2]} />);
+    expect(container.firstChild).toHaveClass('neutrino-sphere');
+  });
+});
+```
 
 ### Physics Test Example
 ```typescript
@@ -42,18 +59,6 @@ describe('Neutrino Oscillation Calculations', () => {
 });
 ```
 
-### Utility Test Example
-```typescript
-import { blendFlavorColors } from '../src/utils/color';
-
-describe('Color Utilities', () => {
-  test('Flavor color blending', () => {
-    const result = blendFlavorColors([0.5, 0.3, 0.2]);
-    expect(result).toMatch(/^#[0-9a-f]{6}$/i);
-  });
-});
-```
-
 ## 5. Test Types
 
 ### Unit Tests
@@ -62,12 +67,17 @@ describe('Color Utilities', () => {
 - Type definitions
 
 ### Integration Tests
-- State management
 - Component interactions
+- Context state changes
 - Visualization updates
 
+### Component Tests
+- Rendering output
+- User interactions
+- State changes
+
 ## 6. Test Coverage
-* **Target:** >90% coverage for core modules
+* **Target:** >90% coverage for all modules
 * **Measurement:** 
   ```bash
   npm run test:coverage
@@ -78,8 +88,8 @@ describe('Color Utilities', () => {
   - Threshold enforcement in vitest.config.ts
 * **Focus Areas:**
   - Physics calculations
-  - Color utilities
-  - Math helpers
+  - React components
+  - State management
 
 ## 7. Key Test Cases
 
@@ -89,15 +99,16 @@ describe('Color Utilities', () => {
 - Probability matrix unitarity
 - Edge case handling
 
+### Components
+- Rendering consistency
+- Prop updates
+- User interactions
+- Context integration
+
 ### Utilities
 - Color blending accuracy
 - Math function correctness
 - Type safety checks
-
-### Visualization
-- Rendering consistency
-- Animation timing
-- Performance benchmarks
 
 ## 8. Running Tests
 ```bash
@@ -111,12 +122,13 @@ npm run test:watch
 npm run test:coverage
 
 # Specific test file
-npm test test/physics/oscillation.test.ts
+npm test test/components/NeutrinoSphere.test.tsx
 ```
 
 ## 9. CI Integration
 - Automated testing on push/pull requests
 - Coverage reporting
 - Type checking
+- Linting
 
-Last Updated: 2025-04-21
+Last Updated: 2025-04-23

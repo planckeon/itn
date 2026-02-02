@@ -1,7 +1,7 @@
 # High-Level Design: Imagining the Neutrino
 
 ## 1. Introduction
-Interactive web visualization of neutrino oscillations using modern web technologies.
+Interactive web visualization of neutrino oscillations using modern React-based technologies.
 
 ## 2. Goals
 * Visualize 3-flavor neutrino oscillation probabilities
@@ -18,33 +18,36 @@ Interactive web visualization of neutrino oscillations using modern web technolo
 * **Animation Controls:** Play/pause/reset and speed adjustment
 
 ## 4. Major Components
-* **UI Layer (HTML/CSS/Alpine.js):** Input controls and layout
-* **State Management (Alpine.js):** Centralized reactive stores  
+* **UI Layer (React Components):** Input controls and layout
+* **State Management (SimulationContext):** Centralized reactive state  
 * **Physics Engine (TypeScript):** NuFast algorithm implementation
-* **Visualization (p5.js):** Animation and plotting system
+* **Visualization (Anime.js):** Animation and plotting system
+* **Styling (Tailwind CSS):** Responsive design system
 * **Utilities:** Color/math helpers and performance optimizers
 
 ## 5. User Interaction Flow
 1. Load page with default parameters  
 2. Change parameters via UI controls  
-3. State updates trigger recalculation  
-4. Visualizations update automatically:
+3. State updates in SimulationContext  
+4. Components update automatically:
    - Probability plot redraws
    - Neutrino color blends accordingly
    - Starfield movement responds to speed changes
 5. Toggle animation controls to pause/resume simulation  
 
 ## 6. Technical Stack
-* **Core:** TypeScript + Vite  
-* **Visualization:** p5.js  
-* **UI Framework:** Alpine.js  
-* **Styling:** CSS  
+* **Core:** React + TypeScript + Vite  
+* **Visualization:** Anime.js  
+* **State Management:** React Context  
+* **Styling:** Tailwind CSS  
 * **Math Rendering:** KaTeX  
-* **Testing:** Vitest  
+* **Testing:** Vitest + React Testing Library  
 
 ## 7. Architecture Principles
-* Reactive data flow
-* Modular component design
+* Component-based design
+* Unidirectional data flow
 * Performance optimization
 * Type safety
 * Maintainable code structure
+
+Last Updated: 2025-04-23

@@ -18,12 +18,10 @@ export function debounce<T extends (...args: any[]) => any>(
 	let timeoutId: number | undefined;
 
 	return function (this: any, ...args: Parameters<T>): void {
-		const context = this;
-
 		clearTimeout(timeoutId);
 
-		timeoutId = window.setTimeout(() => {
-			func.apply(context, args);
+		timeoutId = (globalThis.window?.setTimeout || globalThis.setTimeout)(() => {
+			func.apply(this, args);
 		}, delay);
 	};
 }

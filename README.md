@@ -1,11 +1,11 @@
 # Imagining the Neutrino: Interactive Oscillation Visualization
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build and Deploy](https://github.com/bkataru/imagining-the-neutrino/actions/workflows/deploy.yml/badge.svg)](https://github.com/bkataru/imagining-the-neutrino/actions/workflows/deploy.yml)
+[![Build and Deploy](https://github.com/planckeon/itn/actions/workflows/deploy.yml/badge.svg)](https://github.com/planckeon/itn/actions/workflows/deploy.yml)
 
-**Live Demo:** [https://bkataru.github.io/imagining-the-neutrino/](https://bkataru.github.io/imagining-the-neutrino/)
+**Live Demo:** [https://planckeon.github.io/itn/](https://planckeon.github.io/itn/)
 
-![Neutrino Oscillation Visualization](context/screenshot_placeholder.png)
+A [Planckeon Labs](https://github.com/planckeon) project - R&D in fast/intelligent software tooling for theoretical physics.
 
 ## Introduction
 
@@ -18,35 +18,34 @@
 
 ## Key Features
 
-- Modular TypeScript architecture
+- React-based component architecture
 - Accurate NuFast physics calculations
-- Responsive design with mobile support
-- Clean, maintainable code structure
+- Anime.js v4 for smooth animations
+- Tailwind CSS for responsive styling
 - Comprehensive testing coverage
 
-## Current Tech Stack
+## Tech Stack
 
-* **Frontend**: Vite + TypeScript
-* **Visualization**: p5.js
-* **UI**: Alpine.js + Chota.css  
+* **Frontend**: React 19 + TypeScript
+* **Build**: Vite
+* **Visualization**: Anime.js v4
+* **Styling**: Tailwind CSS  
+* **State Management**: React Context
 * **Math Rendering**: KaTeX
 * **Testing**: Vitest
-* **Linting**: Biome/ESLint
+* **Linting**: Biome
 
 ## Implementation
 
 Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://arxiv.org/abs/2405.02400)) for accurate 3-flavor oscillation calculations.
 
 Project structure:
-- `src/core/`: Core physics calculations, types, and visualization components
-- `src/alpine/`: UI components and stores
+- `src/components/`: React components for visualization and UI
+- `src/context/`: Simulation state management
 - `src/physics/`: NuFast implementation
-- `src/styles/`: CSS modules and design system
 - `src/utils/`: Utility functions and helpers
 - `src/types/`: TypeScript type definitions
-- `test/`: Test suites organized by module
-  - `test/physics/`: Physics calculation tests
-  - `test/utils/`: Utility function tests
+- `tests/`: Test suites organized by module
 
 See `ARCHITECTURE.md` for detailed technical documentation.
 
@@ -79,10 +78,8 @@ npm run lint
 
 # Format code
 npm run format
-
-# Check formatting
-npm run format:check
 ```
 
 ## License
+
 MIT License - see [LICENSE](LICENSE) for details.

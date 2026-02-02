@@ -3,7 +3,7 @@
  * These functions handle the blending of neutrino flavor colors based on probabilities.
  */
 
-import { ProbabilityVector } from "../physics/types";
+import type { ProbabilityVector } from "../physics/types";
 
 // RGB color values for each neutrino flavor
 export const FLAVOR_COLORS = {

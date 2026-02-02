@@ -3,40 +3,44 @@
 ## 1. Core Modules
 
 ### 1.1 Physics Layer (`src/physics/`)
-* **`constants.ts`:** 
+* **`constants.ts`:**
   - Physical constants and default parameters
   - Flavor colors and names
 
-* **`types.ts`:** 
+* **`types.ts`:**
   - `OscillationParameters` interface
   - `ProbabilityMatrix` and `ProbabilityVector` types
   - Animation state types
 
-* **`NuFastPort.ts`:** 
+* **`NuFastPort.ts`:**
   - Implements NuFast algorithm
   - Handles both vacuum and matter oscillations
   - Includes numerical stability checks
 
-### 1.2 Core (`src/core/`)
-* **Main Sketch (`p5Sketch.ts`):**
-  - Manages WEBGL canvas
-  - Coordinates all visual components
-  - Handles animation loop
+### 1.2 Components (`src/components/`)
+* **Main Components:**
+  - `VisualizationArea.tsx`: Main animation container
+  - `NeutrinoSphere.tsx`: 3D neutrino visualization with Anime.js
+  - `ProbabilityPlot.tsx`: 2D canvas for oscillation curves
+  - `Starfield.tsx`: Animated background
+  - `ControlsPanel.tsx`: Interactive parameter controls
 
-* **Components:**
-  - `Neutrino.ts`: Dynamic sphere with color blending
-  - `ProbabilityPlot.ts`: 2D canvas plotting
-  - `Starfield.ts`: Background animation
+* **Props:**
+  - Type-safe props for all components
+  - Default values for optional props
+  - Context integration via hooks
 
-### 1.3 State Management (`src/alpine/`)
-* **Stores:**
-  - `simParams`: Physics parameters
-  - `animState`: Animation controls
-  - `uiState`: Interface settings
+### 1.3 State Management (`src/context/`)
+* **SimulationContext:**
+  - Centralized state for physics parameters
+  - Animation controls and timing
+  - Custom hooks for state access
+  - Memoized selectors for performance
 
-* **Directives:**
-  - Custom `x-katex` for LaTeX rendering
-  - Reactive bindings for all controls
+* **Data Flow:**
+  - Unidirectional data flow
+  - Optimized re-renders
+  - Debounced updates for performance
 
 ## 2. Key Algorithms
 
@@ -50,7 +54,7 @@
   - Smooth transitions between flavors
 
 * **Animation Loop:**
-  - Time-based updates
+  - RequestAnimationFrame-based
   - Efficient rendering pipeline
   - Frame-rate independent movement
 
@@ -66,13 +70,14 @@
 
 ## 4. Performance Optimizations
 
-* **Caching:**
-  - Pre-calculated probability curves
-  - Memoized expensive operations
+* **React:**
+  - Memoized components
+  - Optimized context usage
+  - Efficient re-renders
 
 * **Rendering:**
-  - Efficient p5.js drawing
-  - Minimal DOM updates
+  - Efficient Anime.js animations
+  - Canvas-based plotting
   - Debounced input handling
 
 ## 5. Error Handling
@@ -83,8 +88,8 @@
   - NaN checks
 
 * **Rendering:**
-  - Canvas safety checks
-  - Graceful fallbacks
   - Error boundaries
+  - Graceful fallbacks
+  - Loading states
 
-Last Updated: 2025-04-21
+Last Updated: 2025-04-23

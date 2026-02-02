@@ -19,12 +19,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
-			"react": {
-				"hooksRules": {
-					"exhaustiveDeps": "error"
-				}
-			}
+			"recommended": true
 		}
 	},
 	"javascript": {
