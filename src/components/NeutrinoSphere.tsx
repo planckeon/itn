@@ -61,7 +61,9 @@ const NeutrinoSphere: React.FC = () => {
 		if (!sphereRef.current || !glowRef.current) return;
 
 		// Clear existing animations
-		animationRefs.current.forEach((anim) => anim.pause());
+		for (const anim of animationRefs.current) {
+			anim.pause();
+		}
 		animationRefs.current = [];
 
 		const { r, g, b, hex } = blendedColor;
@@ -106,7 +108,9 @@ const NeutrinoSphere: React.FC = () => {
 		);
 
 		return () => {
-			animationRefs.current.forEach((anim) => anim.pause());
+			for (const anim of animationRefs.current) {
+				anim.pause();
+			}
 			animationRefs.current = [];
 		};
 	}, [blendedColor]);
