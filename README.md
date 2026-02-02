@@ -5,6 +5,8 @@
 
 **Live Demo:** [https://planckeon.github.io/itn/](https://planckeon.github.io/itn/)
 
+![Screenshot](docs/screenshot.png)
+
 A [Planckeon Labs](https://github.com/planckeon) project - R&D in fast/intelligent software tooling for theoretical physics.
 
 ## Introduction
