@@ -112,9 +112,29 @@ export function useKeyboardShortcuts() {
 
 	// Handle wheel zoom globally
 	const handleWheel = useCallback((e: WheelEvent) => {
-		// Only zoom if over the main visualization area (not over panels)
 		const target = e.target as HTMLElement;
-		if (target.closest('[data-panel]') || target.closest('button') || target.closest('select')) {
+		
+		// Don't intercept scroll if inside a scrollable element
+		let el: HTMLElement | null = target;
+		while (el) {
+			// Check if element is scrollable
+			const style = window.getComputedStyle(el);
+			const overflowY = style.overflowY;
+			const isScrollable = (overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight;
+			
+			// Also check for modal/dialog/panel containers
+			if (isScrollable || 
+				el.hasAttribute('data-panel') || 
+				el.role === 'dialog' ||
+				el.classList.contains('overflow-y-auto') ||
+				el.classList.contains('overflow-auto')) {
+				return; // Let the element scroll naturally
+			}
+			el = el.parentElement;
+		}
+		
+		// Skip if over buttons or inputs
+		if (target.closest('button') || target.closest('select') || target.closest('input')) {
 			return;
 		}
 
