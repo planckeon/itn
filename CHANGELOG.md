@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **PREM Preset Button** — Green "🌍 PREM" button auto-calculates density from baseline
   - Updates dynamically as baseline changes
   - Shows max depth and layer information
+- **CP Asymmetry Plot** — New panel showing A_CP = P(ν) - P(ν̄) vs energy
+  - Purple filled curve visualization
+  - Shows current asymmetry percentage at selected energy
+  - Displays δ_CP value
+  - Toggle with ⚖️ button in control bar
 
 ### Changed
 - **45% Faster Vacuum Calculations** — VacuumBatch API pre-computes mixing matrix elements
@@ -29,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - nufast 0.3.1 adds VacuumBatch struct with spectrum() and baseline_scan() methods
 - WASM bridge exports loading state via `onWasmStateChange()` callback
 - New prem.ts module with 21 tests
+- CPAsymmetryPlot computes both ν and ν̄ probabilities for comparison
 
 ## [1.4.0] - 2026-02-03
 
