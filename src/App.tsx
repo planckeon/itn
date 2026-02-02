@@ -95,10 +95,10 @@ FlexTernaryPanel.displayName = "FlexTernaryPanel";
 // Inline Spectrum Panel that can expand
 const FlexSpectrumPanel = memo(({ canExpand }: { canExpand: boolean }) => (
 	<div 
-		className={`rounded-xl p-3 ${canExpand ? 'flex-1 max-w-md' : 'flex-shrink-0'}`}
+		className={`rounded-xl p-3 ${canExpand ? 'flex-1 min-w-[280px] max-w-3xl' : 'flex-shrink-0'}`}
 		style={panelStyle}
 	>
-		<EnergySpectrumPlot embedded />
+		<EnergySpectrumPlot embedded fillContainer={canExpand} />
 	</div>
 ));
 FlexSpectrumPanel.displayName = "FlexSpectrumPanel";

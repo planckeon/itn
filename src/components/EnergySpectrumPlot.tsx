@@ -35,10 +35,12 @@ Higher E = slower oscillation.`;
  */
 interface EnergySpectrumPlotProps {
 	embedded?: boolean;
+	fillContainer?: boolean;
 }
 
-const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = false }) => {
+const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = false, fillContainer = false }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const { state } = useSimulation();
 
 	// Calculate spectrum data
@@ -98,11 +100,21 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 		if (!ctx) return;
 
 		const dpr = window.devicePixelRatio || 1;
-		const width = 260;
-		const height = 150;
+		
+		// Get dimensions - use container size if fillContainer, else fixed
+		let width = 260;
+		let height = 150;
+		
+		if (fillContainer && containerRef.current) {
+			const rect = containerRef.current.getBoundingClientRect();
+			width = Math.max(260, rect.width - 16); // Subtract padding
+			height = 110; // Fixed height for consistency
+		}
 
 		canvas.width = width * dpr;
 		canvas.height = height * dpr;
+		canvas.style.width = `${width}px`;
+		canvas.style.height = `${height}px`;
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 		// Clear
@@ -214,26 +226,49 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 			}
 		}
 
-	}, [spectrumData, state.distance, state.energy]);
+	}, [spectrumData, state.distance, state.energy, fillContainer]);
+
+	// Resize handler for fillContainer mode
+	useEffect(() => {
+		if (!fillContainer) return;
+		
+		const handleResize = () => {
+			// Trigger re-render by forcing a state update via the canvas
+			if (canvasRef.current) {
+				canvasRef.current.dispatchEvent(new Event('resize'));
+			}
+		};
+		
+		window.addEventListener('resize', handleResize);
+		// Also observe container size changes
+		const observer = new ResizeObserver(handleResize);
+		if (containerRef.current) {
+			observer.observe(containerRef.current);
+		}
+		
+		return () => {
+			window.removeEventListener('resize', handleResize);
+			observer.disconnect();
+		};
+	}, [fillContainer]);
 
 	// When embedded, render just the panel content (no fixed positioning)
 	if (embedded) {
 		return (
 			<div
-				className="flex-shrink-0 rounded-lg relative"
+				ref={containerRef}
+				className={`rounded-lg relative ${fillContainer ? 'w-full' : 'flex-shrink-0'}`}
 				style={{
-					background: "rgba(20, 20, 30, 0.9)",
-					borderRadius: "12px",
-					padding: "8px",
-					border: "1px solid rgba(255, 255, 255, 0.1)",
+					background: "transparent",
 				}}
 			>
-				<div className="absolute top-2 right-2 z-10">
+				<div className="absolute top-1 right-1 z-10">
 					<InfoTooltip text={INFO_TEXT} position="bottom" />
 				</div>
 				<canvas
 					ref={canvasRef}
-					style={{ width: "220px", height: "140px" }}
+					className={fillContainer ? 'w-full' : ''}
+					style={fillContainer ? { height: "110px" } : { width: "220px", height: "140px" }}
 				/>
 			</div>
 		);
