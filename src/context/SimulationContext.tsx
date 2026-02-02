@@ -211,10 +211,9 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 			setTime((prevTime) => prevTime + deltaTime * speed);
 			setDistance((prevDistance) => {
 				const newDistance = prevDistance + deltaTime * speed * c * 1e-3; // Distance in km
-				// Reset distance and history if it exceeds LmaxSim
-				if (newDistance > LmaxSim) {
-					resetSimulation();
-					return 0; // Reset distance to 0
+				// Clamp at max distance instead of resetting - let user observe and interact
+				if (newDistance >= LmaxSim) {
+					return LmaxSim; // Stay at max, don't reset
 				}
 				return newDistance;
 			});

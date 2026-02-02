@@ -118,11 +118,13 @@ function BottomHUD({
 	onOpenSettings,
 	onOpenHelp,
 }: BottomHUDProps) {
-	const { state, setZoom } = useSimulation();
-	const { zoom } = state;
+	const { state, setZoom, resetSimulation } = useSimulation();
+	const { zoom, distance } = state;
 
 	const zoomIn = () => setZoom(Math.min(2, zoom + 0.15));
 	const zoomOut = () => setZoom(Math.max(0.5, zoom - 0.15));
+	
+	const isAtMax = distance >= 2999; // Near max distance (3000km)
 
 	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum;
 
@@ -155,7 +157,7 @@ function BottomHUD({
 
 			{/* Control clusters */}
 			<div className="flex justify-center items-center gap-1.5 pointer-events-auto">
-				{/* Zoom controls */}
+				{/* Zoom + Reset controls */}
 				<div className="flex items-center rounded-full px-1" style={pillStyle}>
 					<button
 						type="button"
@@ -172,6 +174,14 @@ function BottomHUD({
 						title="Zoom in (+)"
 					>
 						+
+					</button>
+					<button
+						type="button"
+						onClick={resetSimulation}
+						className={`${btnBase} ${isAtMax ? 'text-amber-400 hover:text-amber-300' : btnInactive}`}
+						title="Reset simulation (R)"
+					>
+						↺
 					</button>
 				</div>
 
