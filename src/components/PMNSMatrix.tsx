@@ -62,22 +62,23 @@ const PMNSMatrix: React.FC = () => {
 			<div
 				className="absolute top-20 right-4 z-10"
 				style={{
-					background: "rgba(20, 20, 30, 0.85)",
-					backdropFilter: "blur(8px)",
-					borderRadius: "8px",
-					padding: "10px",
-					border: "1px solid rgba(255, 255, 255, 0.1)",
-					fontSize: "10px",
+					background: "rgba(18, 18, 28, 0.92)",
+					backdropFilter: "blur(12px)",
+					borderRadius: "10px",
+					padding: "14px",
+					border: "1px solid rgba(255, 255, 255, 0.08)",
+					fontSize: "12px",
 					fontFamily: "monospace",
+					boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
 				}}
 			>
-				<div className="flex items-center justify-between mb-2 gap-2">
-					<span className="text-white/70 text-xs">|U|² Matrix</span>
-					<div className="flex items-center gap-1">
+				<div className="flex items-center justify-between mb-3 gap-3">
+					<span className="text-white/75 text-sm font-medium">|U|² Matrix</span>
+					<div className="flex items-center gap-2">
 						<button
 							type="button"
 							onClick={() => setShow3D(true)}
-							className="px-1.5 py-0.5 rounded text-[9px] bg-white/10 hover:bg-white/20 text-white/60 hover:text-white transition-colors"
+							className="px-2 py-1 rounded text-xs bg-white/10 hover:bg-white/20 text-white/65 hover:text-white transition-colors"
 						>
 							3D
 						</button>
@@ -86,7 +87,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 				
 				{/* Matrix header */}
-				<div className="grid grid-cols-4 gap-1 text-white/50 mb-1">
+				<div className="grid grid-cols-4 gap-2 text-white/55 mb-2 text-[13px]">
 					<span></span>
 					<span className="text-center">ν₁</span>
 					<span className="text-center">ν₂</span>
@@ -94,7 +95,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Electron row */}
-				<div className="grid grid-cols-4 gap-1 text-blue-400">
+				<div className="grid grid-cols-4 gap-2 text-blue-400 text-[13px]">
 					<span>νₑ</span>
 					<span className="text-center">{formatProb(matrix.electron[0])}</span>
 					<span className="text-center">{formatProb(matrix.electron[1])}</span>
@@ -102,7 +103,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Muon row */}
-				<div className="grid grid-cols-4 gap-1 text-orange-400">
+				<div className="grid grid-cols-4 gap-2 text-orange-400 text-[13px]">
 					<span>νμ</span>
 					<span className="text-center">{formatProb(matrix.muon[0])}</span>
 					<span className="text-center">{formatProb(matrix.muon[1])}</span>
@@ -110,7 +111,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Tau row */}
-				<div className="grid grid-cols-4 gap-1 text-fuchsia-400">
+				<div className="grid grid-cols-4 gap-2 text-fuchsia-400 text-[13px]">
 					<span>ντ</span>
 					<span className="text-center">{formatProb(matrix.tau[0])}</span>
 					<span className="text-center">{formatProb(matrix.tau[1])}</span>
@@ -118,7 +119,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Current δCP */}
-				<div className="mt-2 pt-2 border-t border-white/10 text-white/50 text-center">
+				<div className="mt-3 pt-3 border-t border-white/10 text-white/55 text-center text-[13px]">
 					δ<sub>CP</sub> = {deltaCP}° {isAntineutrino ? "(ν̄)" : "(ν)"}
 				</div>
 			</div>

@@ -61,49 +61,50 @@ const HelpModal: React.FC = () => {
 	return (
 		<div
 			className="fixed inset-0 z-50 flex items-center justify-center"
-			style={{ background: "rgba(0, 0, 0, 0.7)" }}
+			style={{ background: "rgba(0, 0, 0, 0.75)" }}
 			onClick={() => setIsOpen(false)}
 		>
 			<div
-				className="rounded-xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto scrollbar-hide"
+				className="rounded-xl p-8 max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto scrollbar-hide"
 				style={{
-					background: "rgba(20, 20, 30, 0.95)",
-					border: "1px solid rgba(255, 255, 255, 0.2)",
-					backdropFilter: "blur(16px)",
+					background: "rgba(18, 18, 28, 0.96)",
+					border: "1px solid rgba(255, 255, 255, 0.15)",
+					backdropFilter: "blur(20px)",
+					boxShadow: "0 16px 64px rgba(0, 0, 0, 0.5)",
 				}}
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="flex items-center justify-between mb-4">
-					<h2 className="text-lg font-semibold text-white">Keyboard Shortcuts</h2>
+				<div className="flex items-center justify-between mb-6">
+					<h2 className="text-xl font-semibold text-white">Keyboard Shortcuts</h2>
 					<button
 						type="button"
 						onClick={() => setIsOpen(false)}
-						className="text-white/50 hover:text-white text-xl leading-none"
+						className="text-white/50 hover:text-white text-2xl leading-none"
 					>
 						×
 					</button>
 				</div>
 
-				<div className="space-y-2">
+				<div className="space-y-3">
 					{SHORTCUTS.map(({ key, action }) => (
-						<div key={key} className="flex items-center justify-between text-sm">
+						<div key={key} className="flex items-center justify-between text-[15px]">
 							<kbd
-								className="px-2 py-1 rounded text-xs font-mono"
+								className="px-3 py-1.5 rounded text-sm font-mono"
 								style={{
-									background: "rgba(255, 255, 255, 0.1)",
-									border: "1px solid rgba(255, 255, 255, 0.2)",
-									color: "rgba(255, 255, 255, 0.9)",
+									background: "rgba(255, 255, 255, 0.08)",
+									border: "1px solid rgba(255, 255, 255, 0.15)",
+									color: "rgba(255, 255, 255, 0.95)",
 								}}
 							>
 								{key}
 							</kbd>
-							<span className="text-white/70">{action}</span>
+							<span className="text-white/75">{action}</span>
 						</div>
 					))}
 				</div>
 
-				<div className="mt-6 pt-4 border-t border-white/10 text-center text-xs text-white/40">
-					Press <kbd className="px-1 rounded bg-white/10">Esc</kbd> or click outside to close
+				<div className="mt-8 pt-5 border-t border-white/10 text-center text-sm text-white/45">
+					Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70">Esc</kbd> or click outside to close
 				</div>
 			</div>
 		</div>

@@ -145,11 +145,11 @@ const LearnMorePanel: React.FC = () => {
 			<button
 				type="button"
 				onClick={() => setIsOpen(true)}
-				className="fixed top-[100px] left-4 z-10 px-3 py-1.5 rounded-lg text-xs font-mono transition-all hover:scale-105"
+				className="fixed top-[100px] left-4 z-10 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105"
 				style={{
-					background: "rgba(20, 20, 30, 0.85)",
+					background: "rgba(20, 20, 30, 0.9)",
 					border: "1px solid rgba(255, 255, 255, 0.1)",
-					color: "rgba(255, 255, 255, 0.7)",
+					color: "rgba(255, 255, 255, 0.8)",
 					backdropFilter: "blur(8px)",
 				}}
 			>
@@ -160,46 +160,46 @@ const LearnMorePanel: React.FC = () => {
 
 	return (
 		<div
-			className="fixed top-16 left-4 z-40 w-96 max-w-[90vw] max-h-[75vh] overflow-hidden rounded-xl flex flex-col"
+			className="fixed top-16 left-4 z-40 w-[420px] max-w-[92vw] max-h-[80vh] overflow-hidden rounded-xl flex flex-col"
 			style={{
-				background: "rgba(15, 15, 25, 0.95)",
-				border: "1px solid rgba(255, 255, 255, 0.15)",
-				backdropFilter: "blur(16px)",
-				boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+				background: "rgba(12, 12, 20, 0.96)",
+				border: "1px solid rgba(255, 255, 255, 0.12)",
+				backdropFilter: "blur(20px)",
+				boxShadow: "0 12px 48px rgba(0, 0, 0, 0.6)",
 			}}
 		>
 			{/* Header */}
-			<div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-				<h2 className="text-sm font-semibold text-white">📚 {t.learnMore}</h2>
+			<div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+				<h2 className="text-base font-semibold text-white">📚 {t.learnMore}</h2>
 				<button
 					type="button"
 					onClick={() => setIsOpen(false)}
-					className="text-white/50 hover:text-white transition-colors"
+					className="text-white/50 hover:text-white transition-colors text-lg"
 				>
 					✕
 				</button>
 			</div>
 
 			{/* Scrollable content - hidden scrollbar */}
-			<div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
+			<div className="flex-1 overflow-y-auto p-3 scrollbar-hide">
 				{SECTIONS.map((section) => (
-					<div key={section.id} className="mb-1">
+					<div key={section.id} className="mb-1.5">
 						<button
 							type="button"
 							onClick={() => setExpandedSection(
 								expandedSection === section.id ? null : section.id
 							)}
-							className="w-full text-left px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/5 transition-colors flex items-center justify-between"
+							className="w-full text-left px-4 py-3 rounded-lg text-[15px] text-white/85 hover:bg-white/5 transition-colors flex items-center justify-between"
 						>
 							<span>{section.title}</span>
-							<span className="text-white/40">
+							<span className="text-white/40 text-sm">
 								{expandedSection === section.id ? "▼" : "▶"}
 							</span>
 						</button>
 						
 						{expandedSection === section.id && (
 							<div 
-								className="px-3 py-3 text-xs text-white/70 leading-relaxed rounded-lg mx-1"
+								className="px-4 py-4 text-[13px] text-white/75 leading-[1.7] rounded-lg mx-1 mt-1"
 								style={{ background: "rgba(255, 255, 255, 0.03)" }}
 							>
 								<RichText>{section.content}</RichText>

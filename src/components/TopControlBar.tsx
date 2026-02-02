@@ -17,17 +17,18 @@ const TopControlBar: React.FC = () => {
 
 	return (
 		<div
-			className="fixed top-4 left-1/2 -translate-x-1/2 z-20 max-w-[95vw]"
+			className="fixed top-4 left-1/2 -translate-x-1/2 z-20 max-w-[96vw]"
 			style={{
-				background: "rgba(20, 20, 30, 0.9)",
-				backdropFilter: "blur(8px)",
-				borderRadius: "8px",
-				padding: "12px 16px",
-				border: "1px solid rgba(255, 255, 255, 0.1)",
+				background: "rgba(18, 18, 28, 0.92)",
+				backdropFilter: "blur(12px)",
+				borderRadius: "10px",
+				padding: "14px 20px",
+				border: "1px solid rgba(255, 255, 255, 0.08)",
+				boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
 			}}
 		>
 			{/* Desktop layout */}
-			<div className="hidden lg:flex items-center gap-4 text-white font-mono text-sm">
+			<div className="hidden lg:flex items-center gap-5 text-white font-mono text-[13px]">
 				{/* Experiment Presets */}
 				<div className="flex items-center gap-2">
 					<label htmlFor="preset" className="text-white/80 whitespace-nowrap">
