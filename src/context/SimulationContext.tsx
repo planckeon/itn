@@ -162,26 +162,104 @@ const SimulationContext = createContext<SimulationContextType | undefined>(
 	undefined,
 );
 
+// Storage key for persisting state
+const STORAGE_KEY = "itn-simulation-state";
+const SAVE_INTERVAL_MS = 2000; // Auto-save every 2 seconds
+
+// State that gets persisted (excluding transient data like probabilityHistory)
+interface PersistedState {
+	initialFlavor: Flavor;
+	energy: number;
+	speed: number;
+	matter: boolean;
+	density: number;
+	deltaCP: number;
+	isAntineutrino: boolean;
+	massOrdering: MassOrdering;
+	zoom: number;
+	// Don't persist: time, distance, probabilityHistory (too large, transient)
+}
+
+// Load persisted state from localStorage
+function loadPersistedState(): Partial<PersistedState> {
+	try {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (saved) {
+			return JSON.parse(saved);
+		}
+	} catch (e) {
+		console.warn("Failed to load persisted simulation state:", e);
+	}
+	return {};
+}
+
+// Save state to localStorage
+function savePersistedState(state: PersistedState): void {
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+	} catch (e) {
+		console.warn("Failed to save simulation state:", e);
+	}
+}
+
 export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
-	const [initialFlavor, setInitialFlavor] = useState<Flavor>("electron");
-	const [energy, setEnergy] = useState<number>(2); // GeV
-	const [speed, setSpeed] = useState<number>(1); // relative to c
-	const [matter, setMatter] = useState<boolean>(false);
-	const [density, setDensity] = useState<number>(2.6); // g/cm^3
-	const [deltaCP, setDeltaCP] = useState<number>(0); // degrees
-	const [isAntineutrino, setIsAntineutrino] = useState<boolean>(false);
-	const [massOrdering, setMassOrdering] = useState<MassOrdering>("normal");
-	const [zoom, setZoom] = useState<number>(0.75); // 0.5 to 2.0, default smaller
-	const [time, setTime] = useState<number>(0); // seconds
-	const [distance, setDistance] = useState<number>(0); // km
+	// Load initial state from localStorage or use defaults
+	const persisted = loadPersistedState();
+	
+	const [initialFlavor, setInitialFlavor] = useState<Flavor>(persisted.initialFlavor ?? "electron");
+	const [energy, setEnergy] = useState<number>(persisted.energy ?? 2); // GeV
+	const [speed, setSpeed] = useState<number>(persisted.speed ?? 1); // relative to c
+	const [matter, setMatter] = useState<boolean>(persisted.matter ?? false);
+	const [density, setDensity] = useState<number>(persisted.density ?? 2.6); // g/cm^3
+	const [deltaCP, setDeltaCP] = useState<number>(persisted.deltaCP ?? 0); // degrees
+	const [isAntineutrino, setIsAntineutrino] = useState<boolean>(persisted.isAntineutrino ?? false);
+	const [massOrdering, setMassOrdering] = useState<MassOrdering>(persisted.massOrdering ?? "normal");
+	const [zoom, setZoom] = useState<number>(persisted.zoom ?? 0.75); // 0.5 to 2.0
+	const [time, setTime] = useState<number>(0); // seconds (transient)
+	const [distance, setDistance] = useState<number>(0); // km (transient)
 	const [probabilityHistory, setProbabilityHistory] = useState<
 		{ distance: number; Pe: number; Pmu: number; Ptau: number }[]
 	>([]);
 
 	const animationFrameId = useRef<number | null>(null);
 	const lastUpdateTime = useRef<number>(0);
+	const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	// Auto-save state to localStorage periodically
+	useEffect(() => {
+		const saveState = () => {
+			savePersistedState({
+				initialFlavor,
+				energy,
+				speed,
+				matter,
+				density,
+				deltaCP,
+				isAntineutrino,
+				massOrdering,
+				zoom,
+			});
+		};
+
+		// Debounce saves - save after SAVE_INTERVAL_MS of no changes
+		if (saveTimeoutRef.current) {
+			clearTimeout(saveTimeoutRef.current);
+		}
+		saveTimeoutRef.current = setTimeout(saveState, SAVE_INTERVAL_MS);
+
+		// Also save immediately on unload
+		const handleUnload = () => saveState();
+		window.addEventListener("beforeunload", handleUnload);
+
+		return () => {
+			if (saveTimeoutRef.current) {
+				clearTimeout(saveTimeoutRef.current);
+			}
+			window.removeEventListener("beforeunload", handleUnload);
+		};
+	}, [initialFlavor, energy, speed, matter, density, deltaCP, isAntineutrino, massOrdering, zoom]);
 
 	const resetSimulation = useCallback(() => {
 		setTime(0);
