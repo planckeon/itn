@@ -36,8 +36,26 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 ### Quality of Life
 - **Keyboard Shortcuts** — See below (press `?` for help)
 - **Help Modal** — Press `?` for shortcuts reference
+- **URL Sharing** — Share exact configurations via URL
 - **Info Tooltips** — Hover over (?) for physics explanations
 - **Mobile Responsive** — Full touch support with compact UI
+
+## URL Sharing
+
+Share your exact simulation configuration via URL hash:
+
+```
+https://planckeon.github.io/itn/#e=2.5&f=muon&d=180&m=1&o=inverted
+```
+
+Parameters:
+- `e` — Energy (GeV)
+- `f` — Initial flavor (electron|muon|tau)
+- `d` — δCP (0-360)
+- `a` — Antineutrino mode (1 = on)
+- `m` — Matter effect (1 = on)
+- `o` — Mass ordering (normal|inverted)
+- `p` — Preset name (t2k|nova|dune|kamland)
 
 ## Keyboard Shortcuts
 
@@ -51,6 +69,7 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 | `1-4` | Apply presets (T2K, NOvA, DUNE, KamLAND) |
 | `↑/↓` | Adjust energy |
 | `←/→` | Adjust δCP |
+| `S` | Copy share URL |
 | `?` | Show help modal |
 
 ## Physics
@@ -97,7 +116,8 @@ src/
 │   ├── InfoTooltip.tsx        # Physics explanations
 │   └── HelpModal.tsx          # Keyboard shortcuts modal
 ├── hooks/
-│   └── useKeyboardShortcuts.ts
+│   ├── useKeyboardShortcuts.ts
+│   └── useURLState.ts         # URL state sharing
 ├── context/
 │   └── SimulationContext.tsx  # All state + physics
 ├── physics/
