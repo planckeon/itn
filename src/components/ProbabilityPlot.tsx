@@ -1,6 +1,6 @@
 import { type JSAnimation, animate, utils } from "animejs";
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 interface ProbabilityData {
 	distance: number;
@@ -21,6 +21,8 @@ interface ProbabilityPlotProps {
 	probabilityLabel: string;
 }
 
+const MARGIN = { top: 20, right: 40, bottom: 30, left: 40 };
+
 const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 	data,
 	flavorColors,
@@ -30,13 +32,33 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 	probabilityLabel,
 }) => {
 	const svgRef = useRef<SVGSVGElement>(null);
-	const margin = { top: 20, right: 40, bottom: 30, left: 40 };
-	const dimensions = {
-		width: width - margin.left - margin.right,
-		height: height - margin.top - margin.bottom,
-	};
-
 	const animationRefs = useRef<JSAnimation[]>([]);
+
+	const dimensions = useMemo(
+		() => ({
+			width: width - MARGIN.left - MARGIN.right,
+			height: height - MARGIN.top - MARGIN.bottom,
+		}),
+		[width, height],
+	);
+
+	const getPathData = useCallback(
+		(
+			flavor: "electron" | "muon" | "tau",
+			plotWidth: number,
+			plotHeight: number,
+			maxDistance: number,
+		) => {
+			return data
+				.map((item, index) => {
+					const x = (item.distance / maxDistance) * plotWidth;
+					const y = plotHeight - item.probabilities[flavor] * plotHeight;
+					return `${index === 0 ? "M" : "L"}${x},${y}`;
+				})
+				.join(" ");
+		},
+		[data],
+	);
 
 	useEffect(() => {
 		const svg = svgRef.current;
@@ -51,11 +73,11 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 		}
 
 		// Clear previous animations
-		animationRefs.current.forEach((anim) => {
+		for (const anim of animationRefs.current) {
 			if (anim) {
 				anim.pause();
 			}
-		});
+		}
 		animationRefs.current = [];
 
 		const { width: plotWidth, height: plotHeight } = dimensions;
@@ -67,19 +89,8 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 
 		// Create SVG elements
 		const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-		g.setAttribute("transform", `translate(${margin.left}, ${margin.top})`);
+		g.setAttribute("transform", `translate(${MARGIN.left}, ${MARGIN.top})`);
 		svg.appendChild(g);
-
-		// Function to get SVG path data for a given flavor
-		const getPathData = (flavor: "electron" | "muon" | "tau") => {
-			return data
-				.map((item, index) => {
-					const x = (item.distance / maxDistance) * plotWidth;
-					const y = plotHeight - item.probabilities[flavor] * plotHeight;
-					return `${index === 0 ? "M" : "L"}${x},${y}`;
-				})
-				.join(" ");
-		};
 
 		// Draw lines
 		const flavors: ("electron" | "muon" | "tau")[] = [
@@ -88,8 +99,8 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			"tau",
 		];
 
-		flavors.forEach((flavor) => {
-			const pathData = getPathData(flavor);
+		for (const flavor of flavors) {
+			const pathData = getPathData(flavor, plotWidth, plotHeight, maxDistance);
 			const pathElement = document.createElementNS(
 				"http://www.w3.org/2000/svg",
 				"path",
@@ -112,14 +123,14 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				delay: utils.random(0, 300),
 			});
 			animationRefs.current.push(lineAnimation);
-		});
+		}
 
 		// Draw current probability markers
 		const lastDataItem = data[numDataPoints - 1];
 		if (lastDataItem) {
 			const xPos = plotWidth;
 
-			flavors.forEach((flavor: "electron" | "muon" | "tau") => {
+			for (const flavor of flavors) {
 				const yPos =
 					plotHeight - lastDataItem.probabilities[flavor] * plotHeight;
 				const marker = document.createElementNS(
@@ -144,9 +155,9 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 					delay: 800 + utils.random(0, 200),
 				});
 				animationRefs.current.push(markerAnimation);
-			});
+			}
 		}
-	}, [data, dimensions, margin, flavorColors]);
+	}, [data, dimensions, flavorColors, getPathData]);
 
 	return (
 		<div className="probability-plot-container">
@@ -156,15 +167,23 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				height={height}
 				viewBox={`0 0 ${width} ${height}`}
 				preserveAspectRatio="xMidYMid meet"
+				role="img"
+				aria-label="Neutrino oscillation probability plot"
 			>
-				<text x={margin.left} y={margin.top - 5} className="axis-label">
+				<text
+					x={MARGIN.left}
+					y={MARGIN.top - 5}
+					className="axis-label"
+					fill="currentColor"
+				>
 					{probabilityLabel}
 				</text>
 				<text
-					x={width - margin.right}
-					y={height - margin.bottom + 20}
+					x={width - MARGIN.right}
+					y={height - MARGIN.bottom + 20}
 					textAnchor="end"
 					className="axis-label"
+					fill="currentColor"
 				>
 					{distanceLabel}
 				</text>

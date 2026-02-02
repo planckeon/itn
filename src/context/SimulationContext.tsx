@@ -2,6 +2,7 @@ import type React from "react";
 import {
 	type ReactNode,
 	createContext,
+	useCallback,
 	useContext,
 	useEffect,
 	useRef,
@@ -72,11 +73,11 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 	const animationFrameId = useRef<number | null>(null);
 	const lastUpdateTime = useRef<number>(0);
 
-	const resetSimulation = () => {
+	const resetSimulation = useCallback(() => {
 		setTime(0);
 		setDistance(0);
 		setProbabilityHistory([]);
-	};
+	}, []);
 
 	// Effect to update simulation time and distance
 	useEffect(() => {
@@ -109,7 +110,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 				cancelAnimationFrame(animationFrameId.current);
 			}
 		};
-	}, [speed]); // Re-run effect if speed changes
+	}, [speed, resetSimulation]); // Re-run effect if speed changes
 
 	// Effect to recalculate probabilities when relevant parameters change
 	useEffect(() => {

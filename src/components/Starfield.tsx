@@ -76,7 +76,7 @@ const Starfield: React.FC = () => {
 					return { ...star, z: newZ };
 				});
 
-				starsRef.current.forEach((star) => {
+				for (const star of starsRef.current) {
 					const perspective = width / star.z;
 					const x = centerX + star.x * perspective;
 					const y = centerY + star.y * perspective;
@@ -86,7 +86,7 @@ const Starfield: React.FC = () => {
 					context.beginPath();
 					context.arc(x, y, size, 0, Math.PI * 2);
 					context.fill();
-				});
+				}
 			},
 		});
 
@@ -127,7 +127,7 @@ const Starfield: React.FC = () => {
 				height: "100%",
 				zIndex: -1,
 			}}
-		></canvas>
+		/>
 	);
 };
 

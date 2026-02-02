@@ -1,6 +1,6 @@
 import { type JSAnimation, animate } from "animejs";
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSimulation } from "../context/SimulationContext";
 
 interface ProbabilityData {
@@ -12,124 +12,125 @@ interface ProbabilityData {
 
 interface SimulationState {
 	probabilityHistory: ProbabilityData[];
+	distance: number;
 }
 
-// Define flavor colors in hex
-const electronColor = "#0000FF"; // Blue
-const muonColor = "#FFA500"; // Orange
-const tauColor = "#EE82EE"; // Magenta (Violet is often used, but magenta is close)
+// Define flavor colors - vibrant, modern palette
+const FLAVOR_COLORS = {
+	electron: { r: 59, g: 130, b: 246 }, // Blue-500
+	muon: { r: 251, g: 146, b: 60 }, // Orange-400
+	tau: { r: 217, g: 70, b: 239 }, // Fuchsia-500
+};
 
 const NeutrinoSphere: React.FC = () => {
 	const sphereRef = useRef<HTMLDivElement>(null);
+	const glowRef = useRef<HTMLDivElement>(null);
 	const { state } = useSimulation() as { state: SimulationState };
 	const animationRefs = useRef<JSAnimation[]>([]);
 
 	// Get the latest probabilities from state.probabilityHistory
-	const latestProbabilities: ProbabilityData =
-		state.probabilityHistory.length > 0
+	const latestProbabilities: ProbabilityData = useMemo(() => {
+		return state.probabilityHistory.length > 0
 			? state.probabilityHistory[state.probabilityHistory.length - 1]
 			: { distance: 0, Pe: 1, Pmu: 0, Ptau: 0 };
+	}, [state.probabilityHistory]);
 
-	// Helper function to blend hex colors based on probabilities
-	const blendColors = (pe: number, pmu: number, ptau: number): string => {
-		// Convert hex to RGB
-		const hexToRgb = (hex: string) => {
-			const bigint = Number.parseInt(hex.slice(1), 16);
-			const r = (bigint >> 16) & 255;
-			const g = (bigint >> 8) & 255;
-			const b = bigint & 255;
-			return [r, g, b];
-		};
-
-		const rgbElectron = hexToRgb(electronColor);
-		const rgbMuon = hexToRgb(muonColor);
-		const rgbTau = hexToRgb(tauColor);
-
-		// Blend RGB values based on probabilities
+	// Blend colors based on probabilities
+	const blendedColor = useMemo(() => {
+		const { Pe, Pmu, Ptau } = latestProbabilities;
 		const r = Math.round(
-			rgbElectron[0] * pe + rgbMuon[0] * pmu + rgbTau[0] * ptau,
+			FLAVOR_COLORS.electron.r * Pe +
+				FLAVOR_COLORS.muon.r * Pmu +
+				FLAVOR_COLORS.tau.r * Ptau,
 		);
 		const g = Math.round(
-			rgbElectron[1] * pe + rgbMuon[1] * pmu + rgbTau[1] * ptau,
+			FLAVOR_COLORS.electron.g * Pe +
+				FLAVOR_COLORS.muon.g * Pmu +
+				FLAVOR_COLORS.tau.g * Ptau,
 		);
 		const b = Math.round(
-			rgbElectron[2] * pe + rgbMuon[2] * pmu + rgbTau[2] * ptau,
+			FLAVOR_COLORS.electron.b * Pe +
+				FLAVOR_COLORS.muon.b * Pmu +
+				FLAVOR_COLORS.tau.b * Ptau,
+		);
+		return { r, g, b, hex: `rgb(${r}, ${g}, ${b})` };
+	}, [latestProbabilities]);
+
+	// Animate sphere color and glow
+	useEffect(() => {
+		if (!sphereRef.current || !glowRef.current) return;
+
+		// Clear existing animations
+		animationRefs.current.forEach((anim) => anim.pause());
+		animationRefs.current = [];
+
+		const { r, g, b, hex } = blendedColor;
+
+		// Color transition
+		animationRefs.current.push(
+			animate(sphereRef.current, {
+				background: `radial-gradient(circle at 30% 30%, rgb(${r + 60}, ${g + 60}, ${b + 60}), ${hex}, rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 40)}, ${Math.max(0, b - 40)}))`,
+				duration: 400,
+				ease: "outQuad",
+			}),
 		);
 
-		// Convert blended RGB back to hex
-		const rgbToHex = (r: number, g: number, b: number) => {
-			const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-			return "#" + "0".repeat(6 - hex.length) + hex; // Pad with leading zeros if needed
-		};
+		// Glow effect
+		animationRefs.current.push(
+			animate(glowRef.current, {
+				boxShadow: `0 0 60px 20px rgba(${r}, ${g}, ${b}, 0.5), 0 0 120px 40px rgba(${r}, ${g}, ${b}, 0.3), 0 0 200px 80px rgba(${r}, ${g}, ${b}, 0.15)`,
+				duration: 400,
+				ease: "outQuad",
+			}),
+		);
 
-		return rgbToHex(r, g, b);
-	};
+		// Pulsing animation
+		animationRefs.current.push(
+			animate(sphereRef.current, {
+				scale: [1, 1.02, 1],
+				duration: 2000,
+				ease: "inOutSine",
+				loop: true,
+			}),
+		);
 
-	useEffect(() => {
-		if (sphereRef.current) {
-			// Calculate blended color
-			const blendedColor = blendColors(
-				latestProbabilities.Pe,
-				latestProbabilities.Pmu,
-				latestProbabilities.Ptau,
-			);
+		// Glow pulse
+		animationRefs.current.push(
+			animate(glowRef.current, {
+				opacity: [0.8, 1, 0.8],
+				scale: [1, 1.05, 1],
+				duration: 2000,
+				ease: "inOutSine",
+				loop: true,
+			}),
+		);
 
-			// Clear any existing animations
+		return () => {
 			animationRefs.current.forEach((anim) => anim.pause());
 			animationRefs.current = [];
-
-			// Create color transition animation
-			animationRefs.current.push(
-				animate(sphereRef.current, {
-					backgroundColor: blendedColor,
-					duration: 500,
-					ease: "inOutQuad",
-				}),
-			);
-
-			// Create pulsing animation
-			animationRefs.current.push(
-				animate(sphereRef.current, {
-					scale: [1, 1.008, 1],
-					duration: 2000,
-					ease: "inOutSine",
-					loop: true,
-					delay: 500, // Start after color transition
-				}),
-			);
-		}
-
-		// Cleanup animations on component unmount
-		return () => {
-			animationRefs.current.forEach((anim) => {
-				anim.pause();
-			});
-			animationRefs.current = [];
 		};
-	}, [latestProbabilities]); // Re-run effect when probabilities change
+	}, [blendedColor]);
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				justifyContent: "center",
-				alignItems: "center",
-				height: "100%",
-			}}
-		>
+		<div className="relative flex items-center justify-center">
+			{/* Outer glow layer */}
+			<div
+				ref={glowRef}
+				className="absolute w-40 h-40 rounded-full"
+				style={{
+					boxShadow: `0 0 60px 20px rgba(${blendedColor.r}, ${blendedColor.g}, ${blendedColor.b}, 0.5)`,
+				}}
+			/>
+			{/* Main sphere with gradient */}
 			<div
 				ref={sphereRef}
+				className="relative w-36 h-36 rounded-full"
 				style={{
-					width: "150px", // Increased size for better visibility
-					height: "150px",
-					borderRadius: "50%",
-					backgroundColor: blendColors(
-						latestProbabilities.Pe,
-						latestProbabilities.Pmu,
-						latestProbabilities.Ptau,
-					),
+					background: `radial-gradient(circle at 30% 30%, rgb(${blendedColor.r + 60}, ${blendedColor.g + 60}, ${blendedColor.b + 60}), ${blendedColor.hex}, rgb(${Math.max(0, blendedColor.r - 40)}, ${Math.max(0, blendedColor.g - 40)}, ${Math.max(0, blendedColor.b - 40)}))`,
+					boxShadow:
+						"inset 0 -10px 30px rgba(0,0,0,0.3), inset 0 10px 30px rgba(255,255,255,0.1)",
 				}}
-			></div>
+			/>
 		</div>
 	);
 };

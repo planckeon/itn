@@ -2,9 +2,9 @@ import type React from "react";
 import { useSimulation } from "../context/SimulationContext";
 
 const FLAVORS = [
-	{ label: "Electron", value: "electron" },
-	{ label: "Muon", value: "muon" },
-	{ label: "Tau", value: "tau" },
+	{ label: "Electron (νₑ)", value: "electron", color: "rgb(59, 130, 246)" },
+	{ label: "Muon (νᵤ)", value: "muon", color: "rgb(251, 146, 60)" },
+	{ label: "Tau (ν_τ)", value: "tau", color: "rgb(217, 70, 239)" },
 ];
 
 const TopControlBar: React.FC = () => {
@@ -31,138 +31,194 @@ const TopControlBar: React.FC = () => {
 		setSpeed(Number(e.target.value));
 	};
 
-	const handleMatterEffectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setMatter(e.target.checked);
-	};
-
 	const handleDensityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setDensity(Number(e.target.value));
 	};
 
 	// Animation controls
-	const handlePlay = () => setSpeed(state.speed || 1); // Resume animation
-	const handlePause = () => setSpeed(0); // Pause animation
+	const handlePlay = () => setSpeed(state.speed || 1);
+	const handlePause = () => setSpeed(0);
 	const handleReset = () => resetSimulation();
 
+	const selectedFlavor = FLAVORS.find((f) => f.value === state.initialFlavor);
+
 	return (
-		<div className="fixed top-4 left-1/2 z-20 -translate-x-1/2 bg-neutral-900/95 rounded-lg shadow-xl px-4 py-1.5 flex flex-wrap items-center gap-3 border border-neutral-800 max-w-3xl w-full justify-center backdrop-blur-sm">
-			{/* Flavor Dropdown */}
-			<label className="flex flex-col items-center text-xs font-medium text-neutral-300">
-				<span className="text-xs text-neutral-400">Flavor</span>
-				<select
-					className="mt-0.5 px-2 py-0.5 rounded-md bg-neutral-800 border border-neutral-700 text-neutral-100 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs"
-					value={state.initialFlavor}
-					onChange={handleFlavorChange}
-				>
-					{FLAVORS.map((f) => (
-						<option key={f.value} value={f.value}>
-							{f.label}
-						</option>
-					))}
-				</select>
-			</label>
-
-			{/* Energy Slider */}
-			<label className="flex flex-col items-center text-xs font-medium text-neutral-300 w-32">
-				<span className="text-xs text-neutral-400">Energy</span>
-				<input
-					type="range"
-					min={0.1}
-					max={10}
-					step={0.01}
-					value={state.energy}
-					onChange={handleEnergyChange}
-					className="w-full h-1.5 accent-blue-500"
-				/>
-				<span className="text-[10px] mt-0.5 text-neutral-300">
-					{state.energy.toFixed(2)} GeV
-				</span>
-			</label>
-
-			{/* Speed Slider */}
-			<label className="flex flex-col items-center text-xs font-medium text-neutral-300 w-32">
-				<span className="text-xs text-neutral-400">Speed</span>
-				<input
-					type="range"
-					min={0.1}
-					max={5}
-					step={0.01}
-					value={state.speed}
-					onChange={handleSpeedChange}
-					className="w-full h-1.5 accent-orange-500"
-				/>
-				<span className="text-[10px] mt-0.5 text-neutral-300">
-					{state.speed.toFixed(2)}x
-				</span>
-			</label>
-
-			{/* Matter Effect Checkbox */}
-			<label className="flex items-center gap-1.5 text-xs text-neutral-400">
-				<input
-					type="checkbox"
-					checked={state.matter}
-					onChange={handleMatterEffectChange}
-					className="h-3.5 w-3.5 accent-purple-500 rounded focus:ring-1 focus:ring-purple-500"
-				/>
-				<span>Matter</span>
-			</label>
-
-			{/* Density Input */}
-			<label className="flex flex-col items-center text-xs font-medium text-neutral-300 w-28">
-				<span className="text-xs text-neutral-400">Density</span>
-				<input
-					type="number"
-					min={0}
-					max={200}
-					step={0.01}
-					value={state.density}
-					onChange={handleDensityChange}
-					className="mt-0.5 px-2 py-0.5 rounded-md bg-neutral-800 border border-neutral-700 text-neutral-100 w-full text-xs"
-				/>
-				<span className="text-[10px] mt-0.5 text-neutral-300">g/cm³</span>
-			</label>
-
-			{/* Max Distance Input */}
-			<label className="flex flex-col items-center text-xs font-medium text-neutral-300 w-32">
-				<span className="text-xs text-neutral-400">Max Dist</span>
-				<input
-					type="number"
-					min={10}
-					max={20000}
-					step={1}
-					value={state.distance.toFixed(0)}
-					readOnly
-					className="mt-0.5 px-2 py-0.5 rounded-md bg-neutral-800 border border-neutral-700 text-neutral-100 w-full text-xs"
-				/>
-				<span className="text-[10px] mt-0.5 text-neutral-300">km</span>
-			</label>
-
-			{/* Play/Pause/Reset Buttons */}
-			<div className="flex items-center gap-1.5 ml-1">
-				{state.speed > 0 ? (
-					<button
-						onClick={handlePause}
-						className="px-2.5 py-0.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-100 text-xs font-medium shadow-sm border border-neutral-700"
-						aria-label="Pause"
+		<div className="fixed top-14 left-1/2 z-20 -translate-x-1/2">
+			<div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-2xl px-6 py-3 flex flex-wrap items-center gap-6 border border-white/10">
+				{/* Flavor Dropdown */}
+				<div className="flex flex-col items-start">
+					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+						Initial Flavor
+					</label>
+					<select
+						className="px-3 py-1.5 rounded-lg bg-slate-800/80 border border-white/10 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500/50 cursor-pointer transition-all"
+						style={{
+							color: selectedFlavor?.color,
+						}}
+						value={state.initialFlavor}
+						onChange={handleFlavorChange}
 					>
-						❚❚
-					</button>
-				) : (
+						{FLAVORS.map((f) => (
+							<option key={f.value} value={f.value}>
+								{f.label}
+							</option>
+						))}
+					</select>
+				</div>
+
+				{/* Energy Slider */}
+				<div className="flex flex-col items-center min-w-[120px]">
+					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+						Energy
+					</label>
+					<input
+						type="range"
+						min={0.1}
+						max={10}
+						step={0.01}
+						value={state.energy}
+						onChange={handleEnergyChange}
+						className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+						style={{
+							background: `linear-gradient(to right, rgb(59, 130, 246) 0%, rgb(59, 130, 246) ${((state.energy - 0.1) / 9.9) * 100}%, rgba(255,255,255,0.1) ${((state.energy - 0.1) / 9.9) * 100}%, rgba(255,255,255,0.1) 100%)`,
+						}}
+					/>
+					<span className="text-sm font-medium text-white/80 mt-1 tabular-nums">
+						{state.energy.toFixed(2)}{" "}
+						<span className="text-white/40 text-xs">GeV</span>
+					</span>
+				</div>
+
+				{/* Speed Slider */}
+				<div className="flex flex-col items-center min-w-[120px]">
+					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+						Simulation Speed
+					</label>
+					<input
+						type="range"
+						min={0}
+						max={5}
+						step={0.01}
+						value={state.speed}
+						onChange={handleSpeedChange}
+						className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+						style={{
+							background: `linear-gradient(to right, rgb(251, 146, 60) 0%, rgb(251, 146, 60) ${(state.speed / 5) * 100}%, rgba(255,255,255,0.1) ${(state.speed / 5) * 100}%, rgba(255,255,255,0.1) 100%)`,
+						}}
+					/>
+					<span className="text-sm font-medium text-white/80 mt-1 tabular-nums">
+						{state.speed.toFixed(2)}
+						<span className="text-white/40 text-xs">x</span>
+					</span>
+				</div>
+
+				{/* Divider */}
+				<div className="w-px h-10 bg-white/10" />
+
+				{/* Matter Effect Toggle */}
+				<div className="flex flex-col items-center">
+					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+						Matter Effect
+					</label>
 					<button
-						onClick={handlePlay}
-						className="px-2.5 py-0.5 rounded-md bg-blue-600 hover:bg-blue-500 text-neutral-100 text-xs font-medium shadow-sm border border-blue-700"
-						aria-label="Play"
+						type="button"
+						onClick={() => setMatter(!state.matter)}
+						className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+							state.matter
+								? "bg-purple-600/80 text-white border border-purple-400/30"
+								: "bg-slate-800/80 text-white/50 border border-white/10 hover:bg-slate-700/80"
+						}`}
 					>
-						▶
+						{state.matter ? "ON" : "OFF"}
 					</button>
+				</div>
+
+				{/* Density (only if matter effect is on) */}
+				{state.matter && (
+					<div className="flex flex-col items-center min-w-[100px]">
+						<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+							Density
+						</label>
+						<input
+							type="range"
+							min={0}
+							max={15}
+							step={0.1}
+							value={state.density}
+							onChange={handleDensityChange}
+							className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+							style={{
+								background: `linear-gradient(to right, rgb(168, 85, 247) 0%, rgb(168, 85, 247) ${(state.density / 15) * 100}%, rgba(255,255,255,0.1) ${(state.density / 15) * 100}%, rgba(255,255,255,0.1) 100%)`,
+							}}
+						/>
+						<span className="text-sm font-medium text-white/80 mt-1 tabular-nums">
+							{state.density.toFixed(1)}{" "}
+							<span className="text-white/40 text-xs">g/cm³</span>
+						</span>
+					</div>
 				)}
-				<button
-					onClick={handleReset}
-					className="px-2.5 py-0.5 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-100 text-xs font-medium shadow-sm border border-neutral-700"
-					aria-label="Reset"
-				>
-					⟳
-				</button>
+
+				{/* Divider */}
+				<div className="w-px h-10 bg-white/10" />
+
+				{/* Play/Pause/Reset Controls */}
+				<div className="flex items-center gap-2">
+					{state.speed > 0 ? (
+						<button
+							type="button"
+							onClick={handlePause}
+							className="w-10 h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-white flex items-center justify-center border border-white/10 transition-all hover:scale-105"
+							aria-label="Pause"
+						>
+							<svg
+								className="w-4 h-4"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+							>
+								<rect x="6" y="4" width="4" height="16" rx="1" />
+								<rect x="14" y="4" width="4" height="16" rx="1" />
+							</svg>
+						</button>
+					) : (
+						<button
+							type="button"
+							onClick={handlePlay}
+							className="w-10 h-10 rounded-xl bg-cyan-600/80 hover:bg-cyan-500/80 text-white flex items-center justify-center border border-cyan-400/30 transition-all hover:scale-105"
+							aria-label="Play"
+						>
+							<svg
+								className="w-4 h-4 ml-0.5"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+							>
+								<path d="M8 5v14l11-7z" />
+							</svg>
+						</button>
+					)}
+					<button
+						type="button"
+						onClick={handleReset}
+						className="w-10 h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-white flex items-center justify-center border border-white/10 transition-all hover:scale-105"
+						aria-label="Reset"
+					>
+						<svg
+							className="w-4 h-4"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							viewBox="0 0 24 24"
+							aria-hidden="true"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+							/>
+						</svg>
+					</button>
+				</div>
 			</div>
 		</div>
 	);

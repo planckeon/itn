@@ -4,9 +4,9 @@ export function convertToNuFastParams(params: OscillationParameters) {
 	return {
 		E: params.energy,
 		L: params.L,
-		s12sq: Math.pow(Math.sin((params.theta12_deg * Math.PI) / 180), 2),
-		s13sq: Math.pow(Math.sin((params.theta13_deg * Math.PI) / 180), 2),
-		s23sq: Math.pow(Math.sin((params.theta23_deg * Math.PI) / 180), 2),
+		s12sq: Math.sin((params.theta12_deg * Math.PI) / 180) ** 2,
+		s13sq: Math.sin((params.theta13_deg * Math.PI) / 180) ** 2,
+		s23sq: Math.sin((params.theta23_deg * Math.PI) / 180) ** 2,
 		deltaCP_rad: (params.deltaCP_deg * Math.PI) / 180,
 		dm21sq: params.dm21sq_eV2,
 		dm31sq: params.dm31sq_eV2,
@@ -56,9 +56,7 @@ export function computeProbabilities(
 		const A = 7.6e-5 * rho * E; // Matter potential in eV^2
 		const cos2theta = Math.cos(2 * theta13);
 		const sin2theta = Math.sin(2 * theta13);
-		const denom = Math.sqrt(
-			Math.pow(cos2theta - A / dm31, 2) + Math.pow(sin2theta, 2),
-		);
+		const denom = Math.sqrt((cos2theta - A / dm31) ** 2 + sin2theta ** 2);
 		theta13_use = 0.5 * Math.asin(sin2theta / denom);
 		dm31_use = dm31 * denom;
 	}
@@ -74,8 +72,12 @@ export function computeProbabilities(
 			const expTerm = math.exp(math.complex(0, -phase));
 			const U_beta_j = U.get([beta, j]) as math.Complex;
 			const U_alpha_j = U.get([alpha, j]) as math.Complex;
-			const term = math.multiply(U_beta_j, math.conj(U_alpha_j), expTerm); // Corrected conjugate
-			amplitude = math.add(amplitude, term);
+			const term = math.multiply(
+				U_beta_j,
+				math.conj(U_alpha_j),
+				expTerm,
+			) as math.Complex; // Corrected conjugate
+			amplitude = math.add(amplitude, term) as math.Complex;
 		}
 		probs[beta] = Number(math.pow(math.abs(amplitude), 2));
 	}
