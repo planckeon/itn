@@ -9,6 +9,7 @@ import { useSimulation, EXPERIMENT_PRESETS } from "../context/SimulationContext"
  * M - Toggle matter effect
  * N - Toggle mass ordering (Normal/Inverted)
  * R - Reset simulation
+ * S - Copy share URL to clipboard
  * 1-4 - Apply experiment presets (T2K, NOvA, DUNE, KamLAND)
  * Arrow Up/Down - Adjust energy
  * Arrow Left/Right - Adjust δCP

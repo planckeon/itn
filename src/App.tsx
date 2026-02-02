@@ -2,6 +2,7 @@ import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import HelpModal from "./components/HelpModal";
 import PMNSMatrix from "./components/PMNSMatrix";
 import ProbabilityPlot from "./components/ProbabilityPlot";
+import ShareButton from "./components/ShareButton";
 import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
 import TopControlBar from "./components/TopControlBar";
@@ -97,6 +98,9 @@ function AppContent() {
 
 				{/* PMNS Matrix display - top right - z-index 10 */}
 				<PMNSMatrix />
+
+				{/* Share button - top left - z-index 10 */}
+				<ShareButton />
 
 				{/* Main visualization - centered neutrino sphere - z-index 10 */}
 				<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">
