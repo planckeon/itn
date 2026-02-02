@@ -10,6 +10,7 @@ import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
 import TopControlBar from "./components/TopControlBar";
 import VisualizationArea from "./components/VisualizationArea";
+import WasmLoadingIndicator from "./components/WasmLoadingIndicator";
 import { SimulationProvider, useSimulation } from "./context/SimulationContext";
 import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts";
 import { I18nProvider } from "./i18n";
@@ -295,6 +296,9 @@ function AppContent() {
 
 			{/* Background */}
 			<Starfield />
+
+			{/* WASM loading indicator */}
+			<WasmLoadingIndicator />
 
 			{/* Top control bar */}
 			<TopControlBar />

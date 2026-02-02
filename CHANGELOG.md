@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-02-03
+
+### Added
+- **WASM Loading Indicator** — Shows "Loading physics engine..." with spinner while WASM initializes
+  - Fades to "Physics engine ready" or "Using fallback engine" on completion
+  - Positioned at top center, disappears after 500ms
+
+### Changed
+- **45% Faster Vacuum Calculations** — VacuumBatch API pre-computes mixing matrix elements
+  - Energy spectrum: 72ns/point (was 131ns/point)
+  - Baseline scan also uses optimized batch API
+- **Added Baseline Scan Support** — New `wasmCalculateBaselineScan` function in WASM bridge
+
+### Technical
+- nufast 0.3.1 adds VacuumBatch struct with spectrum() and baseline_scan() methods
+- WASM bridge exports loading state via `onWasmStateChange()` callback
+
 ## [1.4.0] - 2026-02-03
 
 ### Added

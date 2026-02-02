@@ -28,6 +28,14 @@ interface WasmModule {
     e_max: number,
     num_points: number,
   ) => Float64Array;
+  calculate_baseline_scan: (
+    params: WasmOscParams,
+    e: number,
+    initial_flavor: number,
+    l_min: number,
+    l_max: number,
+    num_points: number,
+  ) => Float64Array;
   default: (url: string) => Promise<void>;
 }
 
@@ -50,18 +58,49 @@ interface WasmOscillationParams {
   isAntineutrino: boolean;
 }
 
+// Loading state
+type WasmLoadingState = 'idle' | 'loading' | 'ready' | 'failed';
+
 let wasmModule: WasmModule | null = null;
 let wasmLoadPromise: Promise<WasmModule | null> | null = null;
-let wasmLoadFailed = false;
+let wasmLoadState: WasmLoadingState = 'idle';
+let wasmLoadCallbacks: ((state: WasmLoadingState) => void)[] = [];
+
+/**
+ * Subscribe to WASM loading state changes
+ */
+export function onWasmStateChange(callback: (state: WasmLoadingState) => void): () => void {
+  wasmLoadCallbacks.push(callback);
+  // Immediately call with current state
+  callback(wasmLoadState);
+  return () => {
+    wasmLoadCallbacks = wasmLoadCallbacks.filter(cb => cb !== callback);
+  };
+}
+
+function setWasmState(state: WasmLoadingState) {
+  wasmLoadState = state;
+  for (const cb of wasmLoadCallbacks) {
+    cb(state);
+  }
+}
+
+/**
+ * Get current WASM loading state
+ */
+export function getWasmLoadingState(): WasmLoadingState {
+  return wasmLoadState;
+}
 
 /**
  * Initialize WASM module (call once at app startup)
  */
 export async function initWasm(): Promise<boolean> {
   if (wasmModule) return true;
-  if (wasmLoadFailed) return false;
+  if (wasmLoadState === 'failed') return false;
   
   if (!wasmLoadPromise) {
+    setWasmState('loading');
     wasmLoadPromise = loadWasmModule();
   }
   
@@ -86,10 +125,11 @@ async function loadWasmModule(): Promise<WasmModule | null> {
     await wasmJs.default('/wasm/nufast_wasm_bg.wasm');
     
     console.log('✅ NuFast WASM loaded successfully');
+    setWasmState('ready');
     return wasmJs;
   } catch (error) {
     console.warn('⚠️ WASM load failed, using TypeScript fallback:', error);
-    wasmLoadFailed = true;
+    setWasmState('failed');
     return null;
   }
 }
@@ -143,6 +183,59 @@ export function wasmCalculateEnergySpectrum(
     for (let i = 0; i < result.length; i += 4) {
       points.push({
         energy: result[i],
+        Pe: result[i + 1],
+        Pmu: result[i + 2],
+        Ptau: result[i + 3],
+      });
+    }
+    return points;
+  } finally {
+    oscParams.free();
+  }
+}
+
+/**
+ * Calculate baseline scan using WASM - P(L) at fixed E
+ */
+export function wasmCalculateBaselineScan(
+  params: WasmOscillationParams,
+  energy: number,
+  lMin: number,
+  lMax: number,
+  numPoints: number,
+): { distance: number; Pe: number; Pmu: number; Ptau: number }[] {
+  if (!wasmModule) {
+    throw new Error('WASM not loaded');
+  }
+  
+  const oscParams = new wasmModule.OscParams(
+    params.theta12_deg,
+    params.theta13_deg,
+    params.theta23_deg,
+    params.deltaCP_deg,
+    params.dm21sq_eV2,
+    params.dm31sq_eV2,
+    params.matterEffect,
+    params.rho,
+    params.Ye,
+    params.isAntineutrino,
+  );
+  
+  try {
+    const result = wasmModule.calculate_baseline_scan(
+      oscParams,
+      energy,
+      params.initialFlavorIndex,
+      lMin,
+      lMax,
+      numPoints,
+    );
+    
+    // Parse flat array: [L, Pe, Pmu, Ptau, L, Pe, Pmu, Ptau, ...]
+    const points: { distance: number; Pe: number; Pmu: number; Ptau: number }[] = [];
+    for (let i = 0; i < result.length; i += 4) {
+      points.push({
+        distance: result[i],
         Pe: result[i + 1],
         Pmu: result[i + 2],
         Ptau: result[i + 3],
