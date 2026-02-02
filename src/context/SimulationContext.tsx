@@ -211,9 +211,12 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 			setTime((prevTime) => prevTime + deltaTime * speed);
 			setDistance((prevDistance) => {
 				const newDistance = prevDistance + deltaTime * speed * c * 1e-3; // Distance in km
-				// Clamp at max distance instead of resetting - let user observe and interact
+				// Graceful loop: wrap around at max distance
+				// The physics is periodic - oscillations repeat naturally
 				if (newDistance >= LmaxSim) {
-					return LmaxSim; // Stay at max, don't reset
+					// Clear history for fresh graph, keep everything else
+					setProbabilityHistory([]);
+					return 0; // Loop back to start
 				}
 				return newDistance;
 			});
