@@ -62,7 +62,7 @@ function BottomHUD() {
 					)}
 					{panels.probability && (
 						<div 
-							className="flex-1 max-w-xl min-w-[280px] rounded-xl px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-200"
+							className="flex-1 max-w-3xl min-w-[320px] rounded-xl px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-200"
 							style={{
 								background: "rgba(20, 20, 30, 0.9)",
 								border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -93,7 +93,7 @@ function BottomHUD() {
 									muon: "rgb(251, 146, 60)",
 									tau: "rgb(217, 70, 239)",
 								}}
-								height={70}
+								height={100}
 								distanceLabel=""
 								probabilityLabel=""
 								energy={energy}
