@@ -4,8 +4,8 @@
 
 Interactive visualization of neutrino oscillations using modern web technologies:
 
-- **React** for component-based UI
-- **Anime.js** for smooth animations
+- **React 19** for component-based UI
+- **Canvas 2D** for high-performance rendering
 - **Tailwind CSS** for responsive styling  
 - **TypeScript** for type safety
 - **Vite** for development/build
@@ -22,7 +22,7 @@ Interactive visualization of neutrino oscillations using modern web technologies
        ▼                       ▼                       │
 ┌─────────────────┐     ┌─────────────────┐            │
 │   Visualization │     │   Controls      │            │
-│  (Anime.js)     │     │  Panel          │◄───────────┘
+│  (Canvas 2D)    │     │  (TopControlBar)│◄───────────┘
 └─────────────────┘     └─────────────────┘
 ```
 
@@ -34,26 +34,21 @@ Interactive visualization of neutrino oscillations using modern web technologies
    - Type definitions for oscillation parameters
 
 2. **Components (`src/components/`):**
-   - **VisualizationArea:** Main animation container
-   - **NeutrinoSphere:** 3D neutrino visualization
-   - **ProbabilityPlot:** 2D oscillation probability plot
-   - **Starfield:** Animated background
-   - **ControlsPanel:** Interactive parameter controls
+   - **Starfield:** 3D starfield with camera rotation
+   - **NeutrinoSphere:** Color-blending sphere visualization
+   - **ProbabilityPlot:** Canvas-based oscillation plot
+   - **TopControlBar:** Parameter controls (responsive)
+   - **VisualizationArea:** Main container
 
 3. **State Management (`src/context/`):**
    - SimulationContext for shared state
    - Physics parameters and animation state
    - Custom hooks for state access
 
-4. **Styling:**
-   - Tailwind CSS utility classes
-   - Responsive design system
-   - Animation timing controls
-
-5. **Utilities (`src/utils/`):**
+4. **Utilities (`src/utils/`):**
    - Color utilities for flavor blending
    - Math helpers for calculations
-   - Performance optimizations
+   - Debounce for input handling
 
 ## Data Flow
 
@@ -63,13 +58,13 @@ Interactive visualization of neutrino oscillations using modern web technologies
 
 2. **State → Visualization:**
    - Components subscribe to context changes
-   - Anime.js animations update based on state
+   - Canvas animations render at 60fps
    - Physics calculations drive visual changes
 
-3. **Performance Optimizations:**
-   - Memoized components
-   - Debounced input handling
-   - Efficient animation rendering
+3. **Performance:**
+   - requestAnimationFrame for smooth rendering
+   - DPI-aware canvas scaling
+   - Memoized calculations
 
 ## Key Design Principles
 
@@ -79,13 +74,13 @@ Interactive visualization of neutrino oscillations using modern web technologies
    - Type-safe props and state
 
 2. **Performance:**
-   - Optimized physics calculations
-   - Efficient animation rendering
-   - Minimal re-renders
+   - Canvas 2D for efficient rendering
+   - Minimal dependencies (~67KB gzipped)
+   - Frame-rate independent physics
 
-3. **Maintainability:**
-   - TypeScript for type safety
-   - Consistent code style
-   - Comprehensive tests
+3. **Mobile-First:**
+   - Touch support for camera rotation
+   - Responsive control bar
+   - Full viewport utilization
 
 Last Updated: 2026-02-02

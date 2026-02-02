@@ -31,8 +31,8 @@ Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://a
 | Framework | React 19 + TypeScript |
 | Build | Vite |
 | Styling | Tailwind CSS |
+| Rendering | Canvas 2D (60fps) |
 | State | React Context |
-| Math | KaTeX |
 | Testing | Vitest |
 
 ## Development
