@@ -33,7 +33,7 @@ const BottomPlotContainer: React.FC = () => {
 			<div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-2xl px-6 py-4 border border-white/10">
 				{/* Legend */}
 				<div className="flex items-center justify-center gap-6 mb-3">
-					<span className="text-[10px] uppercase tracking-widest text-white/40">
+					<span className="text-[10px] uppercase tracking-widest text-white/60">
 						Oscillation Probabilities
 					</span>
 					<div className="flex gap-4">
@@ -49,14 +49,14 @@ const BottomPlotContainer: React.FC = () => {
 								className="w-3 h-3 rounded-full"
 								style={{ backgroundColor: FLAVOR_COLORS.muon }}
 							/>
-							<span className="text-xs text-white/60">P(νᵤ)</span>
+							<span className="text-xs text-white/60">P(νμ)</span>
 						</div>
 						<div className="flex items-center gap-1.5">
 							<div
 								className="w-3 h-3 rounded-full"
 								style={{ backgroundColor: FLAVOR_COLORS.tau }}
 							/>
-							<span className="text-xs text-white/60">P(ν_τ)</span>
+							<span className="text-xs text-white/60">P(ντ)</span>
 						</div>
 					</div>
 				</div>
@@ -66,10 +66,9 @@ const BottomPlotContainer: React.FC = () => {
 					data={probabilityData}
 					flavors={FLAVORS}
 					flavorColors={FLAVOR_COLORS}
-					width={600}
 					height={160}
 					distanceLabel="Distance (km)"
-					probabilityLabel="P"
+					probabilityLabel="Probability"
 				/>
 			</div>
 		</div>

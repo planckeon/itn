@@ -3,8 +3,8 @@ import { useSimulation } from "../context/SimulationContext";
 
 const FLAVORS = [
 	{ label: "Electron (νₑ)", value: "electron", color: "rgb(59, 130, 246)" },
-	{ label: "Muon (νᵤ)", value: "muon", color: "rgb(251, 146, 60)" },
-	{ label: "Tau (ν_τ)", value: "tau", color: "rgb(217, 70, 239)" },
+	{ label: "Muon (νμ)", value: "muon", color: "rgb(251, 146, 60)" },
+	{ label: "Tau (ντ)", value: "tau", color: "rgb(217, 70, 239)" },
 ];
 
 const TopControlBar: React.FC = () => {
@@ -47,7 +47,7 @@ const TopControlBar: React.FC = () => {
 			<div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-2xl px-6 py-3 flex flex-wrap items-center gap-6 border border-white/10">
 				{/* Flavor Dropdown */}
 				<div className="flex flex-col items-start">
-					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+					<label className="text-[10px] uppercase tracking-widest text-white/60 mb-1">
 						Initial Flavor
 					</label>
 					<select
@@ -68,7 +68,7 @@ const TopControlBar: React.FC = () => {
 
 				{/* Energy Slider */}
 				<div className="flex flex-col items-center min-w-[120px]">
-					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+					<label className="text-[10px] uppercase tracking-widest text-white/60 mb-1">
 						Energy
 					</label>
 					<input
@@ -91,7 +91,7 @@ const TopControlBar: React.FC = () => {
 
 				{/* Speed Slider */}
 				<div className="flex flex-col items-center min-w-[120px]">
-					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+					<label className="text-[10px] uppercase tracking-widest text-white/60 mb-1">
 						Simulation Speed
 					</label>
 					<input
@@ -117,7 +117,7 @@ const TopControlBar: React.FC = () => {
 
 				{/* Matter Effect Toggle */}
 				<div className="flex flex-col items-center">
-					<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+					<label className="text-[10px] uppercase tracking-widest text-white/60 mb-1">
 						Matter Effect
 					</label>
 					<button
@@ -136,7 +136,7 @@ const TopControlBar: React.FC = () => {
 				{/* Density (only if matter effect is on) */}
 				{state.matter && (
 					<div className="flex flex-col items-center min-w-[100px]">
-						<label className="text-[10px] uppercase tracking-widest text-white/40 mb-1">
+						<label className="text-[10px] uppercase tracking-widest text-white/60 mb-1">
 							Density
 						</label>
 						<input

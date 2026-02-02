@@ -6,8 +6,8 @@ import NeutrinoSphere from "./NeutrinoSphere";
 // Flavor color mapping
 const FLAVOR_CONFIG = {
 	electron: { name: "Electron", symbol: "νₑ", color: "rgb(59, 130, 246)" },
-	muon: { name: "Muon", symbol: "νᵤ", color: "rgb(251, 146, 60)" },
-	tau: { name: "Tau", symbol: "ν_τ", color: "rgb(217, 70, 239)" },
+	muon: { name: "Muon", symbol: "νμ", color: "rgb(251, 146, 60)" },
+	tau: { name: "Tau", symbol: "ντ", color: "rgb(217, 70, 239)" },
 } as const;
 
 const VisualizationArea: React.FC = () => {
@@ -36,7 +36,7 @@ const VisualizationArea: React.FC = () => {
 		<div className="relative flex flex-col items-center justify-center gap-6 pt-16">
 			{/* Initial flavor indicator */}
 			<div className="text-center mb-2">
-				<p className="text-xs text-white/40 uppercase tracking-widest mb-1">
+				<p className="text-xs text-white/60 uppercase tracking-widest mb-1">
 					Initial State
 				</p>
 				<p
@@ -57,7 +57,7 @@ const VisualizationArea: React.FC = () => {
 			<div className="text-center mt-4 space-y-3">
 				{/* Dominant flavor */}
 				<div>
-					<p className="text-xs text-white/40 uppercase tracking-widest mb-1">
+					<p className="text-xs text-white/60 uppercase tracking-widest mb-1">
 						Dominant Flavor
 					</p>
 					<p
@@ -70,7 +70,7 @@ const VisualizationArea: React.FC = () => {
 
 				{/* Distance traveled */}
 				<div className="bg-white/5 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/10">
-					<p className="text-xs text-white/40 uppercase tracking-widest mb-1">
+					<p className="text-xs text-white/60 uppercase tracking-widest mb-1">
 						Distance Traveled
 					</p>
 					<p className="text-3xl font-light text-white/90 tabular-nums">
@@ -87,12 +87,12 @@ const VisualizationArea: React.FC = () => {
 						color={FLAVOR_CONFIG.electron.color}
 					/>
 					<ProbabilityBadge
-						label="νᵤ"
+						label="νμ"
 						probability={latestProbs.Pmu}
 						color={FLAVOR_CONFIG.muon.color}
 					/>
 					<ProbabilityBadge
-						label="ν_τ"
+						label="ντ"
 						probability={latestProbs.Ptau}
 						color={FLAVOR_CONFIG.tau.color}
 					/>
