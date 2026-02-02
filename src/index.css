@@ -41,6 +41,17 @@ body {
 	white-space: nowrap;
 }
 
+/* Hide MathML from copy/paste to prevent duplicate text */
+.katex-mathml {
+	position: absolute;
+	clip: rect(1px, 1px, 1px, 1px);
+	padding: 0;
+	border: 0;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+}
+
 /* Better text rendering in panels */
 .panel-text {
 	font-size: 14px;
