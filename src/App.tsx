@@ -1,6 +1,6 @@
-import ControlsPanel from "./components/ControlsPanel";
 import ProbabilityPlot from "./components/ProbabilityPlot";
 import Starfield from "./components/Starfield";
+import TopControlBar from "./components/TopControlBar";
 import VisualizationArea from "./components/VisualizationArea";
 import { SimulationProvider, useSimulation } from "./context/SimulationContext";
 
@@ -20,21 +20,30 @@ function PlotWrapper() {
 
 	return (
 		<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10 w-[85vw] max-w-xl">
-			{/* Semi-transparent plot container - lets starfield show through */}
-			<div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
-				{/* Compact legend */}
-				<div className="flex items-center justify-center gap-4 mb-2">
-					<div className="flex items-center gap-1.5">
-						<div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-						<span className="text-[10px] text-white/60">νₑ</span>
-					</div>
-					<div className="flex items-center gap-1.5">
-						<div className="w-2.5 h-2.5 rounded-full bg-orange-400" />
-						<span className="text-[10px] text-white/60">νμ</span>
-					</div>
-					<div className="flex items-center gap-1.5">
-						<div className="w-2.5 h-2.5 rounded-full bg-fuchsia-500" />
-						<span className="text-[10px] text-white/60">ντ</span>
+			{/* Semi-transparent plot container */}
+			<div
+				className="rounded-xl px-4 py-3"
+				style={{
+					background: "rgba(20, 20, 30, 0.85)",
+					border: "1px solid rgba(255, 255, 255, 0.1)",
+				}}
+			>
+				{/* Title and legend row */}
+				<div className="flex items-center justify-between mb-2">
+					<span className="text-white/70 text-sm font-mono">Probability</span>
+					<div className="flex items-center gap-4">
+						<div className="flex items-center gap-1.5">
+							<div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+							<span className="text-[10px] text-white/60">νₑ</span>
+						</div>
+						<div className="flex items-center gap-1.5">
+							<div className="w-2.5 h-2.5 rounded-full bg-orange-400" />
+							<span className="text-[10px] text-white/60">νμ</span>
+						</div>
+						<div className="flex items-center gap-1.5">
+							<div className="w-2.5 h-2.5 rounded-full bg-fuchsia-500" />
+							<span className="text-[10px] text-white/60">ντ</span>
+						</div>
 					</div>
 				</div>
 				<ProbabilityPlot
@@ -45,9 +54,9 @@ function PlotWrapper() {
 						muon: "rgb(251, 146, 60)",
 						tau: "rgb(217, 70, 239)",
 					}}
-					height={120}
-					distanceLabel="Distance (km)"
-					probabilityLabel="P"
+					height={100}
+					distanceLabel="Time →"
+					probabilityLabel=""
 				/>
 			</div>
 		</div>
@@ -57,23 +66,23 @@ function PlotWrapper() {
 function App() {
 	return (
 		<SimulationProvider>
-			{/* Pure black background - starfield is THE visual experience */}
+			{/* Pure black background */}
 			<div className="App bg-black text-white font-mono min-h-screen overflow-hidden relative">
 				{/* Screen reader only title */}
 				<h1 className="sr-only">Neutrino Oscillation Visualization</h1>
 
-				{/* Starfield fills the entire screen - this IS the background */}
+				{/* Starfield fills the entire screen */}
 				<Starfield />
 
-				{/* Controls panel - semi-transparent overlay in corner */}
-				<ControlsPanel />
+				{/* Horizontal controls bar at top */}
+				<TopControlBar />
 
 				{/* Main visualization - centered neutrino sphere */}
 				<main className="relative w-full h-screen flex items-center justify-center">
 					<VisualizationArea />
 				</main>
 
-				{/* Probability plot at bottom - semi-transparent */}
+				{/* Probability plot at bottom */}
 				<PlotWrapper />
 			</div>
 		</SimulationProvider>
