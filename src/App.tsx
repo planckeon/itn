@@ -1,4 +1,6 @@
 import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
+import HelpModal from "./components/HelpModal";
+import PMNSMatrix from "./components/PMNSMatrix";
 import ProbabilityPlot from "./components/ProbabilityPlot";
 import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
@@ -93,6 +95,9 @@ function AppContent() {
 				{/* Horizontal controls bar at top - z-index 20 */}
 				<TopControlBar />
 
+				{/* PMNS Matrix display - top right - z-index 10 */}
+				<PMNSMatrix />
+
 				{/* Main visualization - centered neutrino sphere - z-index 10 */}
 				<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">
 					<VisualizationArea />
@@ -106,6 +111,9 @@ function AppContent() {
 
 				{/* Energy spectrum plot - bottom right - z-index 10 */}
 				<EnergySpectrumPlot />
+
+				{/* Help modal - press ? to toggle */}
+				<HelpModal />
 			</div>
 		</>
 	);
