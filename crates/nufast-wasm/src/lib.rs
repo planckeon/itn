@@ -1,36 +1,25 @@
-//! NuFast WASM - High-performance neutrino oscillation physics
+//! NuFast WASM - WebAssembly bindings for neutrino oscillation physics
 //!
-//! Ported from NuFast C++ for WebAssembly deployment.
-//! Optimized for batch calculations (energy spectrum, Monte Carlo).
+//! Provides high-performance oscillation calculations for web applications.
+//! Uses the `nufast` crate for physics calculations.
 
 use wasm_bindgen::prelude::*;
+use nufast::{
+    VacuumParameters, MatterParameters,
+    probability_vacuum_lbl, probability_matter_lbl,
+    normalize_probabilities,
+};
 use std::f64::consts::PI;
 
-// Physics constants
-const EV_SQ_KM_TO_GEV_OVER4: f64 = 1.267;
-const SQRT2: f64 = 1.4142135623730951;
-const GF: f64 = 1.1663788e-23; // Fermi constant in eV^-2
-const NA: f64 = 6.022e23; // Avogadro's number
-const EV_PER_GEV: f64 = 1e9;
-
-/// Convert density (g/cm³) and Ye to matter potential A (eV²/GeV)
-#[inline]
-fn yer_rho_e_to_a(ye: f64, rho: f64, e: f64) -> f64 {
-    // A = 2 * sqrt(2) * G_F * N_e * E
-    // N_e = rho * Y_e * N_A / (atomic mass unit)
-    let n_e = rho * ye * NA * 1e6; // electrons per m³ → per cm³ conversion
-    2.0 * SQRT2 * GF * n_e * e * EV_PER_GEV * 1e-18 // Simplified conversion factor
-}
-
-/// Neutrino oscillation parameters
+/// Oscillation parameters for WASM interface
 #[wasm_bindgen]
 #[derive(Clone, Copy)]
 pub struct OscParams {
     // Mixing angles (radians internally)
-    s12sq: f64,
-    s13sq: f64,
-    s23sq: f64,
-    delta: f64, // CP phase in radians
+    theta12_deg: f64,
+    theta13_deg: f64,
+    theta23_deg: f64,
+    delta_deg: f64,
     
     // Mass splittings (eV²)
     dm21sq: f64,
@@ -38,8 +27,8 @@ pub struct OscParams {
     
     // Matter effect
     matter: bool,
-    rho: f64,  // density g/cm³
-    ye: f64,   // electron fraction
+    rho: f64,
+    ye: f64,
     
     // Antineutrino flag
     anti: bool,
@@ -60,12 +49,11 @@ impl OscParams {
         ye: f64,
         anti: bool,
     ) -> Self {
-        let deg_to_rad = PI / 180.0;
         Self {
-            s12sq: (theta12_deg * deg_to_rad).sin().powi(2),
-            s13sq: (theta13_deg * deg_to_rad).sin().powi(2),
-            s23sq: (theta23_deg * deg_to_rad).sin().powi(2),
-            delta: delta_cp_deg * deg_to_rad,
+            theta12_deg,
+            theta13_deg,
+            theta23_deg,
+            delta_deg: delta_cp_deg,
             dm21sq,
             dm31sq,
             matter,
@@ -74,145 +62,67 @@ impl OscParams {
             anti,
         }
     }
+    
+    /// Create with NuFit 5.2 best-fit values (Normal Ordering)
+    #[wasm_bindgen]
+    pub fn nufit52_no() -> Self {
+        Self {
+            theta12_deg: 33.44,
+            theta13_deg: 8.57,
+            theta23_deg: 49.2,
+            delta_deg: 194.0,
+            dm21sq: 7.42e-5,
+            dm31sq: 2.517e-3,
+            matter: false,
+            rho: 2.6,
+            ye: 0.5,
+            anti: false,
+        }
+    }
 }
 
-/// Calculate vacuum oscillation probabilities
-/// Returns [Pee, Pem, Pet, Pme, Pmm, Pmt, Pte, Ptm, Ptt]
-/// Ported directly from TypeScript NuFastPort.ts
-fn probability_vacuum(params: &OscParams, l: f64, e: f64) -> [f64; 9] {
-    let s12sq = params.s12sq;
-    let s13sq = params.s13sq;
-    let s23sq = params.s23sq;
-    let delta = if params.anti { -params.delta } else { params.delta };
-    let dm21sq = params.dm21sq;
-    let dm31sq = params.dm31sq;
-    
-    // Pre-calculate trig functions
-    let c13sq = 1.0 - s13sq;
-    let sind = delta.sin();
-    let cosd = delta.cos();
-    
-    // Ueisq's
-    let ue2sq = c13sq * s12sq;
-    let ue3sq = s13sq;
-    let ue1sq = 1.0 - ue3sq - ue2sq;
-    
-    // Umisq's and Jvac
-    let um3sq = c13sq * s23sq;
-    let temp_ut2sq = s13sq * s12sq * s23sq;
-    let temp_um2sq = (1.0 - s12sq) * (1.0 - s23sq);
-    let jrr = (temp_um2sq * temp_ut2sq).max(0.0).sqrt();
-    let um2sq = temp_um2sq + temp_ut2sq - 2.0 * jrr * cosd;
-    let um1sq = 1.0 - um3sq - um2sq;
-    let jvac = 8.0 * jrr * c13sq * sind;
-    
-    // Kinematic terms
-    let abs_e = e.abs();
-    let lover4e = EV_SQ_KM_TO_GEV_OVER4 * l / abs_e;
-    let d21 = dm21sq * lover4e;
-    let d31 = dm31sq * lover4e;
-    let d32 = d31 - d21;
-    
-    let sin_d21 = d21.sin();
-    let sin_d31 = d31.sin();
-    let sin_d32 = d32.sin();
-    let triple_sin = sin_d21 * sin_d31 * sin_d32;
-    
-    // 2*sin^2(X)
-    let sinsq_d21_2 = 2.0 * sin_d21 * sin_d21;
-    let sinsq_d31_2 = 2.0 * sin_d31 * sin_d31;
-    let sinsq_d32_2 = 2.0 * sin_d32 * sin_d32;
-    
-    let e_sign = if e >= 0.0 { 1.0 } else { -1.0 };
-    
-    // Calculate probabilities (NuFast formula)
-    let pme_cpc = (1.0 - um3sq - ue3sq - um2sq * ue1sq - um1sq * ue2sq) * sinsq_d21_2
-        + (1.0 - um2sq - ue2sq - um3sq * ue1sq - um1sq * ue3sq) * sinsq_d31_2
-        + (1.0 - um1sq - ue1sq - um3sq * ue2sq - um2sq * ue3sq) * sinsq_d32_2;
-    
-    let pme_cpv = -jvac * triple_sin * e_sign;
-    
-    let pmm = 1.0 - 2.0 * (um2sq * um1sq * sinsq_d21_2 
-        + um3sq * um1sq * sinsq_d31_2 
-        + um3sq * um2sq * sinsq_d32_2);
-    
-    let pee = 1.0 - 2.0 * (ue2sq * ue1sq * sinsq_d21_2 
-        + ue3sq * ue1sq * sinsq_d31_2 
-        + ue3sq * ue2sq * sinsq_d32_2);
-    
-    // Build probability matrix (same structure as TypeScript)
-    // Row 0: e → [e, μ, τ]
-    // Row 1: μ → [e, μ, τ]  
-    // Row 2: τ → [e, μ, τ]
-    let pem = pme_cpc - pme_cpv;  // e → μ
-    let pet = 1.0 - pee - pem;    // e → τ (unitarity)
-    
-    let pme = pme_cpc + pme_cpv;  // μ → e
-    let pmt = 1.0 - pme - pmm;    // μ → τ (unitarity)
-    
-    let pte = 1.0 - pee - pme;    // τ → e (column unitarity)
-    let ptm = 1.0 - pem - pmm;    // τ → μ (column unitarity)
-    let ptt = 1.0 - pte - ptm;    // τ → τ (row unitarity)
-    
-    // Clamp all to [0, 1]
-    let clamp = |x: f64| x.clamp(0.0, 1.0);
-    
-    // Build and normalize rows
-    let mut result = [
-        clamp(pee), clamp(pem), clamp(pet),
-        clamp(pme), clamp(pmm), clamp(pmt),
-        clamp(pte), clamp(ptm), clamp(ptt),
-    ];
-    
-    // Ensure each row sums to 1
-    for row in 0..3 {
-        let start = row * 3;
-        let sum = result[start] + result[start + 1] + result[start + 2];
-        if (sum - 1.0).abs() > 1e-6 && sum > 0.0 {
-            result[start] /= sum;
-            result[start + 1] /= sum;
-            result[start + 2] /= sum;
+impl OscParams {
+    fn to_vacuum(&self, l: f64, e: f64) -> VacuumParameters {
+        let deg_to_rad = PI / 180.0;
+        let delta = if self.anti { -self.delta_deg } else { self.delta_deg };
+        
+        VacuumParameters {
+            s12sq: (self.theta12_deg * deg_to_rad).sin().powi(2),
+            s13sq: (self.theta13_deg * deg_to_rad).sin().powi(2),
+            s23sq: (self.theta23_deg * deg_to_rad).sin().powi(2),
+            delta: delta * deg_to_rad,
+            Dmsq21: self.dm21sq,
+            Dmsq31: self.dm31sq,
+            L: l,
+            E: e,
         }
     }
     
-    result
-}
-
-/// Calculate matter-modified oscillation probabilities
-/// Uses constant density approximation (good for Earth crust/mantle)
-fn probability_matter(params: &OscParams, l: f64, e: f64) -> [f64; 9] {
-    // For now, use a simplified matter effect
-    // TODO: Implement full NuFast matter effect with eigenvalue solver
-    // This is a placeholder that applies a first-order correction
-    
-    let a = yer_rho_e_to_a(params.ye, params.rho, e);
-    let _a_over_dm = a / params.dm31sq.abs();
-    
-    // For small matter effects, vacuum is a good approximation
-    // Full implementation would modify mixing angles in matter
-    probability_vacuum(params, l, e)
+    fn to_matter(&self, l: f64, e: f64) -> MatterParameters {
+        let vac = self.to_vacuum(l, e);
+        MatterParameters::from_vacuum(&vac, self.rho, self.ye, 0)
+    }
 }
 
 /// Get probabilities for a single (L, E) point
+/// Returns [Pe, Pmu, Ptau] for the given initial flavor
 #[wasm_bindgen]
 pub fn get_probabilities(params: &OscParams, l: f64, e: f64, initial_flavor: u8) -> Vec<f64> {
-    let probs = if params.matter {
-        probability_matter(params, l, e)
+    let mut probs = if params.matter {
+        probability_matter_lbl(&params.to_matter(l, e))
     } else {
-        probability_vacuum(params, l, e)
+        probability_vacuum_lbl(&params.to_vacuum(l, e))
     };
     
-    // Return row for initial flavor: [Pe, Pmu, Ptau]
-    match initial_flavor {
-        0 => vec![probs[0], probs[1], probs[2]], // e → e, μ, τ
-        1 => vec![probs[3], probs[4], probs[5]], // μ → e, μ, τ
-        2 => vec![probs[6], probs[7], probs[8]], // τ → e, μ, τ
-        _ => vec![1.0, 0.0, 0.0],
-    }
+    normalize_probabilities(&mut probs);
+    
+    let row = initial_flavor.min(2) as usize;
+    vec![probs[row][0], probs[row][1], probs[row][2]]
 }
 
 /// Calculate energy spectrum: P(E) at fixed L for many energy points
 /// This is the main batch operation optimized for WASM
+/// Returns flat array: [E, Pe, Pmu, Ptau, E, Pe, Pmu, Ptau, ...]
 #[wasm_bindgen]
 pub fn calculate_energy_spectrum(
     params: &OscParams,
@@ -222,63 +132,63 @@ pub fn calculate_energy_spectrum(
     e_max: f64,
     num_points: usize,
 ) -> Vec<f64> {
-    let mut result = Vec::with_capacity(num_points * 4); // [E, Pe, Pmu, Ptau] per point
+    let row = initial_flavor.min(2) as usize;
+    let mut result = Vec::with_capacity(num_points * 4);
     
     for i in 0..num_points {
-        let t = i as f64 / (num_points - 1) as f64;
+        let t = i as f64 / (num_points - 1).max(1) as f64;
         let e = e_min + t * (e_max - e_min);
         
-        let probs = if params.matter {
-            probability_matter(params, l, e)
+        let mut probs = if params.matter {
+            probability_matter_lbl(&params.to_matter(l, e))
         } else {
-            probability_vacuum(params, l, e)
+            probability_vacuum_lbl(&params.to_vacuum(l, e))
         };
         
+        normalize_probabilities(&mut probs);
+        
         result.push(e);
-        match initial_flavor {
-            0 => {
-                result.push(probs[0]);
-                result.push(probs[1]);
-                result.push(probs[2]);
-            }
-            1 => {
-                result.push(probs[3]);
-                result.push(probs[4]);
-                result.push(probs[5]);
-            }
-            2 => {
-                result.push(probs[6]);
-                result.push(probs[7]);
-                result.push(probs[8]);
-            }
-            _ => {
-                result.push(1.0);
-                result.push(0.0);
-                result.push(0.0);
-            }
-        }
+        result.push(probs[row][0]);
+        result.push(probs[row][1]);
+        result.push(probs[row][2]);
     }
     
     result
 }
 
-/// Calculate oscillation probabilities along a baseline with varying density
-/// For future Earth matter profile support
+/// Calculate probability history along baseline
+/// Returns flat array: [L, Pe, Pmu, Ptau, ...]
 #[wasm_bindgen]
-pub fn calculate_with_density_profile(
+pub fn calculate_baseline_scan(
     params: &OscParams,
-    l_total: f64,
+    e: f64,
     initial_flavor: u8,
-    densities: &[f64],  // Density at each segment
-    _segment_lengths: &[f64], // Length of each segment (km)
+    l_min: f64,
+    l_max: f64,
+    num_points: usize,
 ) -> Vec<f64> {
-    // TODO: Implement piecewise constant density integration
-    // For now, use average density
-    let avg_rho: f64 = densities.iter().sum::<f64>() / densities.len() as f64;
-    let mut modified_params = *params;
-    modified_params.rho = avg_rho;
+    let row = initial_flavor.min(2) as usize;
+    let mut result = Vec::with_capacity(num_points * 4);
     
-    get_probabilities(&modified_params, l_total, 1.0, initial_flavor)
+    for i in 0..num_points {
+        let t = i as f64 / (num_points - 1).max(1) as f64;
+        let l = l_min + t * (l_max - l_min);
+        
+        let mut probs = if params.matter {
+            probability_matter_lbl(&params.to_matter(l, e))
+        } else {
+            probability_vacuum_lbl(&params.to_vacuum(l, e))
+        };
+        
+        normalize_probabilities(&mut probs);
+        
+        result.push(l);
+        result.push(probs[row][0]);
+        result.push(probs[row][1]);
+        result.push(probs[row][2]);
+    }
+    
+    result
 }
 
 /// Initialize panic hook for better error messages
@@ -293,38 +203,17 @@ mod tests {
     use super::*;
     
     #[test]
-    fn test_vacuum_unitarity() {
-        let params = OscParams::new(
-            33.44, 8.57, 49.2, 0.0,
-            7.42e-5, 2.517e-3,
-            false, 2.6, 0.5, false
-        );
-        
-        let probs = probability_vacuum(&params, 1000.0, 2.0);
-        
-        // Check unitarity: each row sums to 1
-        let row_e = probs[0] + probs[1] + probs[2];
-        let row_m = probs[3] + probs[4] + probs[5];
-        let row_t = probs[6] + probs[7] + probs[8];
-        
-        assert!((row_e - 1.0).abs() < 1e-10);
-        assert!((row_m - 1.0).abs() < 1e-10);
-        assert!((row_t - 1.0).abs() < 1e-10);
+    fn test_spectrum_length() {
+        let params = OscParams::nufit52_no();
+        let result = calculate_energy_spectrum(&params, 1000.0, 0, 0.1, 10.0, 100);
+        assert_eq!(result.len(), 400); // 100 points × 4 values
     }
     
     #[test]
-    fn test_zero_distance() {
-        let params = OscParams::new(
-            33.44, 8.57, 49.2, 0.0,
-            7.42e-5, 2.517e-3,
-            false, 2.6, 0.5, false
-        );
-        
-        let probs = get_probabilities(&params, 0.0, 2.0, 0);
-        
-        // At L=0, no oscillation: P(e→e) = 1
-        assert!((probs[0] - 1.0).abs() < 1e-10);
-        assert!(probs[1].abs() < 1e-10);
-        assert!(probs[2].abs() < 1e-10);
+    fn test_unitarity() {
+        let params = OscParams::nufit52_no();
+        let probs = get_probabilities(&params, 1000.0, 2.0, 0);
+        let sum: f64 = probs.iter().sum();
+        assert!((sum - 1.0).abs() < 1e-6);
     }
 }

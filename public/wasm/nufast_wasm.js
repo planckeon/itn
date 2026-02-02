@@ -1,9 +1,16 @@
 /* @ts-self-types="./nufast_wasm.d.ts" */
 
 /**
- * Neutrino oscillation parameters
+ * Oscillation parameters for WASM interface
  */
 export class OscParams {
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(OscParams.prototype);
+        obj.__wbg_ptr = ptr;
+        OscParamsFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
@@ -32,12 +39,40 @@ export class OscParams {
         OscParamsFinalization.register(this, this.__wbg_ptr, this);
         return this;
     }
+    /**
+     * Create with NuFit 5.2 best-fit values (Normal Ordering)
+     * @returns {OscParams}
+     */
+    static nufit52_no() {
+        const ret = wasm.oscparams_nufit52_no();
+        return OscParams.__wrap(ret);
+    }
 }
 if (Symbol.dispose) OscParams.prototype[Symbol.dispose] = OscParams.prototype.free;
 
 /**
+ * Calculate probability history along baseline
+ * Returns flat array: [L, Pe, Pmu, Ptau, ...]
+ * @param {OscParams} params
+ * @param {number} e
+ * @param {number} initial_flavor
+ * @param {number} l_min
+ * @param {number} l_max
+ * @param {number} num_points
+ * @returns {Float64Array}
+ */
+export function calculate_baseline_scan(params, e, initial_flavor, l_min, l_max, num_points) {
+    _assertClass(params, OscParams);
+    const ret = wasm.calculate_baseline_scan(params.__wbg_ptr, e, initial_flavor, l_min, l_max, num_points);
+    var v1 = getArrayF64FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 8, 8);
+    return v1;
+}
+
+/**
  * Calculate energy spectrum: P(E) at fixed L for many energy points
  * This is the main batch operation optimized for WASM
+ * Returns flat array: [E, Pe, Pmu, Ptau, E, Pe, Pmu, Ptau, ...]
  * @param {OscParams} params
  * @param {number} l
  * @param {number} initial_flavor
@@ -55,29 +90,8 @@ export function calculate_energy_spectrum(params, l, initial_flavor, e_min, e_ma
 }
 
 /**
- * Calculate oscillation probabilities along a baseline with varying density
- * For future Earth matter profile support
- * @param {OscParams} params
- * @param {number} l_total
- * @param {number} initial_flavor
- * @param {Float64Array} densities
- * @param {Float64Array} _segment_lengths
- * @returns {Float64Array}
- */
-export function calculate_with_density_profile(params, l_total, initial_flavor, densities, _segment_lengths) {
-    _assertClass(params, OscParams);
-    const ptr0 = passArrayF64ToWasm0(densities, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArrayF64ToWasm0(_segment_lengths, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.calculate_with_density_profile(params.__wbg_ptr, l_total, initial_flavor, ptr0, len0, ptr1, len1);
-    var v3 = getArrayF64FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 8, 8);
-    return v3;
-}
-
-/**
  * Get probabilities for a single (L, E) point
+ * Returns [Pe, Pmu, Ptau] for the given initial flavor
  * @param {OscParams} params
  * @param {number} l
  * @param {number} e
@@ -185,13 +199,6 @@ function getUint8ArrayMemory0() {
         cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
     }
     return cachedUint8ArrayMemory0;
-}
-
-function passArrayF64ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 8, 8) >>> 0;
-    getFloat64ArrayMemory0().set(arg, ptr / 8);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
 }
 
 function passStringToWasm0(arg, malloc, realloc) {
