@@ -1,6 +1,7 @@
 import type React from "react";
 import { useState } from "react";
 import { useI18n } from "../i18n";
+import RichText from "./RichText";
 
 interface Section {
 	id: string;
@@ -12,13 +13,12 @@ const SECTIONS: Section[] = [
 	{
 		id: "what-is-neutrino",
 		title: "What is a Neutrino?",
-		content: `Neutrinos are among the most abundant particles in the universe, yet incredibly elusive. 
-Every second, about 100 trillion neutrinos pass through your body — but they rarely interact with matter.
+		content: `Neutrinos are among the most abundant particles in the universe, yet incredibly elusive. Every second, about $10^{14}$ neutrinos pass through your body — but they rarely interact with matter.
 
 **Key facts:**
 • Nearly massless (but not quite zero!)
 • Electrically neutral
-• Comes in three "flavors": electron (νe), muon (νμ), tau (ντ)
+• Comes in three "flavors": electron ($\\nu_e$), muon ($\\nu_\\mu$), tau ($\\nu_\\tau$)
 • Produced in nuclear reactions: the Sun, reactors, cosmic rays
 • Can travel through entire planets without stopping`,
 	},
@@ -27,41 +27,58 @@ Every second, about 100 trillion neutrinos pass through your body — but they r
 		title: "What is Neutrino Oscillation?",
 		content: `Neutrino oscillation is the quantum phenomenon where neutrinos change their flavor as they travel.
 
-A neutrino created as an electron neutrino (νe) can later be detected as a muon neutrino (νμ) or tau neutrino (ντ)!
+A neutrino created as $\\nu_e$ can later be detected as $\\nu_\\mu$ or $\\nu_\\tau$!
 
 **How it works:**
-• Flavor states (νe, νμ, ντ) are mixtures of mass states (ν1, ν2, ν3)
+• Flavor states ($\\nu_e, \\nu_\\mu, \\nu_\\tau$) are mixtures of mass states ($\\nu_1, \\nu_2, \\nu_3$)
 • Mass states travel at slightly different speeds
 • This creates interference, causing the flavor to oscillate
-• The oscillation depends on: energy, distance, and mixing parameters`,
+• The oscillation probability depends on energy $E$, distance $L$, and mixing parameters`,
 	},
 	{
 		id: "pmns-matrix",
 		title: "The PMNS Matrix",
-		content: `The Pontecorvo-Maki-Nakagawa-Sakata (PMNS) matrix describes how flavor and mass states are related.
+		content: `The Pontecorvo-Maki-Nakagawa-Sakata (PMNS) matrix describes how flavor and mass states are related:
 
-|νe⟩ = Ue1|ν1⟩ + Ue2|ν2⟩ + Ue3|ν3⟩
+$$|\\nu_\\alpha\\rangle = \\sum_i U_{\\alpha i} |\\nu_i\\rangle$$
 
 **Parameters:**
-• Three mixing angles: θ12 ≈ 33°, θ13 ≈ 8.5°, θ23 ≈ 49°
-• One CP-violating phase: δCP (unknown, key target!)
-• Two mass-squared differences: Δm²21, Δm²31
+• Three mixing angles: $\\theta_{12} \\approx 33°$, $\\theta_{13} \\approx 8.5°$, $\\theta_{23} \\approx 49°$
+• One CP-violating phase: $\\delta_{CP}$ (key measurement target!)
+• Two mass-squared differences: $\\Delta m^2_{21}$, $\\Delta m^2_{31}$
 
-The matrix elements |Uαi|² give the probability of finding mass state i in flavor state α.`,
+The matrix elements $|U_{\\alpha i}|^2$ give the probability of finding mass state $i$ in flavor state $\\alpha$.`,
+	},
+	{
+		id: "oscillation-formula",
+		title: "Oscillation Formula",
+		content: `The probability of $\\nu_\\alpha \\to \\nu_\\beta$ oscillation in vacuum (two-flavor approximation):
+
+$$P(\\nu_\\alpha \\to \\nu_\\beta) = \\sin^2(2\\theta) \\sin^2\\left(\\frac{\\Delta m^2 L}{4E}\\right)$$
+
+**Key dependencies:**
+• $\\sin^2(2\\theta)$ — mixing strength (amplitude)
+• $\\Delta m^2$ — mass-squared difference (in $\\text{eV}^2$)
+• $L$ — distance traveled (in km)
+• $E$ — neutrino energy (in GeV)
+
+The oscillation length is:
+$$L_{\\text{osc}} = \\frac{4\\pi E}{\\Delta m^2} \\approx 2.48 \\times \\frac{E[\\text{GeV}]}{\\Delta m^2[\\text{eV}^2]} \\text{ km}$$`,
 	},
 	{
 		id: "cp-violation",
 		title: "CP Violation & Matter-Antimatter",
 		content: `CP violation means particles and antiparticles behave differently.
 
-If δCP ≠ 0° or 180°:
-• P(νμ → νe) ≠ P(ν̄μ → ν̄e)
-• Neutrinos and antineutrinos oscillate at different rates!
+If $\\delta_{CP} \\neq 0°$ or $180°$:
+$$P(\\nu_\\mu \\to \\nu_e) \\neq P(\\bar{\\nu}_\\mu \\to \\bar{\\nu}_e)$$
+
+Neutrinos and antineutrinos oscillate at different rates!
 
 **Why it matters:**
 The universe has more matter than antimatter. CP violation in neutrinos could help explain this cosmic mystery — the "baryon asymmetry problem."
 
-Experiments like T2K, NOvA, and DUNE are racing to measure δCP!`,
+Experiments like T2K, NOvA, and DUNE are racing to measure $\\delta_{CP}$!`,
 	},
 	{
 		id: "msw-effect",
@@ -69,44 +86,46 @@ Experiments like T2K, NOvA, and DUNE are racing to measure δCP!`,
 		content: `When neutrinos travel through matter (like the Sun or Earth), their oscillations change.
 
 **The mechanism:**
-• Electron neutrinos can scatter off electrons in matter
-• This creates an "effective potential" that modifies mixing
-• Named after Mikheyev, Smirnov, and Wolfenstein
+• $\\nu_e$ can scatter off electrons via charged current
+• This creates an effective potential: $V = \\sqrt{2} G_F N_e$
+• The mixing angle in matter differs from vacuum
 
-**Applications:**
-• Explains the "solar neutrino problem"
-• Helps determine the mass ordering
-• Larger effect at higher densities and lower energies`,
+**Matter-modified mixing:**
+$$\\sin^2(2\\theta_m) = \\frac{\\sin^2(2\\theta)}{\\sin^2(2\\theta) + (\\cos(2\\theta) - V/\\Delta)^2}$$
+
+**Resonance condition (MSW):**
+$$E_{\\text{res}} = \\frac{\\Delta m^2 \\cos(2\\theta)}{2\\sqrt{2} G_F N_e}$$
+
+At resonance, even small vacuum mixing can become maximal!`,
 	},
 	{
 		id: "mass-ordering",
 		title: "Mass Ordering Mystery",
 		content: `We know neutrinos have mass, but we don't know which arrangement is correct:
 
-**Normal Ordering (NO):** m1 < m2 << m3
-• ν3 is the heaviest
-• Similar to quarks (top is heaviest)
+**Normal Ordering (NO):** $m_1 < m_2 \\ll m_3$
+• $\\nu_3$ is the heaviest
+• $\\Delta m^2_{31} > 0$
 
-**Inverted Ordering (IO):** m3 << m1 < m2
-• ν3 is the lightest
-• Would be unexpected!
+**Inverted Ordering (IO):** $m_3 \\ll m_1 < m_2$
+• $\\nu_3$ is the lightest
+• $\\Delta m^2_{31} < 0$
 
-**How to determine it:**
-• Compare νμ → νe vs ν̄μ → ν̄e in matter
-• Study atmospheric neutrinos at different angles
-• JUNO reactor experiment (precision measurement)`,
+**Current values (NuFit 5.2):**
+• $\\Delta m^2_{21} = 7.42 \\times 10^{-5}$ eV²
+• $|\\Delta m^2_{31}| \\approx 2.5 \\times 10^{-3}$ eV²`,
 	},
 	{
 		id: "experiments",
 		title: "Neutrino Experiments",
-		content: `**Accelerator experiments** (νμ beams):
+		content: `**Accelerator experiments** ($\\nu_\\mu$ beams):
 • T2K (Japan, 295 km): First hints of CP violation
 • NOvA (USA, 810 km): Complementary measurements
-• DUNE (USA, 1300 km): Future high-precision experiment
-• Hyper-Kamiokande (Japan): Next-generation detector
+• DUNE (USA, 1300 km): Future high-precision
+• Hyper-Kamiokande: Next-generation detector
 
-**Reactor experiments** (ν̄e disappearance):
-• Daya Bay, Double Chooz, RENO: Measured θ13
+**Reactor experiments** ($\\bar{\\nu}_e$ disappearance):
+• Daya Bay, Double Chooz, RENO: Measured $\\theta_{13}$
 • KamLAND: Confirmed solar oscillations
 • JUNO: Will determine mass ordering
 
@@ -141,7 +160,7 @@ const LearnMorePanel: React.FC = () => {
 
 	return (
 		<div
-			className="fixed top-16 left-4 z-40 w-80 max-h-[70vh] overflow-hidden rounded-xl flex flex-col"
+			className="fixed top-16 left-4 z-40 w-96 max-w-[90vw] max-h-[75vh] overflow-hidden rounded-xl flex flex-col"
 			style={{
 				background: "rgba(15, 15, 25, 0.95)",
 				border: "1px solid rgba(255, 255, 255, 0.15)",
@@ -180,10 +199,10 @@ const LearnMorePanel: React.FC = () => {
 						
 						{expandedSection === section.id && (
 							<div 
-								className="px-3 py-2 text-xs text-white/70 leading-relaxed whitespace-pre-wrap"
-								style={{ background: "rgba(255, 255, 255, 0.02)" }}
+								className="px-3 py-3 text-xs text-white/70 leading-relaxed rounded-lg mx-1"
+								style={{ background: "rgba(255, 255, 255, 0.03)" }}
 							>
-								{section.content}
+								<RichText>{section.content}</RichText>
 							</div>
 						)}
 					</div>

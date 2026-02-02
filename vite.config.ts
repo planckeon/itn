@@ -7,5 +7,13 @@ export default defineConfig({
 	base: "/itn/",
 	build: {
 		outDir: "dist",
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					// Split KaTeX into its own chunk for lazy loading
+					katex: ["katex"],
+				},
+			},
+		},
 	},
 });
