@@ -11,6 +11,9 @@ const SHORTCUTS = [
 	{ key: "1-4", action: "Quick presets (T2K, NOvA, DUNE, KamLAND)" },
 	{ key: "↑ / ↓", action: "Adjust energy" },
 	{ key: "← / →", action: "Adjust δCP" },
+	{ key: "+ / −", action: "Zoom in / out" },
+	{ key: "0", action: "Reset zoom" },
+	{ key: "Scroll", action: "Zoom (mouse wheel)" },
 	{ key: "?", action: "Show this help" },
 ];
 
