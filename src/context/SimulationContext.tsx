@@ -12,10 +12,10 @@ import { getProbabilitiesForInitialFlavor } from "../physics/NuFastPort";
 import type { OscillationParameters } from "../physics/types";
 
 // Neutrino physics constants (should ideally come from NuFastPort or a constants file)
+// NuFit 5.2 (2022) best-fit values for Normal Ordering
 const theta12_deg = 33.44;
 const theta13_deg = 8.57;
 const theta23_deg = 49.2;
-const deltaCP_deg = 0; // Assuming CP violation phase is 0 for simplicity
 const dm21sq_eV2 = 7.42e-5; // eV^2
 const dm31sq_eV2 = 2.517e-3; // eV^2
 const Ye = 0.5; // Electron fraction in typical matter (e.g., Earth's crust)
@@ -32,14 +32,16 @@ interface SimulationState {
 	speed: number;
 	matter: boolean;
 	density: number;
+	deltaCP: number; // CP violation phase in degrees (0-360)
+	isAntineutrino: boolean; // true for antineutrino mode
 	time: number;
 	probabilityHistory: {
 		distance: number;
 		Pe: number;
 		Pmu: number;
 		Ptau: number;
-	}[]; // Changed to distance
-	distance: number; // Added distance
+	}[];
+	distance: number;
 }
 
 interface SimulationContextType {
@@ -49,8 +51,51 @@ interface SimulationContextType {
 	setSpeed: (speed: number) => void;
 	setMatter: (matter: boolean) => void;
 	setDensity: (density: number) => void;
-	resetSimulation: () => void; // Added reset
+	setDeltaCP: (deltaCP: number) => void;
+	setIsAntineutrino: (isAntineutrino: boolean) => void;
+	resetSimulation: () => void;
+	applyPreset: (preset: ExperimentPreset) => void;
 }
+
+// Experiment presets based on real neutrino experiments
+export interface ExperimentPreset {
+	name: string;
+	baseline: number; // km
+	energy: number; // GeV
+	description: string;
+	initialFlavor: Flavor;
+}
+
+export const EXPERIMENT_PRESETS: ExperimentPreset[] = [
+	{
+		name: "T2K",
+		baseline: 295,
+		energy: 0.6,
+		description: "Japan, νμ→νe appearance",
+		initialFlavor: "muon",
+	},
+	{
+		name: "NOvA",
+		baseline: 810,
+		energy: 2.0,
+		description: "USA, longest operational baseline",
+		initialFlavor: "muon",
+	},
+	{
+		name: "DUNE",
+		baseline: 1300,
+		energy: 2.5,
+		description: "Future experiment, high precision",
+		initialFlavor: "muon",
+	},
+	{
+		name: "KamLAND",
+		baseline: 180,
+		energy: 0.003, // 3 MeV
+		description: "Reactor ν̄e disappearance",
+		initialFlavor: "electron",
+	},
+];
 
 const SimulationContext = createContext<SimulationContextType | undefined>(
 	undefined,
@@ -64,6 +109,8 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 	const [speed, setSpeed] = useState<number>(1); // relative to c
 	const [matter, setMatter] = useState<boolean>(false);
 	const [density, setDensity] = useState<number>(2.6); // g/cm^3
+	const [deltaCP, setDeltaCP] = useState<number>(0); // degrees
+	const [isAntineutrino, setIsAntineutrino] = useState<boolean>(false);
 	const [time, setTime] = useState<number>(0); // seconds
 	const [distance, setDistance] = useState<number>(0); // km
 	const [probabilityHistory, setProbabilityHistory] = useState<
@@ -74,6 +121,15 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 	const lastUpdateTime = useRef<number>(0);
 
 	const resetSimulation = useCallback(() => {
+		setTime(0);
+		setDistance(0);
+		setProbabilityHistory([]);
+	}, []);
+
+	const applyPreset = useCallback((preset: ExperimentPreset) => {
+		setEnergy(preset.energy);
+		setInitialFlavor(preset.initialFlavor);
+		// Reset simulation to start fresh with new parameters
 		setTime(0);
 		setDistance(0);
 		setProbabilityHistory([]);
@@ -117,21 +173,25 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		const initialFlavorIndex =
 			initialFlavor === "electron" ? 0 : initialFlavor === "muon" ? 1 : 2;
 
+		// For antineutrinos, flip the sign of δCP (CP conjugation)
+		const effectiveDeltaCP = isAntineutrino ? -deltaCP : deltaCP;
+
 		const oscillationParams: OscillationParameters = {
 			theta12_deg: theta12_deg,
 			theta13_deg: theta13_deg,
 			theta23_deg: theta23_deg,
-			deltaCP_deg: deltaCP_deg,
+			deltaCP_deg: effectiveDeltaCP,
 			dm21sq_eV2: dm21sq_eV2,
 			dm31sq_eV2: dm31sq_eV2,
-			L: distance, // Use current distance
+			L: distance,
 			energy: energy,
 			matterEffect: matter,
 			rho: density,
 			Ye: Ye,
 			initialFlavorIndex,
-			N_Newton: 0, // Using NuFit 5.2 NO (N_Newton = 0)
-			maxL: LmaxSim, // Include maxL in params
+			N_Newton: 0,
+			maxL: LmaxSim,
+			isAntineutrino: isAntineutrino, // Pass to physics engine
 		};
 
 		// Only calculate if distance is valid
@@ -150,14 +210,14 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 					},
 				];
 				// Keep history length reasonable (e.g., last 500 points)
-				const probHistoryLen = 500; // Define history length
+				const probHistoryLen = 500;
 				if (newHistory.length > probHistoryLen) {
 					return newHistory.slice(newHistory.length - probHistoryLen);
 				}
 				return newHistory;
 			});
 		}
-	}, [initialFlavor, energy, matter, density, distance]); // Re-run effect when these parameters change
+	}, [initialFlavor, energy, matter, density, distance, deltaCP, isAntineutrino]);
 
 	const state: SimulationState = {
 		initialFlavor,
@@ -165,8 +225,10 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		speed,
 		matter,
 		density,
+		deltaCP,
+		isAntineutrino,
 		time,
-		distance, // Include distance in state
+		distance,
 		probabilityHistory,
 	};
 
@@ -177,7 +239,10 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		setSpeed,
 		setMatter,
 		setDensity,
-		resetSimulation, // Include reset function
+		setDeltaCP,
+		setIsAntineutrino,
+		resetSimulation,
+		applyPreset,
 	};
 
 	return (

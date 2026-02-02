@@ -1,5 +1,5 @@
 import type React from "react";
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation, EXPERIMENT_PRESETS } from "../context/SimulationContext";
 
 const TopControlBar: React.FC = () => {
 	const {
@@ -8,6 +8,9 @@ const TopControlBar: React.FC = () => {
 		setEnergy,
 		setSpeed,
 		setMatter,
+		setDeltaCP,
+		setIsAntineutrino,
+		applyPreset,
 	} = useSimulation();
 
 	return (
@@ -22,11 +25,52 @@ const TopControlBar: React.FC = () => {
 			}}
 		>
 			{/* Desktop layout */}
-			<div className="hidden md:flex items-center gap-6 text-white font-mono text-sm">
+			<div className="hidden lg:flex items-center gap-4 text-white font-mono text-sm">
+				{/* Experiment Presets */}
+				<div className="flex items-center gap-2">
+					<label htmlFor="preset" className="text-white/80 whitespace-nowrap">
+						Preset:
+					</label>
+					<select
+						id="preset"
+						className="bg-transparent text-white rounded px-2 py-1 border border-white/20 focus:border-blue-400/50 focus:outline-none cursor-pointer"
+						style={{ background: "rgba(30, 30, 40, 0.8)" }}
+						onChange={(e) => {
+							const preset = EXPERIMENT_PRESETS.find(p => p.name === e.target.value);
+							if (preset) applyPreset(preset);
+						}}
+						defaultValue=""
+					>
+						<option value="" disabled style={{ background: "#1e1e28" }}>
+							Select...
+						</option>
+						{EXPERIMENT_PRESETS.map((preset) => (
+							<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+								{preset.name}
+							</option>
+						))}
+					</select>
+				</div>
+
+				{/* Neutrino/Antineutrino Toggle */}
+				<div className="flex items-center gap-2">
+					<button
+						type="button"
+						onClick={() => setIsAntineutrino(!state.isAntineutrino)}
+						className={`px-2 py-1 rounded border transition-colors ${
+							state.isAntineutrino
+								? "bg-purple-600/30 border-purple-400/50 text-purple-300"
+								: "bg-blue-600/30 border-blue-400/50 text-blue-300"
+						}`}
+					>
+						{state.isAntineutrino ? "ν̄" : "ν"}
+					</button>
+				</div>
+
 				{/* Initial Flavor */}
 				<div className="flex items-center gap-2">
 					<label htmlFor="initialFlavor" className="text-white/80 whitespace-nowrap">
-						Initial Flavor:
+						Flavor:
 					</label>
 					<select
 						id="initialFlavor"
@@ -52,19 +96,37 @@ const TopControlBar: React.FC = () => {
 				{/* Energy Slider */}
 				<div className="flex items-center gap-2">
 					<label htmlFor="energy" className="text-white/80 whitespace-nowrap">
-						Energy (GeV):
+						E:
 					</label>
 					<input
 						type="range"
 						id="energy"
-						className="w-32 accent-blue-500 cursor-pointer"
+						className="w-20 accent-blue-500 cursor-pointer"
 						min="0.1"
 						max="10"
 						step="0.01"
 						value={state.energy}
 						onChange={(e) => setEnergy(Number.parseFloat(e.target.value))}
 					/>
-					<span className="text-blue-400 w-10">{state.energy.toFixed(1)}</span>
+					<span className="text-blue-400 w-12">{state.energy.toFixed(1)} GeV</span>
+				</div>
+
+				{/* δCP Slider */}
+				<div className="flex items-center gap-2">
+					<label htmlFor="deltaCP" className="text-white/80 whitespace-nowrap">
+						δ<sub>CP</sub>:
+					</label>
+					<input
+						type="range"
+						id="deltaCP"
+						className="w-20 accent-purple-500 cursor-pointer"
+						min="0"
+						max="360"
+						step="1"
+						value={state.deltaCP}
+						onChange={(e) => setDeltaCP(Number.parseFloat(e.target.value))}
+					/>
+					<span className="text-purple-400 w-10">{state.deltaCP}°</span>
 				</div>
 
 				{/* Speed Slider */}
@@ -75,20 +137,20 @@ const TopControlBar: React.FC = () => {
 					<input
 						type="range"
 						id="speed"
-						className="w-32 accent-blue-500 cursor-pointer"
+						className="w-20 accent-blue-500 cursor-pointer"
 						min="0"
 						max="5"
 						step="0.01"
 						value={state.speed}
 						onChange={(e) => setSpeed(Number.parseFloat(e.target.value))}
 					/>
-					<span className="text-white/80 w-14">{state.speed.toFixed(2)}x</span>
+					<span className="text-white/80 w-10">{state.speed.toFixed(1)}x</span>
 				</div>
 
 				{/* Matter Effect Toggle */}
 				<div className="flex items-center gap-2">
 					<label htmlFor="matterEffect" className="text-white/80 whitespace-nowrap">
-						Matter effect:
+						Matter:
 					</label>
 					<input
 						type="checkbox"
@@ -100,10 +162,39 @@ const TopControlBar: React.FC = () => {
 				</div>
 			</div>
 
-			{/* Mobile layout - two rows */}
-			<div className="md:hidden flex flex-col gap-3 text-white font-mono text-xs">
-				{/* Row 1: Flavor and Matter */}
-				<div className="flex items-center justify-between gap-4">
+			{/* Mobile/Tablet layout - three rows */}
+			<div className="lg:hidden flex flex-col gap-3 text-white font-mono text-xs">
+				{/* Row 1: Preset and ν/ν̄ toggle */}
+				<div className="flex items-center justify-between gap-3">
+					<div className="flex items-center gap-2">
+						<select
+							className="bg-transparent text-white rounded px-1 py-0.5 border border-white/20 focus:outline-none cursor-pointer text-xs"
+							style={{ background: "rgba(30, 30, 40, 0.8)" }}
+							onChange={(e) => {
+								const preset = EXPERIMENT_PRESETS.find(p => p.name === e.target.value);
+								if (preset) applyPreset(preset);
+							}}
+							defaultValue=""
+						>
+							<option value="" disabled style={{ background: "#1e1e28" }}>Preset</option>
+							{EXPERIMENT_PRESETS.map((preset) => (
+								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+									{preset.name}
+								</option>
+							))}
+						</select>
+					</div>
+					<button
+						type="button"
+						onClick={() => setIsAntineutrino(!state.isAntineutrino)}
+						className={`px-2 py-0.5 rounded border transition-colors text-xs ${
+							state.isAntineutrino
+								? "bg-purple-600/30 border-purple-400/50 text-purple-300"
+								: "bg-blue-600/30 border-blue-400/50 text-blue-300"
+						}`}
+					>
+						{state.isAntineutrino ? "ν̄" : "ν"}
+					</button>
 					<div className="flex items-center gap-2">
 						<label htmlFor="initialFlavorMobile" className="text-white/80">
 							Flavor:
@@ -136,7 +227,7 @@ const TopControlBar: React.FC = () => {
 					</div>
 				</div>
 
-				{/* Row 2: Energy and Speed */}
+				{/* Row 2: Energy and δCP */}
 				<div className="flex items-center justify-between gap-3">
 					<div className="flex items-center gap-1 flex-1">
 						<label htmlFor="energyMobile" className="text-white/80">E:</label>
@@ -150,22 +241,38 @@ const TopControlBar: React.FC = () => {
 							value={state.energy}
 							onChange={(e) => setEnergy(Number.parseFloat(e.target.value))}
 						/>
-						<span className="text-blue-400 w-8 text-right">{state.energy.toFixed(1)}</span>
+						<span className="text-blue-400 w-12 text-right">{state.energy.toFixed(1)}</span>
 					</div>
 					<div className="flex items-center gap-1 flex-1">
-						<label htmlFor="speedMobile" className="text-white/80">v:</label>
+						<label htmlFor="deltaCPMobile" className="text-white/80">δ:</label>
 						<input
 							type="range"
-							id="speedMobile"
-							className="flex-1 accent-blue-500 cursor-pointer"
+							id="deltaCPMobile"
+							className="flex-1 accent-purple-500 cursor-pointer"
 							min="0"
-							max="5"
-							step="0.1"
-							value={state.speed}
-							onChange={(e) => setSpeed(Number.parseFloat(e.target.value))}
+							max="360"
+							step="5"
+							value={state.deltaCP}
+							onChange={(e) => setDeltaCP(Number.parseFloat(e.target.value))}
 						/>
-						<span className="text-white/80 w-10 text-right">{state.speed.toFixed(1)}x</span>
+						<span className="text-purple-400 w-10 text-right">{state.deltaCP}°</span>
 					</div>
+				</div>
+
+				{/* Row 3: Speed */}
+				<div className="flex items-center gap-1">
+					<label htmlFor="speedMobile" className="text-white/80">Speed:</label>
+					<input
+						type="range"
+						id="speedMobile"
+						className="flex-1 accent-blue-500 cursor-pointer"
+						min="0"
+						max="5"
+						step="0.1"
+						value={state.speed}
+						onChange={(e) => setSpeed(Number.parseFloat(e.target.value))}
+					/>
+					<span className="text-white/80 w-10 text-right">{state.speed.toFixed(1)}x</span>
 				</div>
 			</div>
 		</div>

@@ -49,6 +49,7 @@ export interface OscillationParameters {
 	matterEffect?: boolean;
 	Ye?: number; // Electron fraction
 	N_Newton?: number; // Newton-Raphson iterations
+	isAntineutrino?: boolean; // true for antineutrino oscillations
 }
 
 export type ProbabilityVector = [number, number, number];
