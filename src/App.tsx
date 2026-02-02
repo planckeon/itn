@@ -1,10 +1,10 @@
-
+import { useState } from "react";
 import HelpModal from "./components/HelpModal";
 import LearnMorePanel from "./components/LearnMorePanel";
+import MenuDrawer from "./components/MenuDrawer";
 import PMNSMatrix from "./components/PMNSMatrix";
 import ProbabilityPlot from "./components/ProbabilityPlot";
 import SettingsPanel from "./components/SettingsPanel";
-import ShareButton from "./components/ShareButton";
 import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
 import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
@@ -29,7 +29,7 @@ function PlotWrapper() {
 	}));
 
 	return (
-		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-[50vw] max-w-lg min-w-[320px]">
+		<div className="fixed bottom-4 left-[180px] right-[290px] z-20 min-w-[280px]">
 			{/* Semi-transparent plot container */}
 			<div
 				className="rounded-xl px-4 py-3"
@@ -64,7 +64,7 @@ function PlotWrapper() {
 						muon: "rgb(251, 146, 60)",
 						tau: "rgb(217, 70, 239)",
 					}}
-					height={100}
+					height={80}
 					distanceLabel="Time →"
 					probabilityLabel=""
 					energy={energy}
@@ -86,44 +86,46 @@ function App() {
 }
 
 function AppContent() {
-	// Enable keyboard shortcuts
 	useKeyboardShortcuts();
+	
+	const [learnOpen, setLearnOpen] = useState(false);
+	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [helpOpen, setHelpOpen] = useState(false);
 
 	return (
 		<div className="App text-white font-mono min-h-screen overflow-hidden relative bg-black">
-			{/* Screen reader only title */}
 			<h1 className="sr-only">Neutrino Oscillation Visualization</h1>
 
-			{/* Starfield fills the entire screen - z-index 0 */}
+			{/* Background */}
 			<Starfield />
 
-			{/* Horizontal controls bar at top - z-index 20 */}
+			{/* Top control bar */}
 			<TopControlBar />
 
-			{/* PMNS Matrix display - top right - always visible */}
+			{/* Menu drawer - top left, consolidates Share/Learn/Settings/Help */}
+			<MenuDrawer
+				onOpenLearnMore={() => setLearnOpen(true)}
+				onOpenSettings={() => setSettingsOpen(true)}
+				onOpenHelp={() => setHelpOpen(true)}
+			/>
+
+			{/* PMNS Matrix - top right */}
 			<PMNSMatrix />
 
-			{/* Left side panels */}
-			<ShareButton />
-			<LearnMorePanel />
-			<SettingsPanel />
-
-			{/* Main visualization - centered neutrino sphere */}
+			{/* Main visualization */}
 			<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">
 				<VisualizationArea />
 			</main>
 
-			{/* Probability plot at bottom center */}
-			<PlotWrapper />
-
-			{/* Ternary flavor space plot - bottom left */}
+			{/* Bottom row: Ternary (left) | Probability (center) | Spectrum (right) */}
 			<TernaryPlot />
-
-			{/* Energy spectrum plot - bottom right */}
+			<PlotWrapper />
 			<EnergySpectrumPlot />
 
-			{/* Help modal - press ? to toggle */}
-			<HelpModal />
+			{/* Modals controlled by menu drawer */}
+			<LearnMorePanel isOpen={learnOpen} onClose={() => setLearnOpen(false)} />
+			<SettingsPanel isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+			<HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
 		</div>
 	);
 }

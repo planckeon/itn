@@ -237,7 +237,7 @@ const TernaryPlot: React.FC = () => {
 			</div>
 			<canvas
 				ref={canvasRef}
-				style={{ width: "150px", height: "150px" }}
+				style={{ width: "160px", height: "160px" }}
 			/>
 		</div>
 	);
