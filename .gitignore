@@ -1,0 +1,67 @@
+# Build directory
+dist/
+dist-ssr/
+
+# Node modules
+node_modules/
+
+# Testing
+coverage/
+.vitest/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Agent/MCP artifacts
+.archive/
+.tasks/
+*.db
+FileScopeMCP-tree.json
+memory-bank/
+repomix-output.xml
+session-*.md
+mcp-debug.log
+.roomodes
+
+# Roo Commander artifacts
+.modes/
+.roo/
+.docs/
+.processes/
+.templates/
+.workflows/
+.context/
+.decisions/
+.ideas/
+.logs/
+.planning/
+.reports/
+.snippets/
+
+# Misc build artifacts
+tasks-and-subtasks.txt
