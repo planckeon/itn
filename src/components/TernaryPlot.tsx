@@ -249,7 +249,7 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 
 	return (
 		<div
-			className="relative"
+			className="absolute bottom-4 left-4 z-10"
 			style={{
 				background: "rgba(20, 20, 30, 0.85)",
 				backdropFilter: "blur(8px)",

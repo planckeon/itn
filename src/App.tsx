@@ -20,10 +20,42 @@ interface PanelState {
 	spectrum: boolean;
 }
 
-// Floating probability plot panel
-const ProbabilityPanel = memo(() => {
-	const { state } = useSimulation();
-	const { probabilityHistory, energy } = state;
+interface BottomHUDProps {
+	onOpenLearnMore: () => void;
+	onOpenSettings: () => void;
+	onOpenHelp: () => void;
+}
+
+// Memoized panel components to prevent unnecessary re-renders
+const TernaryPanel = memo(() => (
+	<div className="flex-shrink-0">
+		<TernaryPlot embedded />
+	</div>
+));
+TernaryPanel.displayName = "TernaryPanel";
+
+const SpectrumPanel = memo(() => (
+	<div className="flex-shrink-0">
+		<EnergySpectrumPlot embedded />
+	</div>
+));
+SpectrumPanel.displayName = "SpectrumPanel";
+
+// Unified bottom control panel with toggleable widgets and menu
+function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDProps) {
+	const { state, setZoom } = useSimulation();
+	const { probabilityHistory, energy, distance, zoom } = state;
+	const [panels, setPanels] = useState<PanelState>({
+		ternary: false,
+		probability: true,
+		spectrum: false,
+	});
+	const [shareOpen, setShareOpen] = useState(false);
+
+	// Memoized toggle to prevent recreation
+	const togglePanel = useCallback((panel: keyof PanelState) => {
+		setPanels(prev => ({ ...prev, [panel]: !prev[panel] }));
+	}, []);
 
 	const probabilityData = probabilityHistory.map((item) => ({
 		distance: item.distance,
@@ -34,194 +66,190 @@ const ProbabilityPanel = memo(() => {
 		},
 	}));
 
+	// Get current probabilities for quick stats
+	const currentProbs = probabilityHistory.length > 0
+		? probabilityHistory[probabilityHistory.length - 1]
+		: { Pe: 1, Pmu: 0, Ptau: 0 };
+
+	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum;
+
 	return (
-		<div 
-			className="fixed bottom-14 left-1/2 -translate-x-1/2 z-20 w-[55vw] max-w-2xl min-w-[320px] rounded-xl px-4 py-3"
-			style={{
-				background: "rgba(20, 20, 30, 0.85)",
-				backdropFilter: "blur(8px)",
-				border: "1px solid rgba(255, 255, 255, 0.1)",
-			}}
-			data-panel="probability"
-		>
-			<div className="flex items-center justify-between mb-2">
-				<span className="text-white/70 text-sm font-mono">Oscillation</span>
-				<div className="flex items-center gap-3">
-					<div className="flex items-center gap-1">
-						<div className="w-2 h-2 rounded-full bg-blue-500" />
-						<span className="text-[10px] text-white/50">e</span>
-					</div>
-					<div className="flex items-center gap-1">
-						<div className="w-2 h-2 rounded-full bg-orange-400" />
-						<span className="text-[10px] text-white/50">μ</span>
-					</div>
-					<div className="flex items-center gap-1">
-						<div className="w-2 h-2 rounded-full bg-fuchsia-500" />
-						<span className="text-[10px] text-white/50">τ</span>
-					</div>
+		<div className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
+			{/* Panel area - rendered conditionally without animation */}
+			{anyPanelOpen && (
+				<div className="flex justify-center items-end gap-3 px-4 pb-2 pointer-events-auto">
+					{panels.ternary && <TernaryPanel />}
+					{panels.probability && (
+						<div 
+							className="flex-1 max-w-2xl min-w-[300px] rounded-xl px-4 py-3"
+							style={{
+								background: "rgba(20, 20, 30, 0.9)",
+								border: "1px solid rgba(255, 255, 255, 0.1)",
+							}}
+						>
+							<div className="flex items-center justify-between mb-2">
+								<span className="text-white/70 text-sm font-mono">Oscillation</span>
+								<div className="flex items-center gap-3">
+									<div className="flex items-center gap-1">
+										<div className="w-2 h-2 rounded-full bg-blue-500" />
+										<span className="text-[10px] text-white/50">e</span>
+									</div>
+									<div className="flex items-center gap-1">
+										<div className="w-2 h-2 rounded-full bg-orange-400" />
+										<span className="text-[10px] text-white/50">μ</span>
+									</div>
+									<div className="flex items-center gap-1">
+										<div className="w-2 h-2 rounded-full bg-fuchsia-500" />
+										<span className="text-[10px] text-white/50">τ</span>
+									</div>
+								</div>
+							</div>
+							<ProbabilityPlot
+								data={probabilityData}
+								flavors={["electron", "muon", "tau"]}
+								flavorColors={{
+									electron: "rgb(59, 130, 246)",
+									muon: "rgb(251, 146, 60)",
+									tau: "rgb(217, 70, 239)",
+								}}
+								height={120}
+								distanceLabel=""
+								probabilityLabel=""
+								energy={energy}
+								showOscillationLength={true}
+							/>
+						</div>
+					)}
+					{panels.spectrum && <SpectrumPanel />}
+				</div>
+			)}
+
+			{/* Control bar - always visible */}
+			<div 
+				className="flex items-center justify-center gap-2 py-2.5 px-4 pointer-events-auto"
+				style={{
+					background: "rgba(15, 15, 25, 0.95)",
+					borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+				}}
+			>
+				{/* Zoom controls */}
+				<div className="flex items-center gap-0.5 mr-1">
+					<button
+						type="button"
+						onClick={() => setZoom(Math.max(0.5, zoom - 0.15))}
+						className="w-6 h-6 rounded text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
+						title="Zoom out (−)"
+					>
+						−
+					</button>
+					<button
+						type="button"
+						onClick={() => setZoom(Math.min(2, zoom + 0.15))}
+						className="w-6 h-6 rounded text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
+						title="Zoom in (+)"
+					>
+						+
+					</button>
+				</div>
+
+				{/* Divider */}
+				<div className="w-px h-4 bg-white/20" />
+
+				{/* Quick stats */}
+				<div className="flex items-center gap-2 mx-2 text-[10px] font-mono text-white/40">
+					<span>{distance.toFixed(0)} km</span>
+					<span className="text-blue-400">{(currentProbs.Pe * 100).toFixed(0)}%</span>
+					<span className="text-orange-400">{(currentProbs.Pmu * 100).toFixed(0)}%</span>
+					<span className="text-fuchsia-400">{(currentProbs.Ptau * 100).toFixed(0)}%</span>
+				</div>
+
+				{/* Divider */}
+				<div className="w-px h-4 bg-white/20" />
+
+				{/* Panel toggles - direct onClick, no delays */}
+				<div className="flex items-center gap-1">
+					<button
+						type="button"
+						onClick={() => togglePanel("ternary")}
+						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
+							panels.ternary 
+								? "bg-white/20 text-white" 
+								: "text-white/50 hover:text-white/80 hover:bg-white/10"
+						}`}
+						title="Toggle Flavor Space triangle"
+					>
+						△
+					</button>
+					<button
+						type="button"
+						onClick={() => togglePanel("probability")}
+						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
+							panels.probability 
+								? "bg-white/20 text-white" 
+								: "text-white/50 hover:text-white/80 hover:bg-white/10"
+						}`}
+						title="Toggle Probability vs Time plot"
+					>
+						〰
+					</button>
+					<button
+						type="button"
+						onClick={() => togglePanel("spectrum")}
+						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
+							panels.spectrum 
+								? "bg-white/20 text-white" 
+								: "text-white/50 hover:text-white/80 hover:bg-white/10"
+						}`}
+						title="Toggle Energy Spectrum plot"
+					>
+						📊
+					</button>
+				</div>
+
+				{/* Divider */}
+				<div className="w-px h-4 bg-white/20" />
+
+				{/* Menu buttons */}
+				<div className="flex items-center gap-1">
+					<button
+						type="button"
+						onClick={() => setShareOpen(true)}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
+						title="Share"
+					>
+						🔗
+					</button>
+					<button
+						type="button"
+						onClick={onOpenLearnMore}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
+						title="Learn More"
+					>
+						📚
+					</button>
+					<button
+						type="button"
+						onClick={onOpenSettings}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
+						title="Settings"
+					>
+						⚙️
+					</button>
+					<button
+						type="button"
+						onClick={onOpenHelp}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
+						title="Help (Keyboard Shortcuts)"
+					>
+						❓
+					</button>
 				</div>
 			</div>
-			<ProbabilityPlot
-				data={probabilityData}
-				flavors={["electron", "muon", "tau"]}
-				flavorColors={{
-					electron: "rgb(59, 130, 246)",
-					muon: "rgb(251, 146, 60)",
-					tau: "rgb(217, 70, 239)",
-				}}
-				height={100}
-				distanceLabel=""
-				probabilityLabel=""
-				energy={energy}
-				showOscillationLength={true}
-			/>
-		</div>
-	);
-});
-ProbabilityPanel.displayName = "ProbabilityPanel";
 
-interface BottomControlsProps {
-	panels: PanelState;
-	onTogglePanel: (panel: keyof PanelState) => void;
-	onOpenShare: () => void;
-	onOpenLearnMore: () => void;
-	onOpenSettings: () => void;
-	onOpenHelp: () => void;
-}
-
-// Minimal floating controls
-function BottomControls({ 
-	panels, 
-	onTogglePanel, 
-	onOpenShare, 
-	onOpenLearnMore, 
-	onOpenSettings, 
-	onOpenHelp 
-}: BottomControlsProps) {
-	const { state, setZoom } = useSimulation();
-	const { zoom } = state;
-
-	const zoomIn = () => setZoom(Math.min(2, zoom + 0.15));
-	const zoomOut = () => setZoom(Math.max(0.5, zoom - 0.15));
-
-	return (
-		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1">
-			{/* Zoom controls - left cluster */}
-			<div 
-				className="flex items-center rounded-full px-1"
-				style={{
-					background: "rgba(20, 20, 30, 0.7)",
-					backdropFilter: "blur(12px)",
-					border: "1px solid rgba(255, 255, 255, 0.08)",
-				}}
-			>
-				<button
-					type="button"
-					onClick={zoomOut}
-					className="w-8 h-8 rounded-full text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-lg"
-					title="Zoom out (−)"
-				>
-					−
-				</button>
-				<button
-					type="button"
-					onClick={zoomIn}
-					className="w-8 h-8 rounded-full text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-lg"
-					title="Zoom in (+)"
-				>
-					+
-				</button>
-			</div>
-
-			{/* Panel toggles - center cluster */}
-			<div 
-				className="flex items-center rounded-full px-1"
-				style={{
-					background: "rgba(20, 20, 30, 0.7)",
-					backdropFilter: "blur(12px)",
-					border: "1px solid rgba(255, 255, 255, 0.08)",
-				}}
-			>
-				<button
-					type="button"
-					onClick={() => onTogglePanel("ternary")}
-					className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-						panels.ternary 
-							? "text-white bg-white/15" 
-							: "text-white/40 hover:text-white hover:bg-white/10"
-					}`}
-					title="Flavor triangle (△)"
-				>
-					△
-				</button>
-				<button
-					type="button"
-					onClick={() => onTogglePanel("probability")}
-					className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-						panels.probability 
-							? "text-white bg-white/15" 
-							: "text-white/40 hover:text-white hover:bg-white/10"
-					}`}
-					title="Oscillation plot (〰)"
-				>
-					〰
-				</button>
-				<button
-					type="button"
-					onClick={() => onTogglePanel("spectrum")}
-					className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-						panels.spectrum 
-							? "text-white bg-white/15" 
-							: "text-white/40 hover:text-white hover:bg-white/10"
-					}`}
-					title="Energy spectrum (📊)"
-				>
-					📊
-				</button>
-			</div>
-
-			{/* Menu - right cluster */}
-			<div 
-				className="flex items-center rounded-full px-1"
-				style={{
-					background: "rgba(20, 20, 30, 0.7)",
-					backdropFilter: "blur(12px)",
-					border: "1px solid rgba(255, 255, 255, 0.08)",
-				}}
-			>
-				<button
-					type="button"
-					onClick={onOpenShare}
-					className="w-8 h-8 rounded-full text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
-					title="Share link"
-				>
-					🔗
-				</button>
-				<button
-					type="button"
-					onClick={onOpenLearnMore}
-					className="w-8 h-8 rounded-full text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
-					title="Learn more"
-				>
-					📖
-				</button>
-				<button
-					type="button"
-					onClick={onOpenSettings}
-					className="w-8 h-8 rounded-full text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
-					title="Settings"
-				>
-					⚙️
-				</button>
-				<button
-					type="button"
-					onClick={onOpenHelp}
-					className="w-8 h-8 rounded-full text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
-					title="Keyboard shortcuts (?)"
-				>
-					?
-				</button>
-			</div>
+			{/* Share modal */}
+			{shareOpen && (
+				<ShareButton isOpen={shareOpen} onClose={() => setShareOpen(false)} />
+			)}
 		</div>
 	);
 }
@@ -239,22 +267,11 @@ function App() {
 function AppContent() {
 	useKeyboardShortcuts();
 	
-	const [panels, setPanels] = useState<PanelState>({
-		ternary: false,
-		probability: true,
-		spectrum: false,
-	});
-	const [shareOpen, setShareOpen] = useState(false);
 	const [learnOpen, setLearnOpen] = useState(false);
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 
-	const togglePanel = useCallback((panel: keyof PanelState) => {
-		setPanels(prev => ({ ...prev, [panel]: !prev[panel] }));
-	}, []);
-
-	const openShare = useCallback(() => setShareOpen(true), []);
-	const closeShare = useCallback(() => setShareOpen(false), []);
+	// Memoized handlers to prevent unnecessary re-renders
 	const openLearnMore = useCallback(() => setLearnOpen(true), []);
 	const closeLearnMore = useCallback(() => setLearnOpen(false), []);
 	const openSettings = useCallback(() => setSettingsOpen(true), []);
@@ -280,33 +297,14 @@ function AppContent() {
 				<VisualizationArea />
 			</main>
 
-			{/* Floating panels - each positioned independently */}
-			{panels.ternary && (
-				<div className="fixed bottom-14 left-4 z-20" data-panel="ternary">
-					<TernaryPlot />
-				</div>
-			)}
-			
-			{panels.probability && <ProbabilityPanel />}
-			
-			{panels.spectrum && (
-				<div className="fixed bottom-14 right-4 z-20" data-panel="spectrum">
-					<EnergySpectrumPlot />
-				</div>
-			)}
-
-			{/* Floating bottom controls */}
-			<BottomControls
-				panels={panels}
-				onTogglePanel={togglePanel}
-				onOpenShare={openShare}
+			{/* Bottom HUD with panels and menu */}
+			<BottomHUD 
 				onOpenLearnMore={openLearnMore}
 				onOpenSettings={openSettings}
 				onOpenHelp={openHelp}
 			/>
 
-			{/* Modals */}
-			{shareOpen && <ShareButton isOpen={shareOpen} onClose={closeShare} />}
+			{/* Modals - only render when open */}
 			{learnOpen && <LearnMorePanel isOpen={learnOpen} onClose={closeLearnMore} />}
 			{settingsOpen && <SettingsPanel isOpen={settingsOpen} onClose={closeSettings} />}
 			{helpOpen && <HelpModal isOpen={helpOpen} onClose={closeHelp} />}
