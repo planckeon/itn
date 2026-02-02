@@ -8,7 +8,7 @@ import { SimulationProvider, useSimulation } from "./context/SimulationContext";
 // Wrapper component to access simulation context for the plot
 function PlotWrapper() {
 	const { state } = useSimulation();
-	const { probabilityHistory } = state;
+	const { probabilityHistory, energy } = state;
 
 	const probabilityData = probabilityHistory.map((item) => ({
 		distance: item.distance,
@@ -58,6 +58,8 @@ function PlotWrapper() {
 					height={100}
 					distanceLabel="Time →"
 					probabilityLabel=""
+					energy={energy}
+					showOscillationLength={true}
 				/>
 			</div>
 		</div>

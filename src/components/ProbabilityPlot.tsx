@@ -17,16 +17,35 @@ interface ProbabilityPlotProps {
 	height?: number;
 	distanceLabel: string;
 	probabilityLabel: string;
+	energy?: number; // GeV - for oscillation length calculation
+	showOscillationLength?: boolean;
 }
 
 const MARGIN = { top: 8, right: 16, bottom: 24, left: 32 };
 const Y_TICKS = [0, 0.5, 1.0];
+
+// NuFit 5.2 values
+const DM21_SQ = 7.42e-5; // eV²
+const DM31_SQ = 2.517e-3; // eV²
+
+/**
+ * Calculate oscillation length: L_osc = 4πE / Δm²
+ * With E in GeV and Δm² in eV², L_osc in km is:
+ * L_osc = 2.48 * E(GeV) / Δm²(eV²) km
+ */
+function calculateOscillationLength(energyGeV: number, deltaMSq: number): number {
+	// L_osc = 4π * ℏc * E / (Δm² * c⁴)
+	// Numerically: L_osc ≈ 2.48 * E[GeV] / Δm²[eV²] km
+	return 2.48 * energyGeV / deltaMSq;
+}
 
 const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 	data,
 	flavorColors,
 	height = 100,
 	distanceLabel,
+	energy = 2,
+	showOscillationLength = true,
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -182,7 +201,59 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				ctx.fill();
 			}
 		}
-	}, [data, containerWidth, height, flavorColors, distanceLabel]);
+
+		// Draw oscillation length markers
+		if (showOscillationLength && energy > 0) {
+			// Calculate oscillation lengths for both mass splittings
+			const L21 = calculateOscillationLength(energy, DM21_SQ); // "Solar" oscillation
+			const L31 = calculateOscillationLength(energy, DM31_SQ); // "Atmospheric" oscillation
+
+			ctx.setLineDash([4, 4]);
+			ctx.lineWidth = 1;
+			ctx.font = "8px monospace";
+			ctx.textAlign = "center";
+
+			// Draw L31 markers (atmospheric, faster oscillation)
+			// Only draw if within visible range
+			for (let n = 1; n <= 5; n++) {
+				const L = n * L31;
+				if (L > maxDistance) break;
+				
+				const x = MARGIN.left + (L / maxDistance) * plotWidth;
+				
+				// Vertical line
+				ctx.strokeStyle = "rgba(217, 70, 239, 0.4)"; // fuchsia
+				ctx.beginPath();
+				ctx.moveTo(x, MARGIN.top);
+				ctx.lineTo(x, MARGIN.top + plotHeight);
+				ctx.stroke();
+
+				// Label at top (only for first few to avoid clutter)
+				if (n <= 2) {
+					ctx.fillStyle = "rgba(217, 70, 239, 0.6)";
+					ctx.fillText(`${n}L₃₁`, x, MARGIN.top - 2);
+				}
+			}
+
+			// Draw L21 markers (solar, slower oscillation) - less prominent
+			const L21_first = L21;
+			if (L21_first <= maxDistance * 2) {
+				const x = MARGIN.left + (L21_first / maxDistance) * plotWidth;
+				if (x <= MARGIN.left + plotWidth) {
+					ctx.strokeStyle = "rgba(59, 130, 246, 0.3)"; // blue
+					ctx.beginPath();
+					ctx.moveTo(x, MARGIN.top);
+					ctx.lineTo(x, MARGIN.top + plotHeight);
+					ctx.stroke();
+
+					ctx.fillStyle = "rgba(59, 130, 246, 0.5)";
+					ctx.fillText("L₂₁", x, MARGIN.top + plotHeight + 10);
+				}
+			}
+
+			ctx.setLineDash([]); // Reset line dash
+		}
+	}, [data, containerWidth, height, flavorColors, distanceLabel, energy, showOscillationLength]);
 
 	return (
 		<div ref={containerRef} className="w-full">
