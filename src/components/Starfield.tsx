@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSimulation } from "../context/SimulationContext";
 
 interface Star {
@@ -17,6 +17,11 @@ const Starfield: React.FC = () => {
 	const starsRef = useRef<Star[]>([]);
 	const animationIdRef = useRef<number | null>(null);
 	const initializedRef = useRef(false);
+	
+	// Camera rotation state
+	const cameraAngleRef = useRef(Math.PI * 0.75); // Start at ~135 degrees (top-right to bottom-left)
+	const isDraggingRef = useRef(false);
+	const lastMouseXRef = useRef(0);
 
 	const numStars = 400;
 
@@ -24,6 +29,43 @@ const Starfield: React.FC = () => {
 	useEffect(() => {
 		speedRef.current = state.speed;
 	}, [state.speed]);
+
+	// Mouse event handlers for camera rotation
+	const handleMouseDown = useCallback((e: MouseEvent) => {
+		isDraggingRef.current = true;
+		lastMouseXRef.current = e.clientX;
+	}, []);
+
+	const handleMouseMove = useCallback((e: MouseEvent) => {
+		if (!isDraggingRef.current) return;
+		
+		const deltaX = e.clientX - lastMouseXRef.current;
+		lastMouseXRef.current = e.clientX;
+		
+		// Rotate camera based on horizontal drag
+		// Negative to make dragging left rotate camera left (stars appear to move right)
+		cameraAngleRef.current += deltaX * 0.005;
+	}, []);
+
+	const handleMouseUp = useCallback(() => {
+		isDraggingRef.current = false;
+	}, []);
+
+	// Setup mouse event listeners
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		canvas.addEventListener("mousedown", handleMouseDown);
+		window.addEventListener("mousemove", handleMouseMove);
+		window.addEventListener("mouseup", handleMouseUp);
+
+		return () => {
+			canvas.removeEventListener("mousedown", handleMouseDown);
+			window.removeEventListener("mousemove", handleMouseMove);
+			window.removeEventListener("mouseup", handleMouseUp);
+		};
+	}, [handleMouseDown, handleMouseMove, handleMouseUp]);
 
 	// Animation loop
 	useEffect(() => {
@@ -36,10 +78,12 @@ const Starfield: React.FC = () => {
 		// Initialize stars when we have dimensions
 		const initStars = (width: number, height: number) => {
 			const stars: Star[] = [];
+			// Distribute stars in a larger area for smooth wrapping
+			const spread = Math.max(width, height) * 2;
 			for (let i = 0; i < numStars; i++) {
 				stars.push({
-					x: Math.random() * width * 1.5,
-					y: Math.random() * height * 1.5 - height * 0.25,
+					x: Math.random() * spread - spread / 2,
+					y: Math.random() * spread - spread / 2,
 					speed: 0.5 + Math.random() * 2,
 					size: 0.5 + Math.random() * 2,
 					brightness: 0.5 + Math.random() * 0.5,
@@ -48,11 +92,6 @@ const Starfield: React.FC = () => {
 			starsRef.current = stars;
 			initializedRef.current = true;
 		};
-
-		// Movement direction: from top-right toward bottom-left
-		// This creates diagonal streaks like in the reference
-		const dirX = -1;  // Moving left
-		const dirY = 0.6; // Moving down slightly
 
 		const animate = () => {
 			const dpr = window.devicePixelRatio || 1;
@@ -76,59 +115,75 @@ const Starfield: React.FC = () => {
 			context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 			const speed = speedRef.current;
+			const angle = cameraAngleRef.current;
+
+			// Calculate movement direction from camera angle
+			const dirX = Math.cos(angle);
+			const dirY = Math.sin(angle);
 
 			// Clear with pure black
 			context.fillStyle = "#000";
 			context.fillRect(0, 0, width, height);
 
+			const centerX = width / 2;
+			const centerY = height / 2;
+			const spread = Math.max(width, height) * 2;
+
 			// Update and draw stars
 			for (const star of starsRef.current) {
-				// Calculate movement based on speed
+				// Calculate movement based on speed and camera angle
 				const moveX = dirX * star.speed * speed * 3;
 				const moveY = dirY * star.speed * speed * 3;
 
-				// Draw motion blur trail (line from current to next position)
-				if (speed > 0.1) {
-					const trailLength = Math.abs(moveX) * 8; // Longer trail
-					const trailX = star.x - dirX * trailLength;
-					const trailY = star.y - dirY * trailLength;
+				// Screen position (centered)
+				const screenX = centerX + star.x;
+				const screenY = centerY + star.y;
 
-					const lineAlpha = Math.min(0.8, 0.2 + speed * 0.15) * star.brightness;
+				// Only draw if on screen (with margin)
+				if (screenX > -100 && screenX < width + 100 && 
+					screenY > -100 && screenY < height + 100) {
 					
-					// Create gradient for trail fade
-					const gradient = context.createLinearGradient(trailX, trailY, star.x, star.y);
-					gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
-					gradient.addColorStop(1, `rgba(255, 255, 255, ${lineAlpha})`);
+					// Draw motion blur trail
+					if (speed > 0.1) {
+						const trailLength = star.speed * speed * 25;
+						const trailX = screenX - dirX * trailLength;
+						const trailY = screenY - dirY * trailLength;
 
-					context.strokeStyle = gradient;
-					context.lineWidth = star.size * 0.8;
-					context.lineCap = "round";
+						const lineAlpha = Math.min(0.8, 0.2 + speed * 0.15) * star.brightness;
+						
+						// Create gradient for trail fade
+						const gradient = context.createLinearGradient(trailX, trailY, screenX, screenY);
+						gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+						gradient.addColorStop(1, `rgba(255, 255, 255, ${lineAlpha})`);
+
+						context.strokeStyle = gradient;
+						context.lineWidth = star.size * 0.8;
+						context.lineCap = "round";
+						context.beginPath();
+						context.moveTo(trailX, trailY);
+						context.lineTo(screenX, screenY);
+						context.stroke();
+					}
+
+					// Draw the star point
+					context.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
 					context.beginPath();
-					context.moveTo(trailX, trailY);
-					context.lineTo(star.x, star.y);
-					context.stroke();
+					context.arc(screenX, screenY, star.size, 0, Math.PI * 2);
+					context.fill();
 				}
-
-				// Draw the star point
-				context.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-				context.beginPath();
-				context.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-				context.fill();
 
 				// Update position
 				star.x += moveX;
 				star.y += moveY;
 
-				// Wrap around when star goes off screen
-				if (star.x < -50) {
-					star.x = width + 50;
-					star.y = Math.random() * height * 1.5 - height * 0.25;
-					star.speed = 0.5 + Math.random() * 2;
-					star.brightness = 0.5 + Math.random() * 0.5;
-				}
-				if (star.y > height + 50) {
-					star.y = -50;
-					star.x = Math.random() * width * 1.5;
+				// Wrap around when star goes too far from center
+				const distFromCenter = Math.sqrt(star.x * star.x + star.y * star.y);
+				if (distFromCenter > spread / 2) {
+					// Respawn on the opposite side
+					const respawnAngle = Math.atan2(star.y, star.x) + Math.PI;
+					const respawnDist = spread / 2 * (0.8 + Math.random() * 0.2);
+					star.x = Math.cos(respawnAngle) * respawnDist;
+					star.y = Math.sin(respawnAngle) * respawnDist;
 					star.speed = 0.5 + Math.random() * 2;
 					star.brightness = 0.5 + Math.random() * 0.5;
 				}
@@ -156,6 +211,7 @@ const Starfield: React.FC = () => {
 				width: "100%",
 				height: "100%",
 				zIndex: 0,
+				cursor: isDraggingRef.current ? "grabbing" : "grab",
 			}}
 		/>
 	);
