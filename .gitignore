@@ -45,3 +45,23 @@ FileScopeMCP-tree.json
 memory-bank/
 repomix-output.xml
 session-*.md
+mcp-debug.log
+.roomodes
+
+# Roo Commander artifacts
+.modes/
+.roo/
+.docs/
+.processes/
+.templates/
+.workflows/
+.context/
+.decisions/
+.ideas/
+.logs/
+.planning/
+.reports/
+.snippets/
+
+# Misc build artifacts
+tasks-and-subtasks.txt
