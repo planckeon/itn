@@ -214,7 +214,7 @@ const EnergySpectrumPlot: React.FC = () => {
 
 	return (
 		<div
-			className="absolute bottom-4 right-4 z-10"
+			className="absolute bottom-28 right-4 z-10"
 			style={{
 				background: "rgba(20, 20, 30, 0.85)",
 				backdropFilter: "blur(8px)",
@@ -228,7 +228,7 @@ const EnergySpectrumPlot: React.FC = () => {
 			</div>
 			<canvas
 				ref={canvasRef}
-				style={{ width: "300px", height: "150px" }}
+				style={{ width: "220px", height: "120px" }}
 			/>
 		</div>
 	);

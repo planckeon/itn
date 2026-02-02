@@ -74,7 +74,7 @@ const PMNSMatrix: React.FC = () => {
 			>
 				<div className="flex items-center justify-between mb-3 gap-3">
 					<span className="text-white/75 text-sm font-medium">|U|² Matrix</span>
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-1">
 						<button
 							type="button"
 							onClick={() => setShow3D(true)}
@@ -87,7 +87,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 				
 				{/* Matrix header */}
-				<div className="grid grid-cols-4 gap-2 text-white/55 mb-2 text-[13px]">
+				<div className="grid grid-cols-4 gap-1 text-white/55 mb-2 text-[11px]">
 					<span></span>
 					<span className="text-center">ν₁</span>
 					<span className="text-center">ν₂</span>
@@ -95,7 +95,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Electron row */}
-				<div className="grid grid-cols-4 gap-2 text-blue-400 text-[13px]">
+				<div className="grid grid-cols-4 gap-1 text-blue-400 text-[11px]">
 					<span>νₑ</span>
 					<span className="text-center">{formatProb(matrix.electron[0])}</span>
 					<span className="text-center">{formatProb(matrix.electron[1])}</span>
@@ -103,7 +103,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Muon row */}
-				<div className="grid grid-cols-4 gap-2 text-orange-400 text-[13px]">
+				<div className="grid grid-cols-4 gap-1 text-orange-400 text-[11px]">
 					<span>νμ</span>
 					<span className="text-center">{formatProb(matrix.muon[0])}</span>
 					<span className="text-center">{formatProb(matrix.muon[1])}</span>
@@ -111,7 +111,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Tau row */}
-				<div className="grid grid-cols-4 gap-2 text-fuchsia-400 text-[13px]">
+				<div className="grid grid-cols-4 gap-1 text-fuchsia-400 text-[11px]">
 					<span>ντ</span>
 					<span className="text-center">{formatProb(matrix.tau[0])}</span>
 					<span className="text-center">{formatProb(matrix.tau[1])}</span>
@@ -119,7 +119,7 @@ const PMNSMatrix: React.FC = () => {
 				</div>
 
 				{/* Current δCP */}
-				<div className="mt-3 pt-3 border-t border-white/10 text-white/55 text-center text-[13px]">
+				<div className="mt-2 pt-2 border-t border-white/10 text-white/55 text-center text-[11px]">
 					δ<sub>CP</sub> = {deltaCP}° {isAntineutrino ? "(ν̄)" : "(ν)"}
 				</div>
 			</div>
