@@ -5,9 +5,8 @@ import { useSimulation } from "../context/SimulationContext";
 interface Star {
 	x: number;
 	y: number;
-	z: number;
-	px: number; // Previous screen x
-	py: number; // Previous screen y
+	speed: number;
+	size: number;
 	brightness: number;
 }
 
@@ -17,36 +16,16 @@ const Starfield: React.FC = () => {
 	const speedRef = useRef(state.speed);
 	const starsRef = useRef<Star[]>([]);
 	const animationIdRef = useRef<number | null>(null);
+	const initializedRef = useRef(false);
 
 	const numStars = 400;
-	const starfieldDepth = 1000;
 
 	// Keep speed ref updated
 	useEffect(() => {
 		speedRef.current = state.speed;
 	}, [state.speed]);
 
-	// Initialize stars in 3D spherical distribution
-	useEffect(() => {
-		const initialStars: Star[] = [];
-		for (let i = 0; i < numStars; i++) {
-			const r = 200 + Math.random() * (starfieldDepth - 200);
-			const theta = Math.random() * Math.PI;
-			const phi = Math.random() * Math.PI * 2;
-
-			initialStars.push({
-				x: r * Math.sin(theta) * Math.cos(phi),
-				y: r * Math.sin(theta) * Math.sin(phi),
-				z: r * Math.cos(theta),
-				px: 0,
-				py: 0,
-				brightness: 0.7 + Math.random() * 0.3,
-			});
-		}
-		starsRef.current = initialStars;
-	}, []);
-
-	// Animation loop using requestAnimationFrame
+	// Animation loop
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
@@ -54,17 +33,36 @@ const Starfield: React.FC = () => {
 		const context = canvas.getContext("2d");
 		if (!context) return;
 
-		// Movement direction vector (diagonal, like original)
-		const dirX = 1, dirY = 0.5, dirZ = 1;
-		const norm = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
-		const dx = dirX / norm;
-		const dy = dirY / norm;
-		const dz = dirZ / norm;
+		// Initialize stars when we have dimensions
+		const initStars = (width: number, height: number) => {
+			const stars: Star[] = [];
+			for (let i = 0; i < numStars; i++) {
+				stars.push({
+					x: Math.random() * width * 1.5,
+					y: Math.random() * height * 1.5 - height * 0.25,
+					speed: 0.5 + Math.random() * 2,
+					size: 0.5 + Math.random() * 2,
+					brightness: 0.5 + Math.random() * 0.5,
+				});
+			}
+			starsRef.current = stars;
+			initializedRef.current = true;
+		};
+
+		// Movement direction: from top-right toward bottom-left
+		// This creates diagonal streaks like in the reference
+		const dirX = -1;  // Moving left
+		const dirY = 0.6; // Moving down slightly
 
 		const animate = () => {
 			const dpr = window.devicePixelRatio || 1;
 			const width = canvas.clientWidth;
 			const height = canvas.clientHeight;
+
+			// Initialize stars if not done yet
+			if (!initializedRef.current || starsRef.current.length === 0) {
+				initStars(width, height);
+			}
 
 			// Only resize canvas if dimensions changed
 			const expectedWidth = Math.floor(width * dpr);
@@ -78,82 +76,62 @@ const Starfield: React.FC = () => {
 			context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 			const speed = speedRef.current;
-			const v = 8 * speed * 0.1; // Movement velocity
 
 			// Clear with pure black
 			context.fillStyle = "#000";
 			context.fillRect(0, 0, width, height);
 
-			const centerX = width / 2;
-			const centerY = height / 2;
-			const focalLength = width * 0.8;
-
 			// Update and draw stars
 			for (const star of starsRef.current) {
-				// Store previous screen position before moving
-				const prevZ = star.z + dz * v;
-				if (prevZ > 0) {
-					const prevScale = focalLength / prevZ;
-					star.px = centerX + (star.x + dx * v) * prevScale;
-					star.py = centerY + (star.y + dy * v) * prevScale;
-				}
+				// Calculate movement based on speed
+				const moveX = dirX * star.speed * speed * 3;
+				const moveY = dirY * star.speed * speed * 3;
 
-				// Update 3D position - move star in direction
-				star.x -= dx * v;
-				star.y -= dy * v;
-				star.z -= dz * v;
+				// Draw motion blur trail (line from current to next position)
+				if (speed > 0.1) {
+					const trailLength = Math.abs(moveX) * 8; // Longer trail
+					const trailX = star.x - dirX * trailLength;
+					const trailY = star.y - dirY * trailLength;
 
-				// Reset stars that move past the viewer
-				const viewDot = star.x * dx + star.y * dy + star.z * dz;
-				if (viewDot < 0 || star.z < 1) {
-					const r = starfieldDepth * (0.9 + Math.random() * 0.2);
-					const theta = Math.PI * (0.2 + Math.random() * 0.6);
-					const phi = Math.random() * Math.PI * 2;
+					const lineAlpha = Math.min(0.8, 0.2 + speed * 0.15) * star.brightness;
+					
+					// Create gradient for trail fade
+					const gradient = context.createLinearGradient(trailX, trailY, star.x, star.y);
+					gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+					gradient.addColorStop(1, `rgba(255, 255, 255, ${lineAlpha})`);
 
-					star.x = r * Math.sin(theta) * Math.cos(phi);
-					star.y = r * Math.sin(theta) * Math.sin(phi);
-					star.z = r * Math.cos(theta);
-					star.px = 0;
-					star.py = 0;
-					star.brightness = 0.7 + Math.random() * 0.3;
-					continue;
-				}
-
-				// Project to 2D
-				const scale = focalLength / star.z;
-				const x = centerX + star.x * scale;
-				const y = centerY + star.y * scale;
-
-				// Check if on screen
-				if (x < -50 || x > width + 50 || y < -50 || y > height + 50) continue;
-
-				// Draw motion blur trail
-				if (star.px !== 0 && star.py !== 0 && speed > 0.1) {
-					const lineAlpha = Math.min(0.9, 0.3 + speed * 0.2) * star.brightness;
-					const lineWidth = Math.max(1, 1 + speed * 0.5);
-
-					context.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
-					context.lineWidth = lineWidth;
+					context.strokeStyle = gradient;
+					context.lineWidth = star.size * 0.8;
 					context.lineCap = "round";
 					context.beginPath();
-					context.moveTo(star.px, star.py);
-					context.lineTo(x, y);
+					context.moveTo(trailX, trailY);
+					context.lineTo(star.x, star.y);
 					context.stroke();
 				}
 
 				// Draw the star point
-				const normalizedDepth = star.z / starfieldDepth;
-				const pointAlpha = (0.3 + 0.7 * (1 - normalizedDepth)) * star.brightness;
-				const pointSize = Math.max(0.5, 2 * (1 - normalizedDepth));
-
-				context.fillStyle = `rgba(255, 255, 255, ${pointAlpha})`;
+				context.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
 				context.beginPath();
-				context.arc(x, y, pointSize, 0, Math.PI * 2);
+				context.arc(star.x, star.y, star.size, 0, Math.PI * 2);
 				context.fill();
 
-				// Update previous position for next frame
-				star.px = x;
-				star.py = y;
+				// Update position
+				star.x += moveX;
+				star.y += moveY;
+
+				// Wrap around when star goes off screen
+				if (star.x < -50) {
+					star.x = width + 50;
+					star.y = Math.random() * height * 1.5 - height * 0.25;
+					star.speed = 0.5 + Math.random() * 2;
+					star.brightness = 0.5 + Math.random() * 0.5;
+				}
+				if (star.y > height + 50) {
+					star.y = -50;
+					star.x = Math.random() * width * 1.5;
+					star.speed = 0.5 + Math.random() * 2;
+					star.brightness = 0.5 + Math.random() * 0.5;
+				}
 			}
 
 			animationIdRef.current = requestAnimationFrame(animate);
