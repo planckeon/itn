@@ -26,12 +26,18 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 - **PMNS Matrix** — |U|² mixing matrix display (top right)
 
 ### Physics Controls
-- **Experiment Presets** — T2K, NOvA, DUNE, KamLAND configurations
+- **Experiment Presets** — 11 experiments: T2K, NOvA, DUNE, Hyper-K, KamLAND, Daya Bay, JUNO, Double Chooz, Super-K, IceCube, Solar
 - **δCP Slider** — CP violation phase (0-360°)
 - **ν/ν̄ Toggle** — Neutrino/antineutrino mode
 - **NO/IO Toggle** — Normal/Inverted mass ordering
 - **Matter Effect** — Enable MSW effect with adjustable density
 - **Energy & Speed** — Continuous sliders
+
+### Educational
+- **Learn More Panel** — 7 sections covering neutrino physics
+- **Settings Panel** — Language selection, density presets
+- **3D PMNS Matrix** — Interactive rotatable visualization
+- **Internationalization** — EN, ES, JA, ZH, HI, FR, DE
 
 ### Quality of Life
 - **Keyboard Shortcuts** — See below (press `?` for help)
@@ -112,12 +118,18 @@ src/
 │   ├── TernaryPlot.tsx        # Flavor triangle
 │   ├── EnergySpectrumPlot.tsx # P vs E spectrum
 │   ├── PMNSMatrix.tsx         # |U|² mixing matrix
+│   ├── PMNSMatrix3D.tsx       # Interactive 3D PMNS view
+│   ├── LearnMorePanel.tsx     # Educational content
+│   ├── SettingsPanel.tsx      # Language & advanced options
 │   ├── TopControlBar.tsx      # All controls
 │   ├── InfoTooltip.tsx        # Physics explanations
 │   └── HelpModal.tsx          # Keyboard shortcuts modal
 ├── hooks/
 │   ├── useKeyboardShortcuts.ts
 │   └── useURLState.ts         # URL state sharing
+├── i18n/
+│   ├── translations.ts        # All language strings
+│   └── I18nContext.tsx        # Language provider
 ├── context/
 │   └── SimulationContext.tsx  # All state + physics
 ├── physics/
