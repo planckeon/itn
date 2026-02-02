@@ -10,6 +10,7 @@ const TopControlBar: React.FC = () => {
 		setMatter,
 		setDeltaCP,
 		setIsAntineutrino,
+		setMassOrdering,
 		applyPreset,
 	} = useSimulation();
 
@@ -64,6 +65,22 @@ const TopControlBar: React.FC = () => {
 						}`}
 					>
 						{state.isAntineutrino ? "ν̄" : "ν"}
+					</button>
+				</div>
+
+				{/* Mass Ordering Toggle */}
+				<div className="flex items-center gap-2">
+					<button
+						type="button"
+						onClick={() => setMassOrdering(state.massOrdering === "normal" ? "inverted" : "normal")}
+						className={`px-2 py-1 rounded border transition-colors text-xs ${
+							state.massOrdering === "normal"
+								? "bg-green-600/30 border-green-400/50 text-green-300"
+								: "bg-amber-600/30 border-amber-400/50 text-amber-300"
+						}`}
+						title={state.massOrdering === "normal" ? "Normal Ordering (m₁ < m₂ < m₃)" : "Inverted Ordering (m₃ < m₁ < m₂)"}
+					>
+						{state.massOrdering === "normal" ? "NO" : "IO"}
 					</button>
 				</div>
 
@@ -194,6 +211,17 @@ const TopControlBar: React.FC = () => {
 						}`}
 					>
 						{state.isAntineutrino ? "ν̄" : "ν"}
+					</button>
+					<button
+						type="button"
+						onClick={() => setMassOrdering(state.massOrdering === "normal" ? "inverted" : "normal")}
+						className={`px-2 py-0.5 rounded border transition-colors text-xs ${
+							state.massOrdering === "normal"
+								? "bg-green-600/30 border-green-400/50 text-green-300"
+								: "bg-amber-600/30 border-amber-400/50 text-amber-300"
+						}`}
+					>
+						{state.massOrdering === "normal" ? "NO" : "IO"}
 					</button>
 					<div className="flex items-center gap-2">
 						<label htmlFor="initialFlavorMobile" className="text-white/80">

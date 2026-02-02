@@ -12,12 +12,15 @@ import { getProbabilitiesForInitialFlavor } from "../physics/NuFastPort";
 import type { OscillationParameters } from "../physics/types";
 
 // Neutrino physics constants (should ideally come from NuFastPort or a constants file)
-// NuFit 5.2 (2022) best-fit values for Normal Ordering
+// NuFit 5.2 (2022) best-fit values
 const theta12_deg = 33.44;
 const theta13_deg = 8.57;
 const theta23_deg = 49.2;
 const dm21sq_eV2 = 7.42e-5; // eV^2
-const dm31sq_eV2 = 2.517e-3; // eV^2
+// Normal Ordering: m1 < m2 < m3
+const dm31sq_NO = 2.517e-3; // eV^2 (positive)
+// Inverted Ordering: m3 < m1 < m2
+const dm31sq_IO = -2.498e-3; // eV^2 (negative)
 const Ye = 0.5; // Electron fraction in typical matter (e.g., Earth's crust)
 
 // Simulation constants
@@ -25,6 +28,7 @@ const LmaxSim = 3000; // km
 const c = 299792.458; // km/s
 
 type Flavor = "electron" | "muon" | "tau";
+type MassOrdering = "normal" | "inverted";
 
 interface SimulationState {
 	initialFlavor: Flavor;
@@ -34,6 +38,7 @@ interface SimulationState {
 	density: number;
 	deltaCP: number; // CP violation phase in degrees (0-360)
 	isAntineutrino: boolean; // true for antineutrino mode
+	massOrdering: MassOrdering; // normal or inverted
 	time: number;
 	probabilityHistory: {
 		distance: number;
@@ -53,6 +58,7 @@ interface SimulationContextType {
 	setDensity: (density: number) => void;
 	setDeltaCP: (deltaCP: number) => void;
 	setIsAntineutrino: (isAntineutrino: boolean) => void;
+	setMassOrdering: (massOrdering: MassOrdering) => void;
 	resetSimulation: () => void;
 	applyPreset: (preset: ExperimentPreset) => void;
 }
@@ -111,6 +117,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 	const [density, setDensity] = useState<number>(2.6); // g/cm^3
 	const [deltaCP, setDeltaCP] = useState<number>(0); // degrees
 	const [isAntineutrino, setIsAntineutrino] = useState<boolean>(false);
+	const [massOrdering, setMassOrdering] = useState<MassOrdering>("normal");
 	const [time, setTime] = useState<number>(0); // seconds
 	const [distance, setDistance] = useState<number>(0); // km
 	const [probabilityHistory, setProbabilityHistory] = useState<
@@ -176,13 +183,16 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		// For antineutrinos, flip the sign of δCP (CP conjugation)
 		const effectiveDeltaCP = isAntineutrino ? -deltaCP : deltaCP;
 
+		// Use correct Δm²₃₁ based on mass ordering
+		const dm31sq = massOrdering === "normal" ? dm31sq_NO : dm31sq_IO;
+
 		const oscillationParams: OscillationParameters = {
 			theta12_deg: theta12_deg,
 			theta13_deg: theta13_deg,
 			theta23_deg: theta23_deg,
 			deltaCP_deg: effectiveDeltaCP,
 			dm21sq_eV2: dm21sq_eV2,
-			dm31sq_eV2: dm31sq_eV2,
+			dm31sq_eV2: dm31sq,
 			L: distance,
 			energy: energy,
 			matterEffect: matter,
@@ -191,7 +201,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 			initialFlavorIndex,
 			N_Newton: 0,
 			maxL: LmaxSim,
-			isAntineutrino: isAntineutrino, // Pass to physics engine
+			isAntineutrino: isAntineutrino,
 		};
 
 		// Only calculate if distance is valid
@@ -217,7 +227,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 				return newHistory;
 			});
 		}
-	}, [initialFlavor, energy, matter, density, distance, deltaCP, isAntineutrino]);
+	}, [initialFlavor, energy, matter, density, distance, deltaCP, isAntineutrino, massOrdering]);
 
 	const state: SimulationState = {
 		initialFlavor,
@@ -227,6 +237,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		density,
 		deltaCP,
 		isAntineutrino,
+		massOrdering,
 		time,
 		distance,
 		probabilityHistory,
@@ -241,6 +252,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		setDensity,
 		setDeltaCP,
 		setIsAntineutrino,
+		setMassOrdering,
 		resetSimulation,
 		applyPreset,
 	};
