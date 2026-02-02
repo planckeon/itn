@@ -1,5 +1,6 @@
 import ProbabilityPlot from "./components/ProbabilityPlot";
 import Starfield from "./components/Starfield";
+import TernaryPlot from "./components/TernaryPlot";
 import TopControlBar from "./components/TopControlBar";
 import VisualizationArea from "./components/VisualizationArea";
 import { SimulationProvider, useSimulation } from "./context/SimulationContext";
@@ -84,6 +85,9 @@ function App() {
 
 				{/* Probability plot at bottom - z-index 20 */}
 				<PlotWrapper />
+
+				{/* Ternary flavor space plot - bottom left - z-index 10 */}
+				<TernaryPlot />
 			</div>
 		</SimulationProvider>
 	);
