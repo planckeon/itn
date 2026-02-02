@@ -23,9 +23,9 @@ const THETA13_DEG = 8.57;
 
 // Flavor colors - vibrant and visible
 const FLAVOR_COLORS = {
-	electron: { r: 59, g: 130, b: 246 }, // Blue-500
-	muon: { r: 251, g: 146, b: 60 }, // Orange-400
-	tau: { r: 217, g: 70, b: 239 }, // Fuchsia-500
+	electron: { r: 96, g: 165, b: 250 },  // Blue-400 (brighter)
+	muon: { r: 251, g: 146, b: 60 },      // Orange-400
+	tau: { r: 232, g: 121, b: 249 },      // Fuchsia-400 (brighter)
 };
 
 /**
@@ -34,26 +34,6 @@ const FLAVOR_COLORS = {
 function calculateResonanceEnergy(density: number, Ye = 0.5): number {
 	const cos2theta = Math.cos(2 * THETA13_DEG * Math.PI / 180);
 	return (DM31_SQ * cos2theta) / (1.52e-4 * density * Ye);
-}
-
-/**
- * Neutrino wavefunction probability density
- * Using a Gaussian-like envelope to represent the delocalized nature
- * |ψ|² ~ exp(-r²/(2σ²)) with oscillations
- */
-function wavefunctionDensity(r: number, maxR: number, time: number): number {
-	const sigma = maxR * 0.35; // Width of the wave packet
-	const gaussian = Math.exp(-((r - maxR * 0.3) ** 2) / (2 * sigma ** 2));
-	
-	// Add wave-like oscillations at the edge (de Broglie wavelength effect)
-	const k = 8; // Wave number for visual effect
-	const oscillation = 0.5 + 0.5 * Math.cos(k * r / maxR - time * 2);
-	
-	// Combine: strong core, oscillating fade at edges
-	if (r < maxR * 0.4) {
-		return 1; // Solid core
-	}
-	return gaussian * oscillation;
 }
 
 const NeutrinoSphere: React.FC = () => {
@@ -114,99 +94,111 @@ const NeutrinoSphere: React.FC = () => {
 		if (!ctx) return;
 
 		const dpr = window.devicePixelRatio || 1;
-		const size = 140;
+		const size = 160;
 		canvas.width = size * dpr;
 		canvas.height = size * dpr;
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 		const centerX = size / 2;
 		const centerY = size / 2;
-		const maxRadius = size / 2 - 5;
+		const baseRadius = 45;
 
 		const { r, g, b } = blendedColor;
 
 		const render = () => {
-			timeRef.current += 0.016; // ~60fps
+			timeRef.current += 0.02;
 			ctx.clearRect(0, 0, size, size);
 
-			// Draw the wavefunction-style sphere
-			const imageData = ctx.createImageData(size, size);
-			const data = imageData.data;
+			// Breathing animation - subtle size pulsation
+			const breathe = 1 + 0.03 * Math.sin(timeRef.current * 1.5);
+			const radius = baseRadius * breathe;
 
-			for (let y = 0; y < size; y++) {
-				for (let x = 0; x < size; x++) {
-					const dx = x - centerX;
-					const dy = y - centerY;
-					const distance = Math.sqrt(dx * dx + dy * dy);
-
-					if (distance <= maxRadius) {
-						// Calculate wavefunction density
-						const density = wavefunctionDensity(distance, maxRadius, timeRef.current);
-
-						// 3D shading: light from top-left
-						const normalX = dx / maxRadius;
-						const normalY = dy / maxRadius;
-						const normalZ = Math.sqrt(Math.max(0, 1 - normalX * normalX - normalY * normalY));
-						
-						// Light direction (top-left-front)
-						const lightX = -0.4;
-						const lightY = -0.5;
-						const lightZ = 0.7;
-						const lightMag = Math.sqrt(lightX * lightX + lightY * lightY + lightZ * lightZ);
-						
-						// Diffuse lighting
-						const diffuse = Math.max(0, (normalX * lightX + normalY * lightY + normalZ * lightZ) / lightMag);
-						
-						// Specular highlight
-						const reflectZ = 2 * normalZ * normalZ - 1;
-						const specular = Math.pow(Math.max(0, reflectZ), 32) * 0.5;
-
-						// Combine lighting
-						const shade = 0.4 + diffuse * 0.5 + specular;
-						
-						// Apply color with wavefunction density as alpha
-						const pixelIndex = (y * size + x) * 4;
-						const alpha = density * 255;
-						
-						data[pixelIndex] = Math.min(255, r * shade + specular * 200);
-						data[pixelIndex + 1] = Math.min(255, g * shade + specular * 200);
-						data[pixelIndex + 2] = Math.min(255, b * shade + specular * 200);
-						data[pixelIndex + 3] = alpha;
-					}
-				}
-			}
-
-			ctx.putImageData(imageData, 0, 0);
-
-			// Outer glow
+			// === Outer glow (quantum probability cloud) ===
+			const glowRadius = radius * 1.8;
 			const glowGradient = ctx.createRadialGradient(
-				centerX, centerY, maxRadius * 0.6,
-				centerX, centerY, maxRadius * 1.2
+				centerX, centerY, radius * 0.5,
+				centerX, centerY, glowRadius
 			);
-			glowGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0)`);
-			glowGradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.15)`);
+			glowGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.4)`);
+			glowGradient.addColorStop(0.4, `rgba(${r}, ${g}, ${b}, 0.15)`);
+			glowGradient.addColorStop(0.7, `rgba(${r}, ${g}, ${b}, 0.05)`);
 			glowGradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
 
-			ctx.globalCompositeOperation = "screen";
 			ctx.beginPath();
-			ctx.arc(centerX, centerY, maxRadius * 1.2, 0, Math.PI * 2);
+			ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
 			ctx.fillStyle = glowGradient;
 			ctx.fill();
-			ctx.globalCompositeOperation = "source-over";
 
-			// MSW Resonance ring
+			// === Main sphere with 3D shading ===
+			// Light source from top-left
+			const lightOffsetX = -radius * 0.3;
+			const lightOffsetY = -radius * 0.3;
+
+			// Base sphere gradient (3D effect)
+			const sphereGradient = ctx.createRadialGradient(
+				centerX + lightOffsetX, centerY + lightOffsetY, 0,
+				centerX, centerY, radius
+			);
+			
+			// Brighter highlight, smooth falloff to edge
+			const highlight = { 
+				r: Math.min(255, r + 80), 
+				g: Math.min(255, g + 80), 
+				b: Math.min(255, b + 80) 
+			};
+			const shadow = { 
+				r: Math.max(0, r - 40), 
+				g: Math.max(0, g - 40), 
+				b: Math.max(0, b - 40) 
+			};
+
+			sphereGradient.addColorStop(0, `rgb(${highlight.r}, ${highlight.g}, ${highlight.b})`);
+			sphereGradient.addColorStop(0.5, `rgb(${r}, ${g}, ${b})`);
+			sphereGradient.addColorStop(1, `rgb(${shadow.r}, ${shadow.g}, ${shadow.b})`);
+
+			ctx.beginPath();
+			ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+			ctx.fillStyle = sphereGradient;
+			ctx.fill();
+
+			// === Specular highlight (glossy reflection) ===
+			const specularGradient = ctx.createRadialGradient(
+				centerX + lightOffsetX * 0.8, centerY + lightOffsetY * 0.8, 0,
+				centerX + lightOffsetX * 0.5, centerY + lightOffsetY * 0.5, radius * 0.5
+			);
+			specularGradient.addColorStop(0, "rgba(255, 255, 255, 0.6)");
+			specularGradient.addColorStop(0.5, "rgba(255, 255, 255, 0.1)");
+			specularGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+			ctx.beginPath();
+			ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+			ctx.fillStyle = specularGradient;
+			ctx.fill();
+
+			// === MSW Resonance ring ===
 			if (isNearResonance) {
+				const ringRadius = radius + 12;
+				const ringPulse = 1 + 0.1 * Math.sin(timeRef.current * 3);
+				
 				ctx.beginPath();
-				ctx.arc(centerX, centerY, maxRadius + 8, 0, Math.PI * 2);
-				ctx.strokeStyle = `rgba(255, 200, 50, ${resonanceStrength * 0.7})`;
+				ctx.arc(centerX, centerY, ringRadius * ringPulse, 0, Math.PI * 2);
+				ctx.strokeStyle = `rgba(255, 200, 50, ${resonanceStrength * 0.8})`;
 				ctx.lineWidth = 2;
 				ctx.stroke();
 
-				// Glow effect for resonance
-				ctx.shadowColor = `rgba(255, 200, 50, ${resonanceStrength})`;
-				ctx.shadowBlur = 15;
-				ctx.stroke();
-				ctx.shadowBlur = 0;
+				// Ring glow
+				const ringGlow = ctx.createRadialGradient(
+					centerX, centerY, ringRadius - 5,
+					centerX, centerY, ringRadius + 15
+				);
+				ringGlow.addColorStop(0, `rgba(255, 200, 50, 0)`);
+				ringGlow.addColorStop(0.5, `rgba(255, 200, 50, ${resonanceStrength * 0.3})`);
+				ringGlow.addColorStop(1, `rgba(255, 200, 50, 0)`);
+
+				ctx.beginPath();
+				ctx.arc(centerX, centerY, ringRadius + 10, 0, Math.PI * 2);
+				ctx.fillStyle = ringGlow;
+				ctx.fill();
 			}
 
 			animationRef.current = requestAnimationFrame(render);
@@ -222,7 +214,7 @@ const NeutrinoSphere: React.FC = () => {
 	return (
 		<canvas
 			ref={canvasRef}
-			style={{ width: "140px", height: "140px" }}
+			style={{ width: "160px", height: "160px" }}
 			className="pointer-events-none"
 		/>
 	);
