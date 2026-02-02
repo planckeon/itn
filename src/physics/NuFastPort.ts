@@ -6,8 +6,28 @@ import type {
 	ProbabilityVector,
 } from "./types";
 
-import { convertToNuFastParams } from "../utils/neutrinoPhysics";
 import { EV_SQ_KM_TO_GEV_OVER4, YerhoE2A } from "./constants";
+
+/**
+ * Converts user-facing oscillation parameters to the internal format used by NuFast calculations.
+ * Moved here to avoid importing mathjs via neutrinoPhysics.ts
+ */
+function convertToNuFastParams(params: OscillationParameters) {
+	return {
+		E: params.energy,
+		L: params.L,
+		s12sq: Math.sin((params.theta12_deg * Math.PI) / 180) ** 2,
+		s13sq: Math.sin((params.theta13_deg * Math.PI) / 180) ** 2,
+		s23sq: Math.sin((params.theta23_deg * Math.PI) / 180) ** 2,
+		deltaCP_rad: (params.deltaCP_deg * Math.PI) / 180,
+		dm21sq: params.dm21sq_eV2,
+		dm31sq: params.dm31sq_eV2,
+		rho: params.rho,
+		Ye: params.Ye,
+		initialFlavorIndex: params.initialFlavorIndex,
+		matterEffect: params.matterEffect,
+	};
+}
 
 /**
  * Calculates oscillation probabilities in vacuum.

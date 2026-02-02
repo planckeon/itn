@@ -36,51 +36,92 @@ const Starfield: React.FC = () => {
 		speedRef.current = state.speed;
 	}, [state.speed]);
 
-	// Mouse event handlers for camera rotation
-	const handleMouseDown = useCallback((e: MouseEvent) => {
+	// Mouse/Touch event handlers for camera rotation
+	const handleStart = useCallback((clientX: number, clientY: number) => {
 		isDraggingRef.current = true;
-		lastMouseRef.current = { x: e.clientX, y: e.clientY };
+		lastMouseRef.current = { x: clientX, y: clientY };
 		const canvas = canvasRef.current;
 		if (canvas) canvas.style.cursor = "grabbing";
 	}, []);
 
-	const handleMouseMove = useCallback((e: MouseEvent) => {
+	const handleMove = useCallback((clientX: number, clientY: number) => {
 		if (!isDraggingRef.current) return;
 		
-		const deltaX = e.clientX - lastMouseRef.current.x;
-		const deltaY = e.clientY - lastMouseRef.current.y;
-		lastMouseRef.current = { x: e.clientX, y: e.clientY };
+		const deltaX = clientX - lastMouseRef.current.x;
+		const deltaY = clientY - lastMouseRef.current.y;
+		lastMouseRef.current = { x: clientX, y: clientY };
 		
 		// Reduced sensitivity for smoother rotation
-		cameraYawRef.current -= deltaX * 0.002;
-		cameraPitchRef.current -= deltaY * 0.002;
+		cameraYawRef.current -= deltaX * 0.003;
+		cameraPitchRef.current -= deltaY * 0.003;
 		
 		// Clamp pitch to avoid flipping
 		cameraPitchRef.current = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, cameraPitchRef.current));
 	}, []);
 
-	const handleMouseUp = useCallback(() => {
+	const handleEnd = useCallback(() => {
 		isDraggingRef.current = false;
 		const canvas = canvasRef.current;
 		if (canvas) canvas.style.cursor = "grab";
 	}, []);
 
-	// Setup mouse event listeners
+	// Mouse handlers
+	const handleMouseDown = useCallback((e: MouseEvent) => {
+		handleStart(e.clientX, e.clientY);
+	}, [handleStart]);
+
+	const handleMouseMove = useCallback((e: MouseEvent) => {
+		handleMove(e.clientX, e.clientY);
+	}, [handleMove]);
+
+	const handleMouseUp = useCallback(() => {
+		handleEnd();
+	}, [handleEnd]);
+
+	// Touch handlers
+	const handleTouchStart = useCallback((e: TouchEvent) => {
+		if (e.touches.length === 1) {
+			handleStart(e.touches[0].clientX, e.touches[0].clientY);
+		}
+	}, [handleStart]);
+
+	const handleTouchMove = useCallback((e: TouchEvent) => {
+		if (e.touches.length === 1) {
+			e.preventDefault(); // Prevent scrolling
+			handleMove(e.touches[0].clientX, e.touches[0].clientY);
+		}
+	}, [handleMove]);
+
+	const handleTouchEnd = useCallback(() => {
+		handleEnd();
+	}, [handleEnd]);
+
+	// Setup mouse and touch event listeners
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
 
 		canvas.style.cursor = "grab";
+		
+		// Mouse events
 		canvas.addEventListener("mousedown", handleMouseDown);
 		window.addEventListener("mousemove", handleMouseMove);
 		window.addEventListener("mouseup", handleMouseUp);
+		
+		// Touch events
+		canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+		canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+		canvas.addEventListener("touchend", handleTouchEnd);
 
 		return () => {
 			canvas.removeEventListener("mousedown", handleMouseDown);
 			window.removeEventListener("mousemove", handleMouseMove);
 			window.removeEventListener("mouseup", handleMouseUp);
+			canvas.removeEventListener("touchstart", handleTouchStart);
+			canvas.removeEventListener("touchmove", handleTouchMove);
+			canvas.removeEventListener("touchend", handleTouchEnd);
 		};
-	}, [handleMouseDown, handleMouseMove, handleMouseUp]);
+	}, [handleMouseDown, handleMouseMove, handleMouseUp, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
 	// Animation loop
 	useEffect(() => {
