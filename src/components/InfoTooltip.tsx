@@ -37,8 +37,17 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "a
 		const spaceLeft = button.left;
 		const spaceRight = window.innerWidth - button.right;
 
-		// Prefer top, then bottom, then right, then left
-		if (spaceTop > tooltipHeight + margin) {
+		// Check if tooltip would overflow horizontally when centered
+		const centerX = button.left + button.width / 2;
+		const wouldOverflowLeft = centerX - tooltipWidth / 2 < margin;
+		const wouldOverflowRight = centerX + tooltipWidth / 2 > window.innerWidth - margin;
+
+		// If near left/right edges, prefer left/right positioning
+		if (wouldOverflowLeft && spaceRight > tooltipWidth + margin) {
+			setTooltipPosition("right");
+		} else if (wouldOverflowRight && spaceLeft > tooltipWidth + margin) {
+			setTooltipPosition("left");
+		} else if (spaceTop > tooltipHeight + margin) {
 			setTooltipPosition("top");
 		} else if (spaceBottom > tooltipHeight + margin) {
 			setTooltipPosition("bottom");
@@ -47,8 +56,8 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "a
 		} else if (spaceLeft > tooltipWidth + margin) {
 			setTooltipPosition("left");
 		} else {
-			// Default to top, will scroll if needed
-			setTooltipPosition("top");
+			// Default to bottom to avoid going off top
+			setTooltipPosition("bottom");
 		}
 	}, [isVisible, position]);
 
