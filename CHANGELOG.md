@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **WASM Loading Indicator** — Shows "Loading physics engine..." with spinner while WASM initializes
   - Fades to "Physics engine ready" or "Using fallback engine" on completion
   - Positioned at top center, disappears after 500ms
+- **PREM Earth Density Model** — Realistic density profiles for neutrino paths through Earth
+  - Dziewonski & Anderson (1981) polynomial fit for all Earth layers
+  - Calculates average density along neutrino trajectory
+  - Shows path description (crust/mantle/core-crossing) when matter enabled
+- **PREM Preset Button** — Green "🌍 PREM" button auto-calculates density from baseline
+  - Updates dynamically as baseline changes
+  - Shows max depth and layer information
 
 ### Changed
 - **45% Faster Vacuum Calculations** — VacuumBatch API pre-computes mixing matrix elements
@@ -21,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical
 - nufast 0.3.1 adds VacuumBatch struct with spectrum() and baseline_scan() methods
 - WASM bridge exports loading state via `onWasmStateChange()` callback
+- New prem.ts module with 21 tests
 
 ## [1.4.0] - 2026-02-03
 
