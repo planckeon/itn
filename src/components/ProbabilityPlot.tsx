@@ -110,7 +110,10 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			return;
 		}
 
-		const maxDistance = Math.max(1, data[data.length - 1]?.distance || 1);
+		// Use min/max distance for sliding window support
+		const minDistance = data[0]?.distance || 0;
+		const maxDistance = Math.max(minDistance + 1, data[data.length - 1]?.distance || 1);
+		const distanceRange = maxDistance - minDistance;
 
 		// Draw axes
 		ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
@@ -147,13 +150,20 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			ctx.fillText(tick.toFixed(1), MARGIN.left - 4, y + 3);
 		}
 
-		// X-axis label
+		// X-axis label - show range
 		ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+		ctx.textAlign = "left";
+		ctx.font = "9px monospace";
+		ctx.fillText(
+			`${minDistance.toFixed(0)}`,
+			MARGIN.left,
+			MARGIN.top + plotHeight + 14,
+		);
 		ctx.textAlign = "right";
 		ctx.fillText(
-			distanceLabel,
+			`${maxDistance.toFixed(0)} km`,
 			MARGIN.left + plotWidth,
-			MARGIN.top + plotHeight + 16,
+			MARGIN.top + plotHeight + 14,
 		);
 
 		// Draw probability lines
@@ -180,7 +190,8 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				// Skip invalid data
 				if (typeof prob !== "number" || Number.isNaN(prob)) continue;
 
-				const x = MARGIN.left + (item.distance / maxDistance) * plotWidth;
+				// Map distance to x using min/max range
+				const x = MARGIN.left + ((item.distance - minDistance) / distanceRange) * plotWidth;
 				const y = MARGIN.top + plotHeight - prob * plotHeight;
 
 				if (!started) {
@@ -203,7 +214,7 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				const prob = lastData.probabilities[flavor];
 				if (typeof prob !== "number" || Number.isNaN(prob)) continue;
 
-				const x = MARGIN.left + (lastData.distance / maxDistance) * plotWidth;
+				const x = MARGIN.left + ((lastData.distance - minDistance) / distanceRange) * plotWidth;
 				const y = MARGIN.top + plotHeight - prob * plotHeight;
 
 				ctx.fillStyle = flavorColors[flavor];
@@ -213,7 +224,7 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			}
 		}
 
-		// Draw oscillation length markers
+		// Draw oscillation length markers (only if they're in the visible range)
 		if (showOscillationLength && energy > 0) {
 			// Calculate oscillation lengths for both mass splittings
 			const L21 = calculateOscillationLength(energy, DM21_SQ); // "Solar" oscillation
@@ -225,12 +236,15 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			ctx.textAlign = "center";
 
 			// Draw L31 markers (atmospheric, faster oscillation)
-			// Only draw if within visible range
-			for (let n = 1; n <= 5; n++) {
+			// Find which multiples are in the visible range
+			const startN31 = Math.max(1, Math.floor(minDistance / L31));
+			const endN31 = Math.ceil(maxDistance / L31);
+			
+			for (let n = startN31; n <= endN31 && n <= startN31 + 5; n++) {
 				const L = n * L31;
-				if (L > maxDistance) break;
+				if (L < minDistance || L > maxDistance) continue;
 
-				const x = MARGIN.left + (L / maxDistance) * plotWidth;
+				const x = MARGIN.left + ((L - minDistance) / distanceRange) * plotWidth;
 
 				// Vertical line
 				ctx.strokeStyle = "rgba(217, 70, 239, 0.4)"; // fuchsia
@@ -239,26 +253,32 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				ctx.lineTo(x, MARGIN.top + plotHeight);
 				ctx.stroke();
 
-				// Label at top (only for first few to avoid clutter)
-				if (n <= 2) {
+				// Label at top (only for first visible ones to avoid clutter)
+				if (n <= startN31 + 1) {
 					ctx.fillStyle = "rgba(217, 70, 239, 0.6)";
 					ctx.fillText(`${n}L₃₁`, x, MARGIN.top - 2);
 				}
 			}
 
 			// Draw L21 markers (solar, slower oscillation) - less prominent
-			const L21_first = L21;
-			if (L21_first <= maxDistance * 2) {
-				const x = MARGIN.left + (L21_first / maxDistance) * plotWidth;
-				if (x <= MARGIN.left + plotWidth) {
-					ctx.strokeStyle = "rgba(59, 130, 246, 0.3)"; // blue
-					ctx.beginPath();
-					ctx.moveTo(x, MARGIN.top);
-					ctx.lineTo(x, MARGIN.top + plotHeight);
-					ctx.stroke();
+			// Find which multiples are in the visible range
+			const startN21 = Math.max(1, Math.floor(minDistance / L21));
+			const endN21 = Math.ceil(maxDistance / L21);
+			
+			for (let n = startN21; n <= endN21 && n <= startN21 + 2; n++) {
+				const L = n * L21;
+				if (L < minDistance || L > maxDistance) continue;
+				
+				const x = MARGIN.left + ((L - minDistance) / distanceRange) * plotWidth;
+				ctx.strokeStyle = "rgba(59, 130, 246, 0.3)"; // blue
+				ctx.beginPath();
+				ctx.moveTo(x, MARGIN.top);
+				ctx.lineTo(x, MARGIN.top + plotHeight);
+				ctx.stroke();
 
+				if (n === startN21) {
 					ctx.fillStyle = "rgba(59, 130, 246, 0.5)";
-					ctx.fillText("L₂₁", x, MARGIN.top + plotHeight + 10);
+					ctx.fillText(`${n}L₂₁`, x, MARGIN.top + plotHeight + 10);
 				}
 			}
 
