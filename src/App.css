@@ -1,3 +1,121 @@
+/* Header Styles */
+
+/* Animated neutrino symbol with color-shifting glow */
+.neutrino-symbol {
+	background: linear-gradient(135deg, #22d3ee, #a78bfa, #f472b6, #22d3ee);
+	background-size: 300% 300%;
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	animation: gradient-shift 8s ease-in-out infinite, pulse-glow 3s ease-in-out
+		infinite;
+	filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.5));
+}
+
+/* Main title text with subtle shimmer */
+.header-text {
+	background: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0.7) 0%,
+		rgba(255, 255, 255, 0.95) 50%,
+		rgba(255, 255, 255, 0.7) 100%
+	);
+	background-size: 200% 100%;
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	animation: shimmer 4s ease-in-out infinite;
+	text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+/* Decorative lines next to subtitle */
+.header-line {
+	display: inline-block;
+	width: 40px;
+	height: 1px;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.3),
+		transparent
+	);
+}
+
+/* Gradient color shift animation */
+@keyframes gradient-shift {
+	0%,
+	100% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+}
+
+/* Subtle pulsing glow for the neutrino symbol */
+@keyframes pulse-glow {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.4))
+			drop-shadow(0 0 30px rgba(167, 139, 250, 0.2));
+		transform: scale(1);
+	}
+	50% {
+		filter: drop-shadow(0 0 25px rgba(34, 211, 238, 0.6))
+			drop-shadow(0 0 50px rgba(167, 139, 250, 0.4));
+		transform: scale(1.02);
+	}
+}
+
+/* Text shimmer animation */
+@keyframes shimmer {
+	0%,
+	100% {
+		background-position: -100% 0;
+	}
+	50% {
+		background-position: 100% 0;
+	}
+}
+
+/* Full header title container */
+.header-title {
+	position: relative;
+}
+
+/* Optional: Add a subtle after-glow line under the title */
+.header-title::after {
+	content: "";
+	position: absolute;
+	bottom: -8px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 120px;
+	height: 2px;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(34, 211, 238, 0.5),
+		rgba(167, 139, 250, 0.5),
+		transparent
+	);
+	border-radius: 1px;
+	animation: line-pulse 3s ease-in-out infinite;
+}
+
+@keyframes line-pulse {
+	0%,
+	100% {
+		opacity: 0.5;
+		width: 100px;
+	}
+	50% {
+		opacity: 1;
+		width: 140px;
+	}
+}
+
+/* Legacy styles for backward compatibility */
 .app-container {
 	position: relative;
 	width: 100vw;

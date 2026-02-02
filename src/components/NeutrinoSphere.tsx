@@ -23,8 +23,14 @@ const FLAVOR_COLORS = {
 };
 
 const NeutrinoSphere: React.FC = () => {
-	const sphereRef = useRef<HTMLDivElement>(null);
-	const glowRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const coreRef = useRef<HTMLDivElement>(null);
+	const innerGlowRef = useRef<HTMLDivElement>(null);
+	const midGlowRef = useRef<HTMLDivElement>(null);
+	const outerGlowRef = useRef<HTMLDivElement>(null);
+	const atmosphereRef = useRef<HTMLDivElement>(null);
+	const ringsRef = useRef<HTMLDivElement>(null);
+	const particlesRef = useRef<HTMLDivElement>(null);
 	const { state } = useSimulation() as { state: SimulationState };
 	const animationRefs = useRef<JSAnimation[]>([]);
 
@@ -53,59 +59,171 @@ const NeutrinoSphere: React.FC = () => {
 				FLAVOR_COLORS.muon.b * Pmu +
 				FLAVOR_COLORS.tau.b * Ptau,
 		);
-		return { r, g, b, hex: `rgb(${r}, ${g}, ${b})` };
+		return { r, g, b };
 	}, [latestProbabilities]);
 
-	// Animate sphere color and glow
+	// Animate all layers with color and effects
 	useEffect(() => {
-		if (!sphereRef.current || !glowRef.current) return;
-
 		// Clear existing animations
 		for (const anim of animationRefs.current) {
 			anim.pause();
 		}
 		animationRefs.current = [];
 
-		const { r, g, b, hex } = blendedColor;
+		const { r, g, b } = blendedColor;
 
-		// Color transition
-		animationRefs.current.push(
-			animate(sphereRef.current, {
-				background: `radial-gradient(circle at 30% 30%, rgb(${r + 60}, ${g + 60}, ${b + 60}), ${hex}, rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 40)}, ${Math.max(0, b - 40)}))`,
-				duration: 400,
-				ease: "outQuad",
-			}),
-		);
+		// Brighter core colors
+		const coreLight = `rgb(${Math.min(255, r + 100)}, ${Math.min(255, g + 100)}, ${Math.min(255, b + 100)})`;
+		const coreMid = `rgb(${Math.min(255, r + 40)}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 40)})`;
+		const coreBase = `rgb(${r}, ${g}, ${b})`;
+		const coreDark = `rgb(${Math.max(0, r - 60)}, ${Math.max(0, g - 60)}, ${Math.max(0, b - 60)})`;
 
-		// Glow effect
-		animationRefs.current.push(
-			animate(glowRef.current, {
-				boxShadow: `0 0 60px 20px rgba(${r}, ${g}, ${b}, 0.5), 0 0 120px 40px rgba(${r}, ${g}, ${b}, 0.3), 0 0 200px 80px rgba(${r}, ${g}, ${b}, 0.15)`,
-				duration: 400,
-				ease: "outQuad",
-			}),
-		);
+		// Core sphere gradient animation
+		if (coreRef.current) {
+			animationRefs.current.push(
+				animate(coreRef.current, {
+					background: `radial-gradient(circle at 35% 25%, ${coreLight}, ${coreMid} 30%, ${coreBase} 60%, ${coreDark} 100%)`,
+					duration: 600,
+					ease: "outQuad",
+				}),
+			);
 
-		// Pulsing animation
-		animationRefs.current.push(
-			animate(sphereRef.current, {
-				scale: [1, 1.02, 1],
-				duration: 2000,
-				ease: "inOutSine",
-				loop: true,
-			}),
-		);
+			// Core pulse - subtle breathing
+			animationRefs.current.push(
+				animate(coreRef.current, {
+					scale: [1, 1.03, 1],
+					duration: 3000,
+					ease: "inOutSine",
+					loop: true,
+				}),
+			);
+		}
 
-		// Glow pulse
-		animationRefs.current.push(
-			animate(glowRef.current, {
-				opacity: [0.8, 1, 0.8],
-				scale: [1, 1.05, 1],
-				duration: 2000,
-				ease: "inOutSine",
-				loop: true,
-			}),
-		);
+		// Inner glow - tight bright halo
+		if (innerGlowRef.current) {
+			animationRefs.current.push(
+				animate(innerGlowRef.current, {
+					boxShadow: `
+						0 0 20px 5px rgba(${r}, ${g}, ${b}, 0.8),
+						0 0 40px 10px rgba(${r}, ${g}, ${b}, 0.5),
+						inset 0 0 30px 10px rgba(${Math.min(255, r + 50)}, ${Math.min(255, g + 50)}, ${Math.min(255, b + 50)}, 0.3)
+					`,
+					duration: 600,
+					ease: "outQuad",
+				}),
+			);
+
+			// Inner glow pulse
+			animationRefs.current.push(
+				animate(innerGlowRef.current, {
+					opacity: [0.9, 1, 0.9],
+					scale: [1, 1.02, 1],
+					duration: 2500,
+					ease: "inOutSine",
+					loop: true,
+				}),
+			);
+		}
+
+		// Mid glow - medium spread
+		if (midGlowRef.current) {
+			animationRefs.current.push(
+				animate(midGlowRef.current, {
+					background: `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.4) 0%, rgba(${r}, ${g}, ${b}, 0.15) 40%, transparent 70%)`,
+					duration: 600,
+					ease: "outQuad",
+				}),
+			);
+
+			// Mid glow pulse - offset timing
+			animationRefs.current.push(
+				animate(midGlowRef.current, {
+					opacity: [0.7, 1, 0.7],
+					scale: [1, 1.08, 1],
+					duration: 3500,
+					ease: "inOutSine",
+					loop: true,
+				}),
+			);
+		}
+
+		// Outer glow - large ethereal spread
+		if (outerGlowRef.current) {
+			animationRefs.current.push(
+				animate(outerGlowRef.current, {
+					background: `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.2) 0%, rgba(${r}, ${g}, ${b}, 0.08) 30%, rgba(${r}, ${g}, ${b}, 0.02) 60%, transparent 80%)`,
+					duration: 600,
+					ease: "outQuad",
+				}),
+			);
+
+			// Outer glow pulse - slow ethereal breathing
+			animationRefs.current.push(
+				animate(outerGlowRef.current, {
+					opacity: [0.5, 0.8, 0.5],
+					scale: [1, 1.1, 1],
+					duration: 4000,
+					ease: "inOutSine",
+					loop: true,
+				}),
+			);
+		}
+
+		// Atmosphere layer - subtle color shift aura
+		if (atmosphereRef.current) {
+			animationRefs.current.push(
+				animate(atmosphereRef.current, {
+					borderColor: `rgba(${r}, ${g}, ${b}, 0.3)`,
+					boxShadow: `0 0 60px 20px rgba(${r}, ${g}, ${b}, 0.15)`,
+					duration: 600,
+					ease: "outQuad",
+				}),
+			);
+
+			// Atmosphere rotation for depth
+			animationRefs.current.push(
+				animate(atmosphereRef.current, {
+					rotate: [0, 360],
+					duration: 20000,
+					ease: "linear",
+					loop: true,
+				}),
+			);
+		}
+
+		// Orbital rings
+		if (ringsRef.current) {
+			animationRefs.current.push(
+				animate(ringsRef.current, {
+					borderColor: `rgba(${r}, ${g}, ${b}, 0.25)`,
+					duration: 600,
+					ease: "outQuad",
+				}),
+			);
+
+			// Rings rotation
+			animationRefs.current.push(
+				animate(ringsRef.current, {
+					rotate: [0, -360],
+					duration: 15000,
+					ease: "linear",
+					loop: true,
+				}),
+			);
+		}
+
+		// Particles shimmer
+		if (particlesRef.current) {
+			animationRefs.current.push(
+				animate(particlesRef.current, {
+					opacity: [0.3, 0.7, 0.3],
+					rotate: [0, 360],
+					duration: 8000,
+					ease: "linear",
+					loop: true,
+				}),
+			);
+		}
 
 		return () => {
 			for (const anim of animationRefs.current) {
@@ -115,26 +233,180 @@ const NeutrinoSphere: React.FC = () => {
 		};
 	}, [blendedColor]);
 
+	const { r, g, b } = blendedColor;
+	const coreLight = `rgb(${Math.min(255, r + 100)}, ${Math.min(255, g + 100)}, ${Math.min(255, b + 100)})`;
+	const coreMid = `rgb(${Math.min(255, r + 40)}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 40)})`;
+	const coreBase = `rgb(${r}, ${g}, ${b})`;
+	const coreDark = `rgb(${Math.max(0, r - 60)}, ${Math.max(0, g - 60)}, ${Math.max(0, b - 60)})`;
+
 	return (
-		<div className="relative flex items-center justify-center">
-			{/* Outer glow layer */}
+		<div
+			ref={containerRef}
+			className="relative flex items-center justify-center"
+			style={{ width: "280px", height: "280px" }}
+		>
+			{/* Outermost ethereal glow */}
 			<div
-				ref={glowRef}
-				className="absolute w-40 h-40 rounded-full"
+				ref={outerGlowRef}
+				className="absolute rounded-full"
 				style={{
-					boxShadow: `0 0 60px 20px rgba(${blendedColor.r}, ${blendedColor.g}, ${blendedColor.b}, 0.5)`,
+					width: "260px",
+					height: "260px",
+					background: `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.2) 0%, rgba(${r}, ${g}, ${b}, 0.08) 30%, rgba(${r}, ${g}, ${b}, 0.02) 60%, transparent 80%)`,
+					filter: "blur(8px)",
 				}}
 			/>
-			{/* Main sphere with gradient */}
+
+			{/* Orbital ring 1 - tilted ellipse */}
 			<div
-				ref={sphereRef}
-				className="relative w-36 h-36 rounded-full"
+				ref={ringsRef}
+				className="absolute rounded-full pointer-events-none"
 				style={{
-					background: `radial-gradient(circle at 30% 30%, rgb(${blendedColor.r + 60}, ${blendedColor.g + 60}, ${blendedColor.b + 60}), ${blendedColor.hex}, rgb(${Math.max(0, blendedColor.r - 40)}, ${Math.max(0, blendedColor.g - 40)}, ${Math.max(0, blendedColor.b - 40)}))`,
-					boxShadow:
-						"inset 0 -10px 30px rgba(0,0,0,0.3), inset 0 10px 30px rgba(255,255,255,0.1)",
+					width: "200px",
+					height: "200px",
+					border: `1px solid rgba(${r}, ${g}, ${b}, 0.25)`,
+					transform: "rotateX(75deg) rotateZ(15deg)",
+					boxShadow: `0 0 10px rgba(${r}, ${g}, ${b}, 0.2)`,
 				}}
 			/>
+
+			{/* Orbital ring 2 - opposite tilt */}
+			<div
+				className="absolute rounded-full pointer-events-none"
+				style={{
+					width: "180px",
+					height: "180px",
+					border: `1px solid rgba(${r}, ${g}, ${b}, 0.15)`,
+					transform: "rotateX(75deg) rotateZ(-30deg)",
+					animation: "spin-reverse 12s linear infinite",
+				}}
+			/>
+
+			{/* Atmosphere layer */}
+			<div
+				ref={atmosphereRef}
+				className="absolute rounded-full"
+				style={{
+					width: "170px",
+					height: "170px",
+					border: `2px solid rgba(${r}, ${g}, ${b}, 0.3)`,
+					boxShadow: `0 0 60px 20px rgba(${r}, ${g}, ${b}, 0.15)`,
+					background: `radial-gradient(circle at 30% 30%, transparent 50%, rgba(${r}, ${g}, ${b}, 0.05) 100%)`,
+				}}
+			/>
+
+			{/* Mid glow layer */}
+			<div
+				ref={midGlowRef}
+				className="absolute rounded-full"
+				style={{
+					width: "160px",
+					height: "160px",
+					background: `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.4) 0%, rgba(${r}, ${g}, ${b}, 0.15) 40%, transparent 70%)`,
+					filter: "blur(4px)",
+				}}
+			/>
+
+			{/* Particle/shimmer layer */}
+			<div
+				ref={particlesRef}
+				className="absolute rounded-full pointer-events-none"
+				style={{
+					width: "140px",
+					height: "140px",
+					background: `
+						radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 8%),
+						radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 6%),
+						radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 5%),
+						radial-gradient(circle at 30% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 7%),
+						radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 4%)
+					`,
+				}}
+			/>
+
+			{/* Inner glow - tight halo around core */}
+			<div
+				ref={innerGlowRef}
+				className="absolute rounded-full"
+				style={{
+					width: "130px",
+					height: "130px",
+					background: `radial-gradient(circle, rgba(${r}, ${g}, ${b}, 0.5) 0%, transparent 70%)`,
+					boxShadow: `
+						0 0 20px 5px rgba(${r}, ${g}, ${b}, 0.8),
+						0 0 40px 10px rgba(${r}, ${g}, ${b}, 0.5),
+						inset 0 0 30px 10px rgba(${Math.min(255, r + 50)}, ${Math.min(255, g + 50)}, ${Math.min(255, b + 50)}, 0.3)
+					`,
+				}}
+			/>
+
+			{/* Main core sphere */}
+			<div
+				ref={coreRef}
+				className="relative rounded-full"
+				style={{
+					width: "100px",
+					height: "100px",
+					background: `radial-gradient(circle at 35% 25%, ${coreLight}, ${coreMid} 30%, ${coreBase} 60%, ${coreDark} 100%)`,
+					boxShadow: `
+						inset -8px -8px 20px rgba(0, 0, 0, 0.4),
+						inset 4px 4px 15px rgba(255, 255, 255, 0.15),
+						0 0 30px 5px rgba(${r}, ${g}, ${b}, 0.6)
+					`,
+				}}
+			>
+				{/* Highlight specular reflection */}
+				<div
+					className="absolute rounded-full"
+					style={{
+						width: "35px",
+						height: "25px",
+						top: "12px",
+						left: "18px",
+						background:
+							"radial-gradient(ellipse at center, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.2) 50%, transparent 70%)",
+						filter: "blur(3px)",
+						transform: "rotate(-20deg)",
+					}}
+				/>
+
+				{/* Secondary smaller highlight */}
+				<div
+					className="absolute rounded-full"
+					style={{
+						width: "12px",
+						height: "8px",
+						top: "40px",
+						left: "14px",
+						background:
+							"radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, transparent 70%)",
+						filter: "blur(2px)",
+						transform: "rotate(-15deg)",
+					}}
+				/>
+
+				{/* Inner core glow - the "heart" */}
+				<div
+					className="absolute rounded-full"
+					style={{
+						width: "30px",
+						height: "30px",
+						top: "50%",
+						left: "50%",
+						transform: "translate(-50%, -50%)",
+						background: `radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(${r}, ${g}, ${b}, 0.6) 40%, transparent 70%)`,
+						filter: "blur(5px)",
+					}}
+				/>
+			</div>
+
+			{/* CSS for reverse spin animation */}
+			<style>{`
+				@keyframes spin-reverse {
+					from { transform: rotateX(75deg) rotateZ(-30deg); }
+					to { transform: rotateX(75deg) rotateZ(330deg); }
+				}
+			`}</style>
 		</div>
 	);
 };

@@ -20,13 +20,21 @@ interface ProbabilityPlotProps {
 	probabilityLabel: string;
 }
 
-const MARGIN = { top: 20, right: 20, bottom: 35, left: 45 };
+// Increased margins for better label visibility
+const MARGIN = { top: 16, right: 24, bottom: 40, left: 52 };
 const Y_TICKS = [0, 0.25, 0.5, 0.75, 1.0];
+
+// Glow colors for each flavor (slightly saturated versions)
+const GLOW_COLORS: Record<string, string> = {
+	electron: "rgba(96, 165, 250, 0.6)",
+	muon: "rgba(251, 146, 60, 0.6)",
+	tau: "rgba(232, 121, 249, 0.6)",
+};
 
 const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 	data,
 	flavorColors,
-	height = 160,
+	height = 180,
 	distanceLabel,
 	probabilityLabel,
 }) => {
@@ -133,12 +141,63 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 		// Clear previous drawings
 		svg.innerHTML = "";
 
+		// Create defs for filters (glow effects)
+		const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+		svg.appendChild(defs);
+
+		// Create glow filters for each flavor
+		const flavors: ("electron" | "muon" | "tau")[] = [
+			"electron",
+			"muon",
+			"tau",
+		];
+
+		for (const flavor of flavors) {
+			const filter = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"filter",
+			);
+			filter.setAttribute("id", `glow-${flavor}`);
+			filter.setAttribute("x", "-50%");
+			filter.setAttribute("y", "-50%");
+			filter.setAttribute("width", "200%");
+			filter.setAttribute("height", "200%");
+
+			const feGaussianBlur = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"feGaussianBlur",
+			);
+			feGaussianBlur.setAttribute("stdDeviation", "3");
+			feGaussianBlur.setAttribute("result", "coloredBlur");
+			filter.appendChild(feGaussianBlur);
+
+			const feMerge = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"feMerge",
+			);
+			const feMergeNode1 = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"feMergeNode",
+			);
+			feMergeNode1.setAttribute("in", "coloredBlur");
+			const feMergeNode2 = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"feMergeNode",
+			);
+			feMergeNode2.setAttribute("in", "SourceGraphic");
+			feMerge.appendChild(feMergeNode1);
+			feMerge.appendChild(feMergeNode2);
+			filter.appendChild(feMerge);
+
+			defs.appendChild(filter);
+		}
+
 		// Create main group with margins
 		const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 		g.setAttribute("transform", `translate(${MARGIN.left}, ${MARGIN.top})`);
 		svg.appendChild(g);
 
-		// Draw grid lines (horizontal)
+		// Draw grid lines (horizontal) - more visible
 		for (const tick of Y_TICKS) {
 			const y = plotHeight - tick * plotHeight;
 			const gridLine = document.createElementNS(
@@ -149,12 +208,13 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			gridLine.setAttribute("y1", y.toString());
 			gridLine.setAttribute("x2", plotWidth.toString());
 			gridLine.setAttribute("y2", y.toString());
-			gridLine.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
+			gridLine.setAttribute("stroke", "rgba(255, 255, 255, 0.12)");
 			gridLine.setAttribute("stroke-width", "1");
+			gridLine.setAttribute("stroke-dasharray", "4,4");
 			g.appendChild(gridLine);
 		}
 
-		// Draw Y-axis
+		// Draw Y-axis - cleaner and brighter
 		const yAxis = document.createElementNS(
 			"http://www.w3.org/2000/svg",
 			"line",
@@ -163,11 +223,11 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 		yAxis.setAttribute("y1", "0");
 		yAxis.setAttribute("x2", "0");
 		yAxis.setAttribute("y2", plotHeight.toString());
-		yAxis.setAttribute("stroke", "rgba(255, 255, 255, 0.3)");
-		yAxis.setAttribute("stroke-width", "1");
+		yAxis.setAttribute("stroke", "rgba(255, 255, 255, 0.4)");
+		yAxis.setAttribute("stroke-width", "1.5");
 		g.appendChild(yAxis);
 
-		// Draw X-axis
+		// Draw X-axis - cleaner and brighter
 		const xAxis = document.createElementNS(
 			"http://www.w3.org/2000/svg",
 			"line",
@@ -176,11 +236,11 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 		xAxis.setAttribute("y1", plotHeight.toString());
 		xAxis.setAttribute("x2", plotWidth.toString());
 		xAxis.setAttribute("y2", plotHeight.toString());
-		xAxis.setAttribute("stroke", "rgba(255, 255, 255, 0.3)");
-		xAxis.setAttribute("stroke-width", "1");
+		xAxis.setAttribute("stroke", "rgba(255, 255, 255, 0.4)");
+		xAxis.setAttribute("stroke-width", "1.5");
 		g.appendChild(xAxis);
 
-		// Y-axis ticks and labels
+		// Y-axis ticks and labels - larger and brighter
 		for (const tick of Y_TICKS) {
 			const y = plotHeight - tick * plotHeight;
 
@@ -189,29 +249,30 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				"http://www.w3.org/2000/svg",
 				"line",
 			);
-			tickMark.setAttribute("x1", "-5");
+			tickMark.setAttribute("x1", "-6");
 			tickMark.setAttribute("y1", y.toString());
 			tickMark.setAttribute("x2", "0");
 			tickMark.setAttribute("y2", y.toString());
 			tickMark.setAttribute("stroke", "rgba(255, 255, 255, 0.5)");
-			tickMark.setAttribute("stroke-width", "1");
+			tickMark.setAttribute("stroke-width", "1.5");
 			g.appendChild(tickMark);
 
-			// Label
+			// Label - larger font
 			const label = document.createElementNS(
 				"http://www.w3.org/2000/svg",
 				"text",
 			);
-			label.setAttribute("x", "-8");
+			label.setAttribute("x", "-10");
 			label.setAttribute("y", (y + 4).toString());
 			label.setAttribute("text-anchor", "end");
-			label.setAttribute("fill", "rgba(255, 255, 255, 0.6)");
-			label.setAttribute("font-size", "10");
+			label.setAttribute("fill", "rgba(255, 255, 255, 0.7)");
+			label.setAttribute("font-size", "11");
+			label.setAttribute("font-family", "system-ui, sans-serif");
 			label.textContent = tick.toFixed(tick % 0.5 === 0 ? 1 : 2);
 			g.appendChild(label);
 		}
 
-		// X-axis ticks and labels
+		// X-axis ticks and labels - larger and brighter
 		for (const tick of xTicks) {
 			const x = (tick / maxDistance) * plotWidth;
 
@@ -223,61 +284,77 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			tickMark.setAttribute("x1", x.toString());
 			tickMark.setAttribute("y1", plotHeight.toString());
 			tickMark.setAttribute("x2", x.toString());
-			tickMark.setAttribute("y2", (plotHeight + 5).toString());
+			tickMark.setAttribute("y2", (plotHeight + 6).toString());
 			tickMark.setAttribute("stroke", "rgba(255, 255, 255, 0.5)");
-			tickMark.setAttribute("stroke-width", "1");
+			tickMark.setAttribute("stroke-width", "1.5");
 			g.appendChild(tickMark);
 
-			// Label
+			// Label - larger font
 			const label = document.createElementNS(
 				"http://www.w3.org/2000/svg",
 				"text",
 			);
 			label.setAttribute("x", x.toString());
-			label.setAttribute("y", (plotHeight + 18).toString());
+			label.setAttribute("y", (plotHeight + 20).toString());
 			label.setAttribute("text-anchor", "middle");
-			label.setAttribute("fill", "rgba(255, 255, 255, 0.6)");
-			label.setAttribute("font-size", "10");
+			label.setAttribute("fill", "rgba(255, 255, 255, 0.7)");
+			label.setAttribute("font-size", "11");
+			label.setAttribute("font-family", "system-ui, sans-serif");
 			label.textContent = tick.toString();
 			g.appendChild(label);
 		}
 
-		// Y-axis label
+		// Y-axis label - positioned better
 		const yLabel = document.createElementNS(
 			"http://www.w3.org/2000/svg",
 			"text",
 		);
 		yLabel.setAttribute("x", (-plotHeight / 2).toString());
-		yLabel.setAttribute("y", "-32");
+		yLabel.setAttribute("y", "-38");
 		yLabel.setAttribute("text-anchor", "middle");
-		yLabel.setAttribute("fill", "rgba(255, 255, 255, 0.6)");
-		yLabel.setAttribute("font-size", "11");
+		yLabel.setAttribute("fill", "rgba(255, 255, 255, 0.75)");
+		yLabel.setAttribute("font-size", "12");
+		yLabel.setAttribute("font-weight", "500");
+		yLabel.setAttribute("font-family", "system-ui, sans-serif");
 		yLabel.setAttribute("transform", "rotate(-90)");
 		yLabel.textContent = probabilityLabel;
 		g.appendChild(yLabel);
 
-		// X-axis label
+		// X-axis label - positioned better
 		const xLabel = document.createElementNS(
 			"http://www.w3.org/2000/svg",
 			"text",
 		);
 		xLabel.setAttribute("x", (plotWidth / 2).toString());
-		xLabel.setAttribute("y", (plotHeight + 30).toString());
+		xLabel.setAttribute("y", (plotHeight + 35).toString());
 		xLabel.setAttribute("text-anchor", "middle");
-		xLabel.setAttribute("fill", "rgba(255, 255, 255, 0.6)");
-		xLabel.setAttribute("font-size", "11");
+		xLabel.setAttribute("fill", "rgba(255, 255, 255, 0.75)");
+		xLabel.setAttribute("font-size", "12");
+		xLabel.setAttribute("font-weight", "500");
+		xLabel.setAttribute("font-family", "system-ui, sans-serif");
 		xLabel.textContent = distanceLabel;
 		g.appendChild(xLabel);
 
-		// Draw probability lines
-		const flavors: ("electron" | "muon" | "tau")[] = [
-			"electron",
-			"muon",
-			"tau",
-		];
-
+		// Draw probability lines with glow effect
 		for (const flavor of flavors) {
 			const pathData = getPathData(flavor, plotWidth, plotHeight, maxDistance);
+
+			// Glow layer (drawn first, behind main line)
+			const glowPath = document.createElementNS(
+				"http://www.w3.org/2000/svg",
+				"path",
+			);
+			glowPath.setAttribute("d", pathData);
+			glowPath.setAttribute("stroke", GLOW_COLORS[flavor]);
+			glowPath.setAttribute("fill", "none");
+			glowPath.setAttribute("stroke-width", "8");
+			glowPath.setAttribute("stroke-linecap", "round");
+			glowPath.setAttribute("stroke-linejoin", "round");
+			glowPath.setAttribute("opacity", "0.4");
+			glowPath.setAttribute("filter", `url(#glow-${flavor})`);
+			g.appendChild(glowPath);
+
+			// Main line
 			const pathElement = document.createElementNS(
 				"http://www.w3.org/2000/svg",
 				"path",
@@ -285,7 +362,7 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			pathElement.setAttribute("d", pathData);
 			pathElement.setAttribute("stroke", flavorColors[flavor]);
 			pathElement.setAttribute("fill", "none");
-			pathElement.setAttribute("stroke-width", "2.5");
+			pathElement.setAttribute("stroke-width", "3");
 			pathElement.setAttribute("stroke-linecap", "round");
 			pathElement.setAttribute("stroke-linejoin", "round");
 			g.appendChild(pathElement);
@@ -294,6 +371,8 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			const pathLength = pathElement.getTotalLength();
 			pathElement.setAttribute("stroke-dasharray", pathLength.toString());
 			pathElement.setAttribute("stroke-dashoffset", pathLength.toString());
+			glowPath.setAttribute("stroke-dasharray", pathLength.toString());
+			glowPath.setAttribute("stroke-dashoffset", pathLength.toString());
 
 			const lineAnimation = animate(pathElement, {
 				strokeDashoffset: [pathLength, 0],
@@ -302,9 +381,17 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 				delay: utils.random(0, 300),
 			});
 			animationRefs.current.push(lineAnimation);
+
+			const glowAnimation = animate(glowPath, {
+				strokeDashoffset: [pathLength, 0],
+				ease: "outQuad",
+				duration: 800,
+				delay: utils.random(0, 300),
+			});
+			animationRefs.current.push(glowAnimation);
 		}
 
-		// Draw current probability markers
+		// Draw current probability markers with enhanced styling
 		const lastDataItem = data[numDataPoints - 1];
 		if (lastDataItem) {
 			const xPos = plotWidth;
@@ -312,22 +399,47 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			for (const flavor of flavors) {
 				const yPos =
 					plotHeight - lastDataItem.probabilities[flavor] * plotHeight;
+
+				// Outer glow ring
+				const glowRing = document.createElementNS(
+					"http://www.w3.org/2000/svg",
+					"circle",
+				);
+				glowRing.setAttribute("cx", xPos.toString());
+				glowRing.setAttribute("cy", yPos.toString());
+				glowRing.setAttribute("r", "10");
+				glowRing.setAttribute("fill", GLOW_COLORS[flavor]);
+				glowRing.setAttribute("opacity", "0");
+				glowRing.setAttribute("filter", `url(#glow-${flavor})`);
+				g.appendChild(glowRing);
+
+				// Main marker
 				const marker = document.createElementNS(
 					"http://www.w3.org/2000/svg",
 					"circle",
 				);
 				marker.setAttribute("cx", xPos.toString());
 				marker.setAttribute("cy", yPos.toString());
-				marker.setAttribute("r", "5");
+				marker.setAttribute("r", "6");
 				marker.setAttribute("fill", flavorColors[flavor]);
 				marker.setAttribute("stroke", "#fff");
-				marker.setAttribute("stroke-width", "1.5");
+				marker.setAttribute("stroke-width", "2");
 				marker.style.opacity = "0";
 				g.appendChild(marker);
 
+				// Animation for glow ring
+				const glowAnimation = animate(glowRing, {
+					opacity: [0, 0.5],
+					scale: [0.5, 1],
+					ease: "outQuad",
+					duration: 600,
+					delay: 700 + utils.random(0, 200),
+				});
+				animationRefs.current.push(glowAnimation);
+
 				// Animation for marker entry
 				const markerAnimation = animate(marker, {
-					scale: [0, 1.1, 1],
+					scale: [0, 1.15, 1],
 					opacity: [0, 1],
 					ease: "outElastic(1, .8)",
 					duration: 1000,
