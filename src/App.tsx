@@ -1,9 +1,11 @@
+import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import ProbabilityPlot from "./components/ProbabilityPlot";
 import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
 import TopControlBar from "./components/TopControlBar";
 import VisualizationArea from "./components/VisualizationArea";
 import { SimulationProvider, useSimulation } from "./context/SimulationContext";
+import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts";
 
 // Wrapper component to access simulation context for the plot
 function PlotWrapper() {
@@ -69,6 +71,17 @@ function PlotWrapper() {
 function App() {
 	return (
 		<SimulationProvider>
+			<AppContent />
+		</SimulationProvider>
+	);
+}
+
+function AppContent() {
+	// Enable keyboard shortcuts
+	useKeyboardShortcuts();
+
+	return (
+		<>
 			{/* No background color - Starfield canvas IS the background */}
 			<div className="App text-white font-mono min-h-screen overflow-hidden relative">
 				{/* Screen reader only title */}
@@ -90,8 +103,11 @@ function App() {
 
 				{/* Ternary flavor space plot - bottom left - z-index 10 */}
 				<TernaryPlot />
+
+				{/* Energy spectrum plot - bottom right - z-index 10 */}
+				<EnergySpectrumPlot />
 			</div>
-		</SimulationProvider>
+		</>
 	);
 }
 

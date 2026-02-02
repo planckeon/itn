@@ -13,16 +13,51 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 
 ## Features
 
+### Visualization
 - **Immersive 3D Starfield** — Fly through space with the neutrino
 - **Interactive Camera** — Drag to rotate your view (mouse or touch)
 - **Color-Evolving Sphere** — The neutrino's color reflects its flavor probabilities
-- **Real-time Probability Plot** — Watch P(νₑ), P(νμ), P(ντ) evolve over distance
-- **Physics Controls** — Adjust energy, speed, initial flavor, and matter effects
+- **MSW Resonance Glow** — Golden ring when at matter resonance energy
+
+### Analysis Plots
+- **Probability vs Distance** — P(νₑ), P(νμ), P(ντ) over time with oscillation length markers
+- **Ternary Flavor Triangle** — VISOS-style flavor space trajectory
+- **Energy Spectrum** — P vs E at current distance (bottom right)
+
+### Physics Controls
+- **Experiment Presets** — T2K, NOvA, DUNE, KamLAND configurations
+- **δCP Slider** — CP violation phase (0-360°)
+- **ν/ν̄ Toggle** — Neutrino/antineutrino mode
+- **NO/IO Toggle** — Normal/Inverted mass ordering
+- **Matter Effect** — Enable MSW effect with adjustable density
+- **Energy & Speed** — Continuous sliders
+
+### Quality of Life
+- **Keyboard Shortcuts** — See below
+- **Info Tooltips** — Hover over (?) for physics explanations
 - **Mobile Responsive** — Full touch support with compact UI
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Space` | Play/Pause |
+| `A` | Toggle antineutrino |
+| `M` | Toggle matter effect |
+| `N` | Toggle mass ordering |
+| `R` | Reset simulation |
+| `1-4` | Apply presets (T2K, NOvA, DUNE, KamLAND) |
+| `↑/↓` | Adjust energy |
+| `←/→` | Adjust δCP |
 
 ## Physics
 
-Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://arxiv.org/abs/2405.02400)) for accurate 3-flavor neutrino oscillation probability calculations, including matter effects.
+Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://arxiv.org/abs/2405.02400)) for accurate 3-flavor neutrino oscillation probability calculations.
+
+**Parameters (NuFit 5.2):**
+- θ₁₂ = 33.44°, θ₁₃ = 8.57°, θ₂₃ = 49.2°
+- Δm²₂₁ = 7.42×10⁻⁵ eV²
+- Δm²₃₁ = +2.517×10⁻³ eV² (NO) / -2.498×10⁻³ eV² (IO)
 
 ## Tech Stack
 
@@ -48,14 +83,22 @@ npm test         # Run tests (38 passing)
 
 ```
 src/
-├── components/     # React components
-│   ├── Starfield.tsx       # 3D starfield with camera rotation
-│   ├── NeutrinoSphere.tsx  # Color-blending sphere
-│   ├── ProbabilityPlot.tsx # Canvas-based plot
-│   └── TopControlBar.tsx   # Parameter controls
-├── context/        # Simulation state
-├── physics/        # NuFast implementation
-└── utils/          # Helpers
+├── components/
+│   ├── Starfield.tsx          # 3D starfield with camera rotation
+│   ├── NeutrinoSphere.tsx     # Color-blending sphere + MSW glow
+│   ├── ProbabilityPlot.tsx    # P vs L plot with markers
+│   ├── TernaryPlot.tsx        # Flavor triangle
+│   ├── EnergySpectrumPlot.tsx # P vs E spectrum
+│   ├── TopControlBar.tsx      # All controls
+│   └── InfoTooltip.tsx        # Physics explanations
+├── hooks/
+│   └── useKeyboardShortcuts.ts
+├── context/
+│   └── SimulationContext.tsx  # All state + physics
+├── physics/
+│   ├── NuFastPort.ts          # Core algorithm
+│   └── types.ts               # Interfaces
+└── utils/                     # Helpers
 ```
 
 ## License
