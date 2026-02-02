@@ -210,15 +210,9 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 
 			setTime((prevTime) => prevTime + deltaTime * speed);
 			setDistance((prevDistance) => {
-				const newDistance = prevDistance + deltaTime * speed * c * 1e-3; // Distance in km
-				// Graceful loop: wrap around at max distance
-				// The physics is periodic - oscillations repeat naturally
-				if (newDistance >= LmaxSim) {
-					// Clear history for fresh graph, keep everything else
-					setProbabilityHistory([]);
-					return 0; // Loop back to start
-				}
-				return newDistance;
+				// No cap - let distance grow indefinitely
+				// The graph uses a sliding window so it stays readable
+				return prevDistance + deltaTime * speed * c * 1e-3; // Distance in km
 			});
 
 			animationFrameId.current = requestAnimationFrame(updateSimulation);
@@ -231,7 +225,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 				cancelAnimationFrame(animationFrameId.current);
 			}
 		};
-	}, [speed, resetSimulation]); // Re-run effect if speed changes
+	}, [speed]); // Re-run effect if speed changes
 
 	// Effect to recalculate probabilities when relevant parameters change
 	useEffect(() => {
@@ -277,8 +271,8 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 						Ptau: probabilities[2],
 					},
 				];
-				// Keep history length reasonable (e.g., last 500 points)
-				const probHistoryLen = 500;
+				// Keep history length reasonable - sliding window for infinite scroll
+				const probHistoryLen = 800;
 				if (newHistory.length > probHistoryLen) {
 					return newHistory.slice(newHistory.length - probHistoryLen);
 				}
