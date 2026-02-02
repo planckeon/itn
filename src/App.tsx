@@ -34,15 +34,15 @@ function PlotWrapper() {
 					<div className="flex items-center gap-4">
 						<div className="flex items-center gap-1.5">
 							<div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-							<span className="text-[10px] text-white/60">νₑ</span>
+							<span className="text-[10px] text-white/60">ν<sub>e</sub></span>
 						</div>
 						<div className="flex items-center gap-1.5">
 							<div className="w-2.5 h-2.5 rounded-full bg-orange-400" />
-							<span className="text-[10px] text-white/60">νμ</span>
+							<span className="text-[10px] text-white/60">ν<sub>μ</sub></span>
 						</div>
 						<div className="flex items-center gap-1.5">
 							<div className="w-2.5 h-2.5 rounded-full bg-fuchsia-500" />
-							<span className="text-[10px] text-white/60">ντ</span>
+							<span className="text-[10px] text-white/60">ν<sub>τ</sub></span>
 						</div>
 					</div>
 				</div>
