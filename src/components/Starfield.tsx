@@ -65,10 +65,17 @@ const Starfield: React.FC = () => {
 			const dpr = window.devicePixelRatio || 1;
 			const width = canvas.clientWidth;
 			const height = canvas.clientHeight;
-			
-			canvas.width = width * dpr;
-			canvas.height = height * dpr;
-			context.scale(dpr, dpr);
+
+			// Only resize canvas if dimensions changed
+			const expectedWidth = Math.floor(width * dpr);
+			const expectedHeight = Math.floor(height * dpr);
+			if (canvas.width !== expectedWidth || canvas.height !== expectedHeight) {
+				canvas.width = expectedWidth;
+				canvas.height = expectedHeight;
+			}
+
+			// Reset transform and scale for DPI
+			context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 			const speed = speedRef.current;
 			const v = 8 * speed * 0.1; // Movement velocity
