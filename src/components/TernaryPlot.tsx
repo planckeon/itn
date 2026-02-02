@@ -1,6 +1,7 @@
 import type React from "react";
 import { useRef, useEffect } from "react";
 import { useSimulation } from "../context/SimulationContext";
+import InfoTooltip, { PHYSICS_INFO } from "./InfoTooltip";
 
 /**
  * Ternary Plot (Triangle Plot) for visualizing neutrino flavor evolution
@@ -225,6 +226,10 @@ const TernaryPlot: React.FC = () => {
 				border: "1px solid rgba(255, 255, 255, 0.1)",
 			}}
 		>
+			{/* Info button in top right corner */}
+			<div className="absolute top-1 right-1">
+				<InfoTooltip text={PHYSICS_INFO.ternaryPlot} />
+			</div>
 			<canvas
 				ref={canvasRef}
 				style={{ width: "150px", height: "150px" }}

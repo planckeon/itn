@@ -1,5 +1,6 @@
 import type React from "react";
 import { useSimulation, EXPERIMENT_PRESETS } from "../context/SimulationContext";
+import InfoTooltip, { PHYSICS_INFO } from "./InfoTooltip";
 
 const TopControlBar: React.FC = () => {
 	const {
@@ -130,8 +131,9 @@ const TopControlBar: React.FC = () => {
 
 				{/* δCP Slider */}
 				<div className="flex items-center gap-2">
-					<label htmlFor="deltaCP" className="text-white/80 whitespace-nowrap">
+					<label htmlFor="deltaCP" className="text-white/80 whitespace-nowrap flex items-center gap-1">
 						δ<sub>CP</sub>:
+						<InfoTooltip text={PHYSICS_INFO.deltaCP} />
 					</label>
 					<input
 						type="range"
@@ -166,8 +168,9 @@ const TopControlBar: React.FC = () => {
 
 				{/* Matter Effect Toggle */}
 				<div className="flex items-center gap-2">
-					<label htmlFor="matterEffect" className="text-white/80 whitespace-nowrap">
+					<label htmlFor="matterEffect" className="text-white/80 whitespace-nowrap flex items-center gap-1">
 						Matter:
+						<InfoTooltip text={PHYSICS_INFO.matterEffect} />
 					</label>
 					<input
 						type="checkbox"
