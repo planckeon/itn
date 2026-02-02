@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import HelpModal from "./components/HelpModal";
 import LearnMorePanel from "./components/LearnMorePanel";
 import PMNSMatrix from "./components/PMNSMatrix";
@@ -26,6 +26,21 @@ interface BottomHUDProps {
 	onOpenHelp: () => void;
 }
 
+// Memoized panel components to prevent unnecessary re-renders
+const TernaryPanel = memo(() => (
+	<div className="flex-shrink-0">
+		<TernaryPlot embedded />
+	</div>
+));
+TernaryPanel.displayName = "TernaryPanel";
+
+const SpectrumPanel = memo(() => (
+	<div className="flex-shrink-0">
+		<EnergySpectrumPlot embedded />
+	</div>
+));
+SpectrumPanel.displayName = "SpectrumPanel";
+
 // Unified bottom control panel with toggleable widgets and menu
 function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDProps) {
 	const { state } = useSimulation();
@@ -37,9 +52,10 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 	});
 	const [shareOpen, setShareOpen] = useState(false);
 
-	const togglePanel = (panel: keyof PanelState) => {
+	// Memoized toggle to prevent recreation
+	const togglePanel = useCallback((panel: keyof PanelState) => {
 		setPanels(prev => ({ ...prev, [panel]: !prev[panel] }));
-	};
+	}, []);
 
 	const probabilityData = probabilityHistory.map((item) => ({
 		distance: item.distance,
@@ -58,18 +74,14 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum;
 
 	return (
-		<div className="fixed bottom-0 left-0 right-0 z-20">
-			{/* Panel area - flexbox row for multiple panels */}
+		<div className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
+			{/* Panel area - rendered conditionally without animation */}
 			{anyPanelOpen && (
-				<div className="flex justify-center items-end gap-3 px-4 pb-2">
-					{panels.ternary && (
-						<div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
-							<TernaryPlot embedded />
-						</div>
-					)}
+				<div className="flex justify-center items-end gap-3 px-4 pb-2 pointer-events-auto">
+					{panels.ternary && <TernaryPanel />}
 					{panels.probability && (
 						<div 
-							className="flex-1 max-w-2xl min-w-[300px] rounded-xl px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-200"
+							className="flex-1 max-w-2xl min-w-[300px] rounded-xl px-4 py-3"
 							style={{
 								background: "rgba(20, 20, 30, 0.9)",
 								border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -108,17 +120,13 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 							/>
 						</div>
 					)}
-					{panels.spectrum && (
-						<div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
-							<EnergySpectrumPlot embedded />
-						</div>
-					)}
+					{panels.spectrum && <SpectrumPanel />}
 				</div>
 			)}
 
 			{/* Control bar - always visible */}
 			<div 
-				className="flex items-center justify-center gap-2 py-2.5 px-4"
+				className="flex items-center justify-center gap-2 py-2.5 px-4 pointer-events-auto"
 				style={{
 					background: "rgba(15, 15, 25, 0.95)",
 					borderTop: "1px solid rgba(255, 255, 255, 0.1)",
@@ -135,12 +143,12 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 				{/* Divider */}
 				<div className="w-px h-4 bg-white/20" />
 
-				{/* Panel toggles */}
+				{/* Panel toggles - direct onClick, no delays */}
 				<div className="flex items-center gap-1">
 					<button
 						type="button"
 						onClick={() => togglePanel("ternary")}
-						className={`px-2.5 py-1.5 rounded text-xs font-mono transition-all ${
+						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
 							panels.ternary 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
@@ -152,7 +160,7 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 					<button
 						type="button"
 						onClick={() => togglePanel("probability")}
-						className={`px-2.5 py-1.5 rounded text-xs font-mono transition-all ${
+						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
 							panels.probability 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
@@ -164,7 +172,7 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 					<button
 						type="button"
 						onClick={() => togglePanel("spectrum")}
-						className={`px-2.5 py-1.5 rounded text-xs font-mono transition-all ${
+						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
 							panels.spectrum 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
@@ -183,7 +191,7 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 					<button
 						type="button"
 						onClick={() => setShareOpen(true)}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
 						title="Share"
 					>
 						🔗
@@ -191,7 +199,7 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 					<button
 						type="button"
 						onClick={onOpenLearnMore}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
 						title="Learn More"
 					>
 						📚
@@ -199,7 +207,7 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 					<button
 						type="button"
 						onClick={onOpenSettings}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
 						title="Settings"
 					>
 						⚙️
@@ -207,7 +215,7 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 					<button
 						type="button"
 						onClick={onOpenHelp}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
 						title="Help (Keyboard Shortcuts)"
 					>
 						❓
@@ -216,7 +224,9 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 			</div>
 
 			{/* Share modal */}
-			<ShareButton isOpen={shareOpen} onClose={() => setShareOpen(false)} />
+			{shareOpen && (
+				<ShareButton isOpen={shareOpen} onClose={() => setShareOpen(false)} />
+			)}
 		</div>
 	);
 }
@@ -238,6 +248,14 @@ function AppContent() {
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	const [helpOpen, setHelpOpen] = useState(false);
 
+	// Memoized handlers to prevent unnecessary re-renders
+	const openLearnMore = useCallback(() => setLearnOpen(true), []);
+	const closeLearnMore = useCallback(() => setLearnOpen(false), []);
+	const openSettings = useCallback(() => setSettingsOpen(true), []);
+	const closeSettings = useCallback(() => setSettingsOpen(false), []);
+	const openHelp = useCallback(() => setHelpOpen(true), []);
+	const closeHelp = useCallback(() => setHelpOpen(false), []);
+
 	return (
 		<div className="App text-white font-mono min-h-screen overflow-hidden relative bg-black">
 			<h1 className="sr-only">Neutrino Oscillation Visualization</h1>
@@ -258,15 +276,15 @@ function AppContent() {
 
 			{/* Bottom HUD with panels and menu */}
 			<BottomHUD 
-				onOpenLearnMore={() => setLearnOpen(true)}
-				onOpenSettings={() => setSettingsOpen(true)}
-				onOpenHelp={() => setHelpOpen(true)}
+				onOpenLearnMore={openLearnMore}
+				onOpenSettings={openSettings}
+				onOpenHelp={openHelp}
 			/>
 
-			{/* Modals */}
-			<LearnMorePanel isOpen={learnOpen} onClose={() => setLearnOpen(false)} />
-			<SettingsPanel isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
-			<HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+			{/* Modals - only render when open */}
+			{learnOpen && <LearnMorePanel isOpen={learnOpen} onClose={closeLearnMore} />}
+			{settingsOpen && <SettingsPanel isOpen={settingsOpen} onClose={closeSettings} />}
+			{helpOpen && <HelpModal isOpen={helpOpen} onClose={closeHelp} />}
 		</div>
 	);
 }
