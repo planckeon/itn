@@ -29,7 +29,7 @@ function PlotWrapper() {
 	}));
 
 	return (
-		<div className="fixed bottom-4 left-[180px] right-[290px] z-20 min-w-[280px]">
+		<div className="fixed bottom-4 left-[200px] right-[280px] z-20 min-w-[240px]">
 			{/* Semi-transparent plot container */}
 			<div
 				className="rounded-xl px-4 py-3"
