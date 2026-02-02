@@ -13,6 +13,9 @@ import { useSimulation, EXPERIMENT_PRESETS } from "../context/SimulationContext"
  * 1-4 - Apply experiment presets (T2K, NOvA, DUNE, KamLAND)
  * Arrow Up/Down - Adjust energy
  * Arrow Left/Right - Adjust δCP
+ * +/= - Zoom in
+ * -/_ - Zoom out
+ * 0 - Reset zoom
  */
 export function useKeyboardShortcuts() {
 	const {
@@ -23,6 +26,7 @@ export function useKeyboardShortcuts() {
 		setMatter,
 		setIsAntineutrino,
 		setMassOrdering,
+		setZoom,
 		resetSimulation,
 		applyPreset,
 	} = useSimulation();
@@ -84,13 +88,52 @@ export function useKeyboardShortcuts() {
 				e.preventDefault();
 				setDeltaCP((state.deltaCP + 15) % 360);
 				break;
+
+			case "+": // Zoom in
+			case "=": // = key (same key as + without shift)
+				e.preventDefault();
+				setZoom(Math.min(2, state.zoom + 0.1));
+				break;
+
+			case "-": // Zoom out
+			case "_": // _ key (same key as - with shift)
+				e.preventDefault();
+				setZoom(Math.max(0.5, state.zoom - 0.1));
+				break;
+
+			case "0": // Reset zoom
+				if (!e.ctrlKey && !e.metaKey) { // Don't interfere with browser zoom reset
+					e.preventDefault();
+					setZoom(0.75); // Default zoom
+				}
+				break;
 		}
-	}, [state, setSpeed, setEnergy, setDeltaCP, setMatter, setIsAntineutrino, setMassOrdering, resetSimulation, applyPreset]);
+	}, [state, setSpeed, setEnergy, setDeltaCP, setMatter, setIsAntineutrino, setMassOrdering, setZoom, resetSimulation, applyPreset]);
+
+	// Handle wheel zoom globally
+	const handleWheel = useCallback((e: WheelEvent) => {
+		// Only zoom if over the main visualization area (not over panels)
+		const target = e.target as HTMLElement;
+		if (target.closest('[data-panel]') || target.closest('button') || target.closest('select')) {
+			return;
+		}
+
+		e.preventDefault();
+		const delta = e.deltaY > 0 ? -0.1 : 0.1;
+		const newZoom = Math.max(0.5, Math.min(2, state.zoom + delta));
+		setZoom(newZoom);
+	}, [state.zoom, setZoom]);
 
 	useEffect(() => {
 		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleKeyDown]);
+		// Use passive: false to allow preventDefault on wheel
+		window.addEventListener("wheel", handleWheel, { passive: false });
+		
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+			window.removeEventListener("wheel", handleWheel);
+		};
+	}, [handleKeyDown, handleWheel]);
 }
 
 export default useKeyboardShortcuts;

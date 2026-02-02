@@ -97,12 +97,15 @@ function BottomControls({
 	onOpenSettings, 
 	onOpenHelp 
 }: BottomControlsProps) {
-	const { state } = useSimulation();
-	const { probabilityHistory, distance } = state;
+	const { state, setZoom } = useSimulation();
+	const { probabilityHistory, distance, zoom } = state;
 
 	const currentProbs = probabilityHistory.length > 0
 		? probabilityHistory[probabilityHistory.length - 1]
 		: { Pe: 1, Pmu: 0, Ptau: 0 };
+
+	const zoomIn = () => setZoom(Math.min(2, zoom + 0.15));
+	const zoomOut = () => setZoom(Math.max(0.5, zoom - 0.15));
 
 	return (
 		<div 
@@ -113,6 +116,29 @@ function BottomControls({
 				border: "1px solid rgba(255, 255, 255, 0.1)",
 			}}
 		>
+			{/* Zoom controls */}
+			<div className="flex items-center gap-0.5 pr-2 border-r border-white/10">
+				<button
+					type="button"
+					onClick={zoomOut}
+					className="w-6 h-6 rounded-full text-sm text-white/50 hover:text-white/80 hover:bg-white/10 flex items-center justify-center"
+					title="Zoom out (-)"
+				>
+					−
+				</button>
+				<span className="text-[9px] font-mono text-white/40 w-8 text-center">
+					{(zoom * 100).toFixed(0)}%
+				</span>
+				<button
+					type="button"
+					onClick={zoomIn}
+					className="w-6 h-6 rounded-full text-sm text-white/50 hover:text-white/80 hover:bg-white/10 flex items-center justify-center"
+					title="Zoom in (+)"
+				>
+					+
+				</button>
+			</div>
+
 			{/* Quick stats */}
 			<div className="flex items-center gap-1.5 text-[10px] font-mono text-white/40 pr-2 border-r border-white/10">
 				<span>{distance.toFixed(0)} km</span>
