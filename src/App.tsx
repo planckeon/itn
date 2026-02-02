@@ -20,8 +20,14 @@ interface PanelState {
 	spectrum: boolean;
 }
 
-// Floating probability plot panel
-const ProbabilityPanel = memo(() => {
+const panelStyle = {
+	background: "rgba(20, 20, 30, 0.8)",
+	backdropFilter: "blur(12px)",
+	border: "1px solid rgba(255, 255, 255, 0.1)",
+};
+
+// Inline Probability Panel that flexes with container
+const FlexProbabilityPanel = memo(() => {
 	const { state } = useSimulation();
 	const { probabilityHistory, energy } = state;
 
@@ -36,27 +42,23 @@ const ProbabilityPanel = memo(() => {
 
 	return (
 		<div 
-			className="fixed bottom-16 left-1/2 -translate-x-1/2 z-20 w-[55vw] max-w-2xl min-w-[320px] rounded-xl px-4 py-3"
-			style={{
-				background: "rgba(20, 20, 30, 0.85)",
-				backdropFilter: "blur(8px)",
-				border: "1px solid rgba(255, 255, 255, 0.1)",
-			}}
+			className="flex-1 min-w-[280px] max-w-3xl rounded-xl px-4 py-3"
+			style={panelStyle}
 		>
 			<div className="flex items-center justify-between mb-2">
-				<span className="text-white/70 text-sm font-mono">Oscillation</span>
-				<div className="flex items-center gap-3">
+				<span className="text-white/60 text-xs font-medium">Oscillation</span>
+				<div className="flex items-center gap-2">
 					<div className="flex items-center gap-1">
-						<div className="w-2 h-2 rounded-full bg-blue-500" />
-						<span className="text-[10px] text-white/50">e</span>
+						<div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+						<span className="text-[9px] text-white/40">e</span>
 					</div>
 					<div className="flex items-center gap-1">
-						<div className="w-2 h-2 rounded-full bg-orange-400" />
-						<span className="text-[10px] text-white/50">μ</span>
+						<div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+						<span className="text-[9px] text-white/40">μ</span>
 					</div>
 					<div className="flex items-center gap-1">
-						<div className="w-2 h-2 rounded-full bg-fuchsia-500" />
-						<span className="text-[10px] text-white/50">τ</span>
+						<div className="w-1.5 h-1.5 rounded-full bg-fuchsia-400" />
+						<span className="text-[9px] text-white/40">τ</span>
 					</div>
 				</div>
 			</div>
@@ -64,11 +66,11 @@ const ProbabilityPanel = memo(() => {
 				data={probabilityData}
 				flavors={["electron", "muon", "tau"]}
 				flavorColors={{
-					electron: "rgb(59, 130, 246)",
+					electron: "rgb(96, 165, 250)",
 					muon: "rgb(251, 146, 60)",
-					tau: "rgb(217, 70, 239)",
+					tau: "rgb(232, 121, 249)",
 				}}
-				height={100}
+				height={90}
 				distanceLabel=""
 				probabilityLabel=""
 				energy={energy}
@@ -77,9 +79,31 @@ const ProbabilityPanel = memo(() => {
 		</div>
 	);
 });
-ProbabilityPanel.displayName = "ProbabilityPanel";
+FlexProbabilityPanel.displayName = "FlexProbabilityPanel";
 
-interface BottomControlsProps {
+// Inline Ternary Panel
+const FlexTernaryPanel = memo(() => (
+	<div 
+		className="flex-shrink-0 rounded-xl p-3"
+		style={panelStyle}
+	>
+		<TernaryPlot embedded />
+	</div>
+));
+FlexTernaryPanel.displayName = "FlexTernaryPanel";
+
+// Inline Spectrum Panel that can expand
+const FlexSpectrumPanel = memo(({ canExpand }: { canExpand: boolean }) => (
+	<div 
+		className={`rounded-xl p-3 ${canExpand ? 'flex-1 max-w-md' : 'flex-shrink-0'}`}
+		style={panelStyle}
+	>
+		<EnergySpectrumPlot embedded />
+	</div>
+));
+FlexSpectrumPanel.displayName = "FlexSpectrumPanel";
+
+interface BottomHUDProps {
 	panels: PanelState;
 	onTogglePanel: (panel: keyof PanelState) => void;
 	onOpenShare: () => void;
@@ -88,115 +112,132 @@ interface BottomControlsProps {
 	onOpenHelp: () => void;
 }
 
-// Three separate floating pill clusters - minimal and non-invasive
-function BottomControls({ 
+// Unified bottom HUD with flexbox layout
+function BottomHUD({ 
 	panels, 
 	onTogglePanel, 
 	onOpenShare, 
 	onOpenLearnMore, 
 	onOpenSettings, 
 	onOpenHelp 
-}: BottomControlsProps) {
+}: BottomHUDProps) {
 	const { state, setZoom } = useSimulation();
 	const { zoom } = state;
 
 	const zoomIn = () => setZoom(Math.min(2, zoom + 0.15));
 	const zoomOut = () => setZoom(Math.max(0.5, zoom - 0.15));
 
+	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum;
+	
+	// Spectrum can expand if it's the only plot panel
+	const spectrumCanExpand = !panels.probability && panels.spectrum;
+
 	const pillStyle = {
-		background: "rgba(20, 20, 30, 0.7)",
+		background: "rgba(20, 20, 30, 0.75)",
 		backdropFilter: "blur(12px)",
 		border: "1px solid rgba(255, 255, 255, 0.08)",
 	};
 
-	const btnBase = "w-8 h-8 rounded-full flex items-center justify-center text-sm";
+	const btnBase = "w-8 h-8 rounded-full flex items-center justify-center text-sm transition-colors";
 	const btnInactive = "text-white/40 hover:text-white hover:bg-white/10";
-	const btnActive = "text-white bg-white/15";
+	const btnActive = "text-white bg-white/20";
 
 	return (
-		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5">
-			{/* Zoom controls - left cluster */}
-			<div className="flex items-center rounded-full px-1" style={pillStyle}>
-				<button
-					type="button"
-					onClick={zoomOut}
-					className={`${btnBase} ${btnInactive} text-lg`}
-					title="Zoom out (−)"
-				>
-					−
-				</button>
-				<button
-					type="button"
-					onClick={zoomIn}
-					className={`${btnBase} ${btnInactive} text-lg`}
-					title="Zoom in (+)"
-				>
-					+
-				</button>
-			</div>
+		<div className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none pb-4 px-4">
+			{/* Panels row - flexbox aware of each other */}
+			{anyPanelOpen && (
+				<div className="flex justify-center items-end gap-3 mb-3 pointer-events-auto">
+					{panels.ternary && <FlexTernaryPanel />}
+					{panels.probability && <FlexProbabilityPanel />}
+					{panels.spectrum && <FlexSpectrumPanel canExpand={spectrumCanExpand} />}
+				</div>
+			)}
 
-			{/* Panel toggles - center cluster */}
-			<div className="flex items-center rounded-full px-1" style={pillStyle}>
-				<button
-					type="button"
-					onClick={() => onTogglePanel("ternary")}
-					className={`${btnBase} ${panels.ternary ? btnActive : btnInactive}`}
-					title="Flavor triangle"
-				>
-					△
-				</button>
-				<button
-					type="button"
-					onClick={() => onTogglePanel("probability")}
-					className={`${btnBase} ${panels.probability ? btnActive : btnInactive}`}
-					title="Oscillation plot"
-				>
-					〰
-				</button>
-				<button
-					type="button"
-					onClick={() => onTogglePanel("spectrum")}
-					className={`${btnBase} ${panels.spectrum ? btnActive : btnInactive}`}
-					title="Energy spectrum"
-				>
-					📊
-				</button>
-			</div>
+			{/* Control clusters */}
+			<div className="flex justify-center items-center gap-1.5 pointer-events-auto">
+				{/* Zoom controls */}
+				<div className="flex items-center rounded-full px-1" style={pillStyle}>
+					<button
+						type="button"
+						onClick={zoomOut}
+						className={`${btnBase} ${btnInactive} text-lg`}
+						title="Zoom out (−)"
+					>
+						−
+					</button>
+					<button
+						type="button"
+						onClick={zoomIn}
+						className={`${btnBase} ${btnInactive} text-lg`}
+						title="Zoom in (+)"
+					>
+						+
+					</button>
+				</div>
 
-			{/* Menu - right cluster */}
-			<div className="flex items-center rounded-full px-1" style={pillStyle}>
-				<button
-					type="button"
-					onClick={onOpenShare}
-					className={`${btnBase} ${btnInactive}`}
-					title="Share"
-				>
-					🔗
-				</button>
-				<button
-					type="button"
-					onClick={onOpenLearnMore}
-					className={`${btnBase} ${btnInactive}`}
-					title="Learn more"
-				>
-					📖
-				</button>
-				<button
-					type="button"
-					onClick={onOpenSettings}
-					className={`${btnBase} ${btnInactive}`}
-					title="Settings"
-				>
-					⚙️
-				</button>
-				<button
-					type="button"
-					onClick={onOpenHelp}
-					className={`${btnBase} ${btnInactive}`}
-					title="Help"
-				>
-					?
-				</button>
+				{/* Panel toggles */}
+				<div className="flex items-center rounded-full px-1" style={pillStyle}>
+					<button
+						type="button"
+						onClick={() => onTogglePanel("ternary")}
+						className={`${btnBase} ${panels.ternary ? btnActive : btnInactive}`}
+						title="Flavor triangle"
+					>
+						△
+					</button>
+					<button
+						type="button"
+						onClick={() => onTogglePanel("probability")}
+						className={`${btnBase} ${panels.probability ? btnActive : btnInactive}`}
+						title="Oscillation plot"
+					>
+						〰
+					</button>
+					<button
+						type="button"
+						onClick={() => onTogglePanel("spectrum")}
+						className={`${btnBase} ${panels.spectrum ? btnActive : btnInactive}`}
+						title="Energy spectrum"
+					>
+						📊
+					</button>
+				</div>
+
+				{/* Menu */}
+				<div className="flex items-center rounded-full px-1" style={pillStyle}>
+					<button
+						type="button"
+						onClick={onOpenShare}
+						className={`${btnBase} ${btnInactive}`}
+						title="Share"
+					>
+						🔗
+					</button>
+					<button
+						type="button"
+						onClick={onOpenLearnMore}
+						className={`${btnBase} ${btnInactive}`}
+						title="Learn more"
+					>
+						📖
+					</button>
+					<button
+						type="button"
+						onClick={onOpenSettings}
+						className={`${btnBase} ${btnInactive}`}
+						title="Settings"
+					>
+						⚙️
+					</button>
+					<button
+						type="button"
+						onClick={onOpenHelp}
+						className={`${btnBase} ${btnInactive}`}
+						title="Help"
+					>
+						?
+					</button>
+				</div>
 			</div>
 		</div>
 	);
@@ -256,23 +297,8 @@ function AppContent() {
 				<VisualizationArea />
 			</main>
 
-			{/* Floating panels - each positioned independently */}
-			{panels.ternary && (
-				<div className="fixed bottom-16 left-4 z-20">
-					<TernaryPlot />
-				</div>
-			)}
-			
-			{panels.probability && <ProbabilityPanel />}
-			
-			{panels.spectrum && (
-				<div className="fixed bottom-16 right-4 z-20">
-					<EnergySpectrumPlot />
-				</div>
-			)}
-
-			{/* Floating bottom controls */}
-			<BottomControls
+			{/* Bottom HUD - panels + controls unified */}
+			<BottomHUD
 				panels={panels}
 				onTogglePanel={togglePanel}
 				onOpenShare={openShare}
