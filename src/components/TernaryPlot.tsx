@@ -228,12 +228,11 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 	if (embedded) {
 		return (
 			<div
-				className="flex-shrink-0 rounded-2xl relative"
+				className="flex-shrink-0 rounded-lg relative"
 				style={{
-					background: "rgba(20, 20, 30, 0.75)",
-					backdropFilter: "blur(12px)",
-					borderRadius: "16px",
-					padding: "12px",
+					background: "rgba(20, 20, 30, 0.9)",
+					borderRadius: "12px",
+					padding: "10px",
 					border: "1px solid rgba(255, 255, 255, 0.1)",
 				}}
 			>
