@@ -24,9 +24,11 @@ const COLORS = {
 	currentEnergy: "rgba(255, 255, 255, 0.8)",
 };
 
-const INFO_TEXT = `Energy Spectrum shows oscillation probabilities as a function of neutrino energy at the current distance.
-The vertical dashed line marks your selected energy.
-Oscillation patterns depend on E: lower energy = faster oscillation, higher energy = slower oscillation.`;
+const INFO_TEXT = `Energy Spectrum: P vs E at current distance.
+
+Dashed line = selected energy.
+Lower E = faster oscillation.
+Higher E = slower oscillation.`;
 
 /**
  * Shows P(ν_α → ν_β) vs Energy at fixed distance L
@@ -210,7 +212,7 @@ const EnergySpectrumPlot: React.FC = () => {
 			}}
 		>
 			<div className="absolute top-1 right-1">
-				<InfoTooltip text={INFO_TEXT} />
+				<InfoTooltip text={INFO_TEXT} position="left" />
 			</div>
 			<canvas
 				ref={canvasRef}

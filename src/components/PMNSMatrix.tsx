@@ -8,11 +8,11 @@ const THETA12_DEG = 33.44;
 const THETA13_DEG = 8.57;
 const THETA23_DEG = 49.2;
 
-const INFO_TEXT = `The PMNS matrix (Pontecorvo–Maki–Nakagawa–Sakata) describes how neutrino flavor states (νe, νμ, ντ) relate to mass states (ν1, ν2, ν3).
+const INFO_TEXT = `PMNS Matrix: how flavor states (νe, νμ, ντ) relate to mass states (ν1, ν2, ν3).
 
-|Uαi|² gives the probability of finding mass state i in flavor state α.
+|Uαi|² = probability of finding mass state i in flavor α.
 
-The matrix depends on three mixing angles (θ12, θ13, θ23) and the CP phase (δCP).`;
+Depends on mixing angles θ12, θ13, θ23 and CP phase δCP.`;
 
 /**
  * Displays the PMNS matrix elements |U_αi|²
@@ -76,7 +76,7 @@ const PMNSMatrix: React.FC = () => {
 		>
 			<div className="flex items-center justify-between mb-2">
 				<span className="text-white/70 text-xs">|U|² Matrix</span>
-				<InfoTooltip text={INFO_TEXT} />
+				<InfoTooltip text={INFO_TEXT} position="left" />
 			</div>
 			
 			{/* Matrix header */}

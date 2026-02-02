@@ -228,7 +228,7 @@ const TernaryPlot: React.FC = () => {
 		>
 			{/* Info button in top right corner */}
 			<div className="absolute top-1 right-1">
-				<InfoTooltip text={PHYSICS_INFO.ternaryPlot} />
+				<InfoTooltip text={PHYSICS_INFO.ternaryPlot} position="right" />
 			</div>
 			<canvas
 				ref={canvasRef}
