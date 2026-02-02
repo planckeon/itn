@@ -1,4 +1,3 @@
-import { type Timer, createTimer } from "animejs";
 import type React from "react";
 import { useEffect, useRef } from "react";
 import { useSimulation } from "../context/SimulationContext";
@@ -10,16 +9,22 @@ interface Star {
 	px: number; // Previous x (screen position)
 	py: number; // Previous y (screen position)
 	size: number;
+	brightness: number;
 }
 
 const Starfield: React.FC = () => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const { state } = useSimulation();
-	const { speed } = state;
+	const speedRef = useRef(state.speed);
 	const starsRef = useRef<Star[]>([]);
-	const timerRef = useRef<Timer | null>(null);
+	const animationIdRef = useRef<number | null>(null);
 
 	const numStars = 400;
+
+	// Keep speed ref updated
+	useEffect(() => {
+		speedRef.current = state.speed;
+	}, [state.speed]);
 
 	// Initialize stars
 	useEffect(() => {
@@ -28,16 +33,17 @@ const Starfield: React.FC = () => {
 			initialStars.push({
 				x: Math.random() * (window.innerWidth * 2) - window.innerWidth,
 				y: Math.random() * (window.innerHeight * 2) - window.innerHeight,
-				z: Math.random() * window.innerWidth,
+				z: Math.random() * 1000,
 				px: 0,
 				py: 0,
 				size: Math.random() * 2 + 0.5,
+				brightness: 0.7 + Math.random() * 0.3,
 			});
 		}
 		starsRef.current = initialStars;
 	}, []);
 
-	// Animation loop
+	// Animation loop using requestAnimationFrame
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
@@ -45,104 +51,81 @@ const Starfield: React.FC = () => {
 		const context = canvas.getContext("2d");
 		if (!context) return;
 
-		// Stop any existing timer
-		if (timerRef.current) {
-			timerRef.current.pause();
-		}
+		const animate = () => {
+			const { width, height } = canvas.getBoundingClientRect();
+			canvas.width = width;
+			canvas.height = height;
 
-		// Use createTimer for the animation loop
-		timerRef.current = createTimer({
-			duration: Number.POSITIVE_INFINITY,
-			onUpdate: () => {
-				const { width, height } = canvas.getBoundingClientRect();
-				canvas.width = width;
-				canvas.height = height;
+			const speed = speedRef.current;
 
-				// Clear with pure black
-				context.fillStyle = "#0a0a0f";
-				context.fillRect(0, 0, width, height);
+			// Clear with pure black
+			context.fillStyle = "#000";
+			context.fillRect(0, 0, width, height);
 
-				const centerX = width / 2;
-				const centerY = height / 2;
+			const centerX = width / 2;
+			const centerY = height / 2;
+			const maxDepth = 1000;
 
-				starsRef.current = starsRef.current.map((star) => {
-					// Calculate current screen position BEFORE updating z
-					const perspective = width / star.z;
-					const currentX = centerX + star.x * perspective;
-					const currentY = centerY + star.y * perspective;
+			// Update and draw stars
+			for (let i = 0; i < starsRef.current.length; i++) {
+				const star = starsRef.current[i];
 
-					// Update z position (moving toward viewer)
-					const newZ = star.z - speed * 5;
+				// Calculate current screen position
+				const perspective = maxDepth / star.z;
+				const x = centerX + star.x * perspective;
+				const y = centerY + star.y * perspective;
 
-					// Wrap stars around when they pass the viewer
-					if (newZ <= 1) {
-						const newStar = {
-							x: Math.random() * (width * 2) - width,
-							y: Math.random() * (height * 2) - height,
-							z: width,
-							px: 0,
-							py: 0,
-							size: Math.random() * 2 + 0.5,
-						};
-						// Calculate initial screen position
-						const p = width / newStar.z;
-						newStar.px = centerX + newStar.x * p;
-						newStar.py = centerY + newStar.y * p;
-						return newStar;
-					}
-
-					return {
-						...star,
-						z: newZ,
-						px: currentX,
-						py: currentY,
-					};
-				});
-
-				// Draw stars with motion blur trails
-				for (const star of starsRef.current) {
-					const perspective = width / star.z;
-					const x = centerX + star.x * perspective;
-					const y = centerY + star.y * perspective;
-					const size = Math.max(0.5, star.size * perspective * 0.1);
-
-					// Only draw trail if we have a valid previous position
-					if (star.px !== 0 && star.py !== 0 && speed > 0.1) {
-						// Calculate trail length based on speed
-						const trailAlpha = Math.min(0.8, speed * 0.3);
-						
-						// Draw motion blur line from previous to current position
-						const gradient = context.createLinearGradient(star.px, star.py, x, y);
-						gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
-						gradient.addColorStop(0.5, `rgba(255, 255, 255, ${trailAlpha * 0.5})`);
-						gradient.addColorStop(1, `rgba(255, 255, 255, ${trailAlpha})`);
-
-						context.strokeStyle = gradient;
-						context.lineWidth = Math.max(1, size * 0.8);
-						context.lineCap = "round";
-						context.beginPath();
-						context.moveTo(star.px, star.py);
-						context.lineTo(x, y);
-						context.stroke();
-					}
-
-					// Draw the star point at current position
-					const depth = star.z / width;
-					const alpha = 1 - depth * 0.5;
-					context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+				// Draw motion blur trail from previous to current position
+				if (star.px !== 0 && star.py !== 0 && speed > 0.1) {
+					const trailAlpha = Math.min(0.9, speed * 0.4) * star.brightness;
+					
+					context.strokeStyle = `rgba(255, 255, 255, ${trailAlpha})`;
+					context.lineWidth = Math.max(1, star.size * perspective * 0.08);
+					context.lineCap = "round";
 					context.beginPath();
-					context.arc(x, y, size, 0, Math.PI * 2);
-					context.fill();
+					context.moveTo(star.px, star.py);
+					context.lineTo(x, y);
+					context.stroke();
 				}
-			},
-		});
+
+				// Draw the star point at current position
+				const alpha = star.brightness * (1 - star.z / maxDepth * 0.5);
+				const size = Math.max(0.5, star.size * perspective * 0.08);
+				
+				context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+				context.beginPath();
+				context.arc(x, y, size, 0, Math.PI * 2);
+				context.fill();
+
+				// Store current position as previous
+				star.px = x;
+				star.py = y;
+
+				// Update z position (moving toward viewer)
+				star.z -= speed * 8;
+
+				// Wrap stars around when they pass the viewer
+				if (star.z <= 1) {
+					star.x = Math.random() * (width * 2) - width;
+					star.y = Math.random() * (height * 2) - height;
+					star.z = maxDepth;
+					star.px = 0;
+					star.py = 0;
+					star.brightness = 0.7 + Math.random() * 0.3;
+				}
+			}
+
+			animationIdRef.current = requestAnimationFrame(animate);
+		};
+
+		animationIdRef.current = requestAnimationFrame(animate);
 
 		return () => {
-			if (timerRef.current) {
-				timerRef.current.pause();
+			if (animationIdRef.current) {
+				cancelAnimationFrame(animationIdRef.current);
 			}
 		};
-	}, [speed]);
+	}, []);
 
 	// Handle window resizing
 	useEffect(() => {
@@ -172,7 +155,7 @@ const Starfield: React.FC = () => {
 				left: 0,
 				width: "100%",
 				height: "100%",
-				zIndex: -1,
+				zIndex: 0,
 			}}
 		/>
 	);

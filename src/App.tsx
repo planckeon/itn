@@ -19,7 +19,7 @@ function PlotWrapper() {
 	}));
 
 	return (
-		<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-10 w-[85vw] max-w-xl">
+		<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 w-[85vw] max-w-xl">
 			{/* Semi-transparent plot container */}
 			<div
 				className="rounded-xl px-4 py-3"
@@ -66,23 +66,23 @@ function PlotWrapper() {
 function App() {
 	return (
 		<SimulationProvider>
-			{/* Pure black background */}
-			<div className="App bg-black text-white font-mono min-h-screen overflow-hidden relative">
+			{/* No background color - Starfield canvas IS the background */}
+			<div className="App text-white font-mono min-h-screen overflow-hidden relative">
 				{/* Screen reader only title */}
 				<h1 className="sr-only">Neutrino Oscillation Visualization</h1>
 
-				{/* Starfield fills the entire screen */}
+				{/* Starfield fills the entire screen - z-index 0 */}
 				<Starfield />
 
-				{/* Horizontal controls bar at top */}
+				{/* Horizontal controls bar at top - z-index 20 */}
 				<TopControlBar />
 
-				{/* Main visualization - centered neutrino sphere */}
-				<main className="relative w-full h-screen flex items-center justify-center">
+				{/* Main visualization - centered neutrino sphere - z-index 10 */}
+				<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">
 					<VisualizationArea />
 				</main>
 
-				{/* Probability plot at bottom */}
+				{/* Probability plot at bottom - z-index 20 */}
 				<PlotWrapper />
 			</div>
 		</SimulationProvider>
