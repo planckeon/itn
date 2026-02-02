@@ -34,7 +34,7 @@ const BottomHUD: React.FC = () => {
 			}}
 		>
 			<div 
-				className="mx-auto max-w-5xl flex items-end gap-3"
+				className="mx-auto max-w-4xl flex items-end gap-2"
 			>
 				{/* Left: Ternary flavor triangle */}
 				<div 
@@ -52,9 +52,9 @@ const BottomHUD: React.FC = () => {
 					/>
 				</div>
 
-				{/* Center: Main probability plot - grows to fill */}
+				{/* Center: Main probability plot - constrained width */}
 				<div 
-					className="flex-1 rounded-lg px-3 py-2"
+					className="flex-1 max-w-md rounded-lg px-3 py-2"
 					style={{
 						background: "rgba(20, 20, 30, 0.9)",
 						border: "1px solid rgba(255, 255, 255, 0.1)",

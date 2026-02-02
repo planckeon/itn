@@ -20,8 +20,8 @@ const YE = 0.5;
 const EnergySpectrumMini: React.FC<{ distance: number }> = ({ distance }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const { state } = useSimulation();
-	const width = 140;
-	const height = 100;
+	const width = 160;
+	const height = 120;
 
 	// Calculate spectrum data
 	const spectrumData = useMemo(() => {

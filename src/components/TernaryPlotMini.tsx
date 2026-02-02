@@ -14,7 +14,7 @@ interface TernaryPlotMiniProps {
  */
 const TernaryPlotMini: React.FC<TernaryPlotMiniProps> = ({ Pe, Pmu, Ptau, history = [] }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const size = 100;
+	const size = 120;
 	const padding = 8;
 
 	useEffect(() => {
