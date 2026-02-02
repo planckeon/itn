@@ -1,10 +1,10 @@
 import { useState } from "react";
 import HelpModal from "./components/HelpModal";
 import LearnMorePanel from "./components/LearnMorePanel";
-import MenuDrawer from "./components/MenuDrawer";
 import PMNSMatrix from "./components/PMNSMatrix";
 import ProbabilityPlot from "./components/ProbabilityPlot";
 import SettingsPanel from "./components/SettingsPanel";
+import ShareButton from "./components/ShareButton";
 import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
 import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
@@ -20,8 +20,14 @@ interface PanelState {
 	spectrum: boolean;
 }
 
-// Compact bottom HUD with toggle panels (any combination)
-function BottomHUD() {
+interface BottomHUDProps {
+	onOpenLearnMore: () => void;
+	onOpenSettings: () => void;
+	onOpenHelp: () => void;
+}
+
+// Unified bottom control panel with toggleable widgets and menu
+function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDProps) {
 	const { state } = useSimulation();
 	const { probabilityHistory, energy, distance } = state;
 	const [panels, setPanels] = useState<PanelState>({
@@ -29,6 +35,7 @@ function BottomHUD() {
 		probability: true,
 		spectrum: false,
 	});
+	const [shareOpen, setShareOpen] = useState(false);
 
 	const togglePanel = (panel: keyof PanelState) => {
 		setPanels(prev => ({ ...prev, [panel]: !prev[panel] }));
@@ -109,58 +116,107 @@ function BottomHUD() {
 				</div>
 			)}
 
-			{/* Tab bar - always visible */}
+			{/* Control bar - always visible */}
 			<div 
-				className="flex items-center justify-center gap-1 py-2 px-4"
+				className="flex items-center justify-center gap-2 py-2.5 px-4"
 				style={{
-					background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 70%, transparent 100%)",
+					background: "rgba(15, 15, 25, 0.95)",
+					borderTop: "1px solid rgba(255, 255, 255, 0.1)",
 				}}
 			>
-				{/* Quick stats on left */}
-				<div className="flex items-center gap-3 mr-4 text-[10px] font-mono text-white/40">
+				{/* Quick stats */}
+				<div className="flex items-center gap-2 mr-2 text-[10px] font-mono text-white/40">
 					<span>{distance.toFixed(0)} km</span>
 					<span className="text-blue-400">{(currentProbs.Pe * 100).toFixed(0)}%</span>
 					<span className="text-orange-400">{(currentProbs.Pmu * 100).toFixed(0)}%</span>
 					<span className="text-fuchsia-400">{(currentProbs.Ptau * 100).toFixed(0)}%</span>
 				</div>
 
-				{/* Toggle buttons */}
+				{/* Divider */}
+				<div className="w-px h-4 bg-white/20" />
+
+				{/* Panel toggles */}
 				<div className="flex items-center gap-1">
 					<button
 						type="button"
 						onClick={() => togglePanel("ternary")}
-						className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+						className={`px-2.5 py-1.5 rounded text-xs font-mono transition-all ${
 							panels.ternary 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
 						}`}
+						title="Toggle Flavor Space triangle"
 					>
-						△ Flavor
+						△
 					</button>
 					<button
 						type="button"
 						onClick={() => togglePanel("probability")}
-						className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+						className={`px-2.5 py-1.5 rounded text-xs font-mono transition-all ${
 							panels.probability 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
 						}`}
+						title="Toggle Probability vs Time plot"
 					>
-						〰 P(t)
+						〰
 					</button>
 					<button
 						type="button"
 						onClick={() => togglePanel("spectrum")}
-						className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+						className={`px-2.5 py-1.5 rounded text-xs font-mono transition-all ${
 							panels.spectrum 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
 						}`}
+						title="Toggle Energy Spectrum plot"
 					>
-						📊 P(E)
+						📊
+					</button>
+				</div>
+
+				{/* Divider */}
+				<div className="w-px h-4 bg-white/20" />
+
+				{/* Menu buttons */}
+				<div className="flex items-center gap-1">
+					<button
+						type="button"
+						onClick={() => setShareOpen(true)}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						title="Share"
+					>
+						🔗
+					</button>
+					<button
+						type="button"
+						onClick={onOpenLearnMore}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						title="Learn More"
+					>
+						📚
+					</button>
+					<button
+						type="button"
+						onClick={onOpenSettings}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						title="Settings"
+					>
+						⚙️
+					</button>
+					<button
+						type="button"
+						onClick={onOpenHelp}
+						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10 transition-all"
+						title="Help (Keyboard Shortcuts)"
+					>
+						❓
 					</button>
 				</div>
 			</div>
+
+			{/* Share modal */}
+			<ShareButton isOpen={shareOpen} onClose={() => setShareOpen(false)} />
 		</div>
 	);
 }
@@ -192,23 +248,20 @@ function AppContent() {
 			{/* Top control bar */}
 			<TopControlBar />
 
-			{/* Menu drawer - top left */}
-			<MenuDrawer
+			{/* PMNS Matrix - top right */}
+			<PMNSMatrix />
+
+			{/* Main visualization - with bottom padding for HUD */}
+			<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none pb-48">
+				<VisualizationArea />
+			</main>
+
+			{/* Bottom HUD with panels and menu */}
+			<BottomHUD 
 				onOpenLearnMore={() => setLearnOpen(true)}
 				onOpenSettings={() => setSettingsOpen(true)}
 				onOpenHelp={() => setHelpOpen(true)}
 			/>
-
-			{/* PMNS Matrix - top right */}
-			<PMNSMatrix />
-
-			{/* Main visualization */}
-			<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">
-				<VisualizationArea />
-			</main>
-
-			{/* Bottom HUD with tabs */}
-			<BottomHUD />
 
 			{/* Modals */}
 			<LearnMorePanel isOpen={learnOpen} onClose={() => setLearnOpen(false)} />

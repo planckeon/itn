@@ -13,124 +13,91 @@ interface InfoTooltipProps {
  */
 const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "auto" }) => {
 	const [isVisible, setIsVisible] = useState(false);
-	const [tooltipPosition, setTooltipPosition] = useState<"top" | "bottom" | "left" | "right">("top");
+	const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 
-	// Calculate best position to avoid viewport overflow
+	// Calculate position dynamically to always stay in viewport
 	useEffect(() => {
 		if (!isVisible || !buttonRef.current) return;
 
-		if (position !== "auto") {
-			setTooltipPosition(position);
-			return;
-		}
-
 		const button = buttonRef.current.getBoundingClientRect();
-		const tooltipWidth = 256; // w-64 = 16rem = 256px
-		const tooltipHeight = 120; // approximate
-		const margin = 16;
+		const tooltipWidth = 256;
+		const tooltipHeight = 140;
+		const margin = 12;
+		const arrowSize = 8;
 
-		// Check available space in each direction
+		const viewportWidth = window.innerWidth;
+		const viewportHeight = window.innerHeight;
+
+		// Calculate available space
 		const spaceTop = button.top;
-		const spaceBottom = window.innerHeight - button.bottom;
+		const spaceBottom = viewportHeight - button.bottom;
 		const spaceLeft = button.left;
-		const spaceRight = window.innerWidth - button.right;
+		const spaceRight = viewportWidth - button.right;
 
-		// Check if tooltip would overflow horizontally when centered
-		const centerX = button.left + button.width / 2;
-		const wouldOverflowLeft = centerX - tooltipWidth / 2 < margin;
-		const wouldOverflowRight = centerX + tooltipWidth / 2 > window.innerWidth - margin;
+		let finalPosition: "top" | "bottom" | "left" | "right";
 
-		// If near left/right edges, prefer left/right positioning
-		if (wouldOverflowLeft && spaceRight > tooltipWidth + margin) {
-			setTooltipPosition("right");
-		} else if (wouldOverflowRight && spaceLeft > tooltipWidth + margin) {
-			setTooltipPosition("left");
-		} else if (spaceTop > tooltipHeight + margin) {
-			setTooltipPosition("top");
-		} else if (spaceBottom > tooltipHeight + margin) {
-			setTooltipPosition("bottom");
-		} else if (spaceRight > tooltipWidth + margin) {
-			setTooltipPosition("right");
-		} else if (spaceLeft > tooltipWidth + margin) {
-			setTooltipPosition("left");
+		if (position !== "auto") {
+			finalPosition = position;
 		} else {
-			// Default to bottom to avoid going off top
-			setTooltipPosition("bottom");
+			// Determine best position based on available space
+			// Priority: bottom > top > right > left (bottom is usually safest)
+			if (spaceBottom >= tooltipHeight + margin + arrowSize) {
+				finalPosition = "bottom";
+			} else if (spaceTop >= tooltipHeight + margin + arrowSize) {
+				finalPosition = "top";
+			} else if (spaceRight >= tooltipWidth + margin + arrowSize) {
+				finalPosition = "right";
+			} else if (spaceLeft >= tooltipWidth + margin + arrowSize) {
+				finalPosition = "left";
+			} else {
+				// Not enough space anywhere - use bottom and let it scroll
+				finalPosition = "bottom";
+			}
 		}
-	}, [isVisible, position]);
 
-	// Get position classes based on calculated position
-	const getPositionClasses = () => {
-		switch (tooltipPosition) {
-			case "bottom":
-				return "top-full left-1/2 -translate-x-1/2 mt-2";
-			case "left":
-				return "right-full top-1/2 -translate-y-1/2 mr-2";
-			case "right":
-				return "left-full top-1/2 -translate-y-1/2 ml-2";
-			case "top":
-			default:
-				return "bottom-full left-1/2 -translate-x-1/2 mb-2";
-		}
-	};
-
-	// Get arrow position
-	const getArrowStyle = (): React.CSSProperties => {
-		const arrowBase = {
-			position: "absolute" as const,
-			width: 0,
-			height: 0,
+		// Calculate style based on position
+		const style: React.CSSProperties = {
+			position: "fixed",
+			zIndex: 9999,
+			width: tooltipWidth,
+			maxWidth: `calc(100vw - ${margin * 2}px)`,
+			background: "rgba(20, 20, 30, 0.98)",
+			backdropFilter: "blur(8px)",
+			border: "1px solid rgba(255, 255, 255, 0.15)",
+			boxShadow: "0 4px 20px rgba(0, 0, 0, 0.6)",
+			borderRadius: 8,
+			padding: 12,
 		};
 
-		switch (tooltipPosition) {
+		const buttonCenterX = button.left + button.width / 2;
+		const buttonCenterY = button.top + button.height / 2;
+
+		switch (finalPosition) {
 			case "bottom":
-				return {
-					...arrowBase,
-					bottom: "100%",
-					left: "50%",
-					transform: "translateX(-50%)",
-					borderLeft: "6px solid transparent",
-					borderRight: "6px solid transparent",
-					borderBottom: "6px solid rgba(20, 20, 30, 0.95)",
-				};
-			case "left":
-				return {
-					...arrowBase,
-					left: "100%",
-					top: "50%",
-					transform: "translateY(-50%)",
-					borderTop: "6px solid transparent",
-					borderBottom: "6px solid transparent",
-					borderLeft: "6px solid rgba(20, 20, 30, 0.95)",
-				};
-			case "right":
-				return {
-					...arrowBase,
-					right: "100%",
-					top: "50%",
-					transform: "translateY(-50%)",
-					borderTop: "6px solid transparent",
-					borderBottom: "6px solid transparent",
-					borderRight: "6px solid rgba(20, 20, 30, 0.95)",
-				};
+				style.top = button.bottom + arrowSize;
+				style.left = Math.max(margin, Math.min(buttonCenterX - tooltipWidth / 2, viewportWidth - tooltipWidth - margin));
+				break;
 			case "top":
-			default:
-				return {
-					...arrowBase,
-					top: "100%",
-					left: "50%",
-					transform: "translateX(-50%)",
-					borderLeft: "6px solid transparent",
-					borderRight: "6px solid transparent",
-					borderTop: "6px solid rgba(20, 20, 30, 0.95)",
-				};
+				style.bottom = viewportHeight - button.top + arrowSize;
+				style.left = Math.max(margin, Math.min(buttonCenterX - tooltipWidth / 2, viewportWidth - tooltipWidth - margin));
+				break;
+			case "right":
+				style.left = button.right + arrowSize;
+				style.top = Math.max(margin, Math.min(buttonCenterY - tooltipHeight / 2, viewportHeight - tooltipHeight - margin));
+				break;
+			case "left":
+				style.right = viewportWidth - button.left + arrowSize;
+				style.top = Math.max(margin, Math.min(buttonCenterY - tooltipHeight / 2, viewportHeight - tooltipHeight - margin));
+				break;
 		}
-	};
+
+		setTooltipStyle(style);
+	}, [isVisible, position]);
 
 	return (
-		<div className="relative inline-block">
+		<>
 			<button
 				ref={buttonRef}
 				type="button"
@@ -146,23 +113,13 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "a
 			{isVisible && (
 				<div
 					ref={tooltipRef}
-					className={`absolute z-50 w-64 max-w-[calc(100vw-2rem)] p-3 rounded-lg text-xs text-white/90 font-sans leading-relaxed ${getPositionClasses()}`}
-					style={{
-						background: "rgba(20, 20, 30, 0.95)",
-						backdropFilter: "blur(8px)",
-						border: "1px solid rgba(255, 255, 255, 0.15)",
-						boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)",
-						wordWrap: "break-word",
-						overflowWrap: "break-word",
-						hyphens: "auto",
-					}}
+					className="text-xs text-white/90 font-sans leading-relaxed"
+					style={tooltipStyle}
 				>
 					<div className="whitespace-pre-wrap">{text}</div>
-					{/* Arrow */}
-					<div style={getArrowStyle()} />
 				</div>
 			)}
-		</div>
+		</>
 	);
 };
 

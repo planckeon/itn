@@ -228,7 +228,7 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 	if (embedded) {
 		return (
 			<div
-				className="flex-shrink-0 rounded-lg"
+				className="flex-shrink-0 rounded-lg relative"
 				style={{
 					background: "rgba(20, 20, 30, 0.9)",
 					borderRadius: "12px",
@@ -236,8 +236,8 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 					border: "1px solid rgba(255, 255, 255, 0.1)",
 				}}
 			>
-				<div className="absolute top-1 right-1">
-					<InfoTooltip text={PHYSICS_INFO.ternaryPlot} position="top" />
+				<div className="absolute top-2 right-2 z-10">
+					<InfoTooltip text={PHYSICS_INFO.ternaryPlot} position="bottom" />
 				</div>
 				<canvas
 					ref={canvasRef}

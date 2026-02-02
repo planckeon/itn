@@ -228,8 +228,8 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 					border: "1px solid rgba(255, 255, 255, 0.1)",
 				}}
 			>
-				<div className="absolute top-1 right-1">
-					<InfoTooltip text={INFO_TEXT} position="left" />
+				<div className="absolute top-2 right-2 z-10">
+					<InfoTooltip text={INFO_TEXT} position="bottom" />
 				</div>
 				<canvas
 					ref={canvasRef}
