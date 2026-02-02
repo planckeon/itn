@@ -3,7 +3,7 @@ import { useMemo, Fragment } from "react";
 import katex from "katex";
 
 // KaTeX macros for neutrino physics
-const KATEX_MACROS = {
+const KATEX_MACROS: Record<string, string> = {
 	"\\nue": "\\nu_e",
 	"\\numu": "\\nu_\\mu", 
 	"\\nutau": "\\nu_\\tau",
@@ -14,13 +14,67 @@ const KATEX_MACROS = {
 	"\\dmsq": "\\Delta m^2",
 };
 
+interface TextPart {
+	type: "text" | "math" | "display-math";
+	content: string;
+}
+
+/**
+ * Parse text with $...$ (inline) and $$...$$ (display) math delimiters
+ */
+function parseMath(text: string): TextPart[] {
+	const parts: TextPart[] = [];
+	let i = 0;
+	
+	while (i < text.length) {
+		// Check for display math $$...$$
+		if (text[i] === "$" && text[i + 1] === "$") {
+			const start = i + 2;
+			const end = text.indexOf("$$", start);
+			if (end !== -1) {
+				parts.push({ type: "display-math", content: text.slice(start, end) });
+				i = end + 2;
+				continue;
+			}
+		}
+		
+		// Check for inline math $...$
+		if (text[i] === "$") {
+			const start = i + 1;
+			// Find closing $ (not $$)
+			let end = start;
+			while (end < text.length) {
+				if (text[end] === "$" && text[end + 1] !== "$") {
+					break;
+				}
+				end++;
+			}
+			if (end < text.length && end > start) {
+				parts.push({ type: "math", content: text.slice(start, end) });
+				i = end + 1;
+				continue;
+			}
+		}
+		
+		// Regular text - collect until next $
+		const start = i;
+		while (i < text.length && text[i] !== "$") {
+			i++;
+		}
+		if (i > start) {
+			parts.push({ type: "text", content: text.slice(start, i) });
+		}
+	}
+	
+	return parts;
+}
+
 /**
  * Renders text with inline math (using $...$ delimiters)
  * and display math (using $$...$$ delimiters)
  * 
  * Also supports markdown-style formatting:
  * - **bold**
- * - • bullet points
  */
 interface RichTextProps {
 	children: string;
@@ -28,52 +82,9 @@ interface RichTextProps {
 }
 
 const RichText: React.FC<RichTextProps> = ({ children, className = "" }) => {
-	const rendered = useMemo(() => {
-		const parts: (string | { type: "math" | "display-math"; content: string })[] = [];
-		
-		// First, extract display math ($$...$$)
-		let text = children;
-		const displayMathRegex = /\$\$([^$]+)\$\$/g;
-		let lastIndex = 0;
-		let match;
-		
-		const segments: (string | { type: "display-math"; content: string })[] = [];
-		while ((match = displayMathRegex.exec(text)) !== null) {
-			if (match.index > lastIndex) {
-				segments.push(text.slice(lastIndex, match.index));
-			}
-			segments.push({ type: "display-math", content: match[1] });
-			lastIndex = match.index + match[0].length;
-		}
-		if (lastIndex < text.length) {
-			segments.push(text.slice(lastIndex));
-		}
+	const parts = useMemo(() => parseMath(children), [children]);
 
-		// Now process each segment for inline math ($...$)
-		for (const segment of segments) {
-			if (typeof segment !== "string") {
-				parts.push(segment);
-				continue;
-			}
-
-			const inlineMathRegex = /\$([^$]+)\$/g;
-			let segLastIndex = 0;
-			while ((match = inlineMathRegex.exec(segment)) !== null) {
-				if (match.index > segLastIndex) {
-					parts.push(segment.slice(segLastIndex, match.index));
-				}
-				parts.push({ type: "math", content: match[1] });
-				segLastIndex = match.index + match[0].length;
-			}
-			if (segLastIndex < segment.length) {
-				parts.push(segment.slice(segLastIndex));
-			}
-		}
-
-		return parts;
-	}, [children]);
-
-	const renderMath = (latex: string, display: boolean) => {
+	const renderMath = (latex: string, display: boolean, key: number) => {
 		try {
 			const html = katex.renderToString(latex, {
 				displayMode: display,
@@ -83,47 +94,59 @@ const RichText: React.FC<RichTextProps> = ({ children, className = "" }) => {
 				macros: KATEX_MACROS,
 			});
 			return display ? (
-				<div className="my-2 text-center overflow-x-auto" dangerouslySetInnerHTML={{ __html: html }} />
+				<div 
+					key={key}
+					className="my-2 text-center overflow-x-auto" 
+					dangerouslySetInnerHTML={{ __html: html }} 
+				/>
 			) : (
-				<span dangerouslySetInnerHTML={{ __html: html }} />
+				<span 
+					key={key}
+					dangerouslySetInnerHTML={{ __html: html }} 
+				/>
 			);
 		} catch {
-			return <span className="text-red-400">{latex}</span>;
+			return <span key={key} className="text-red-400">{latex}</span>;
 		}
 	};
 
-	const renderText = (text: string) => {
+	const renderText = (text: string, key: number) => {
 		// Process **bold** and line breaks
 		const lines = text.split("\n");
-		return lines.map((line, i) => {
-			// Handle bold
-			const boldParts = line.split(/\*\*([^*]+)\*\*/g);
-			const lineContent = boldParts.map((part, j) => {
-				if (j % 2 === 1) {
-					return <strong key={j} className="text-white/90">{part}</strong>;
-				}
-				return part;
-			});
-			
-			return (
-				<Fragment key={i}>
-					{lineContent}
-					{i < lines.length - 1 && <br />}
-				</Fragment>
-			);
-		});
+		return (
+			<Fragment key={key}>
+				{lines.map((line, i) => {
+					// Handle bold
+					const boldParts = line.split(/\*\*([^*]+)\*\*/g);
+					const lineContent = boldParts.map((part, j) => {
+						if (j % 2 === 1) {
+							return <strong key={j} className="text-white/90">{part}</strong>;
+						}
+						return part;
+					});
+					
+					return (
+						<Fragment key={i}>
+							{lineContent}
+							{i < lines.length - 1 && <br />}
+						</Fragment>
+					);
+				})}
+			</Fragment>
+		);
 	};
 
 	return (
 		<div className={className}>
-			{rendered.map((part, i) => {
-				if (typeof part === "string") {
-					return <Fragment key={i}>{renderText(part)}</Fragment>;
+			{parts.map((part, i) => {
+				switch (part.type) {
+					case "display-math":
+						return renderMath(part.content, true, i);
+					case "math":
+						return renderMath(part.content, false, i);
+					default:
+						return renderText(part.content, i);
 				}
-				if (part.type === "display-math") {
-					return <Fragment key={i}>{renderMath(part.content, true)}</Fragment>;
-				}
-				return <Fragment key={i}>{renderMath(part.content, false)}</Fragment>;
 			})}
 		</div>
 	);
