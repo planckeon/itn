@@ -1,162 +1,72 @@
-/* Header Styles */
+/* Minimal styles for immersive space visualization */
 
-/* Animated neutrino symbol with color-shifting glow */
-.neutrino-symbol {
-	background: linear-gradient(135deg, #22d3ee, #a78bfa, #f472b6, #22d3ee);
-	background-size: 300% 300%;
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-	animation: gradient-shift 8s ease-in-out infinite, pulse-glow 3s ease-in-out
-		infinite;
-	filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.5));
-}
-
-/* Main title text with subtle shimmer */
-.header-text {
-	background: linear-gradient(
-		90deg,
-		rgba(255, 255, 255, 0.7) 0%,
-		rgba(255, 255, 255, 0.95) 50%,
-		rgba(255, 255, 255, 0.7) 100%
-	);
-	background-size: 200% 100%;
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-	animation: shimmer 4s ease-in-out infinite;
-	text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
-}
-
-/* Decorative lines next to subtitle */
-.header-line {
-	display: inline-block;
-	width: 40px;
+/* Screen reader only class */
+.sr-only {
+	position: absolute;
+	width: 1px;
 	height: 1px;
-	background: linear-gradient(
-		90deg,
-		transparent,
-		rgba(255, 255, 255, 0.3),
-		transparent
-	);
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
 }
 
-/* Gradient color shift animation */
-@keyframes gradient-shift {
-	0%,
-	100% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
+/* Range input styling for consistent cross-browser appearance */
+input[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
+	cursor: pointer;
 }
 
-/* Subtle pulsing glow for the neutrino symbol */
-@keyframes pulse-glow {
-	0%,
-	100% {
-		filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.4))
-			drop-shadow(0 0 30px rgba(167, 139, 250, 0.2));
-		transform: scale(1);
-	}
-	50% {
-		filter: drop-shadow(0 0 25px rgba(34, 211, 238, 0.6))
-			drop-shadow(0 0 50px rgba(167, 139, 250, 0.4));
-		transform: scale(1.02);
-	}
+input[type="range"]::-webkit-slider-runnable-track {
+	height: 6px;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.1);
 }
 
-/* Text shimmer animation */
-@keyframes shimmer {
-	0%,
-	100% {
-		background-position: -100% 0;
-	}
-	50% {
-		background-position: 100% 0;
-	}
+input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	margin-top: -5px;
+	height: 16px;
+	width: 16px;
+	border-radius: 50%;
+	background: white;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+	transition: transform 0.15s ease;
 }
 
-/* Full header title container */
-.header-title {
-	position: relative;
+input[type="range"]::-webkit-slider-thumb:hover {
+	transform: scale(1.15);
 }
 
-/* Optional: Add a subtle after-glow line under the title */
-.header-title::after {
-	content: "";
-	position: absolute;
-	bottom: -8px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 120px;
-	height: 2px;
-	background: linear-gradient(
-		90deg,
-		transparent,
-		rgba(34, 211, 238, 0.5),
-		rgba(167, 139, 250, 0.5),
-		transparent
-	);
-	border-radius: 1px;
-	animation: line-pulse 3s ease-in-out infinite;
+input[type="range"]::-moz-range-track {
+	height: 6px;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.1);
 }
 
-@keyframes line-pulse {
-	0%,
-	100% {
-		opacity: 0.5;
-		width: 100px;
-	}
-	50% {
-		opacity: 1;
-		width: 140px;
-	}
+input[type="range"]::-moz-range-thumb {
+	border: none;
+	height: 16px;
+	width: 16px;
+	border-radius: 50%;
+	background: white;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+	transition: transform 0.15s ease;
 }
 
-/* Legacy styles for backward compatibility */
-.app-container {
-	position: relative;
-	width: 100vw;
-	height: 100vh;
-	background-color: #0f172a;
-	color: #f8fafc;
-	font-family: "Courier New", monospace;
+input[type="range"]::-moz-range-thumb:hover {
+	transform: scale(1.15);
 }
 
-.controls-panel {
-	position: absolute;
-	top: 20px;
-	right: 20px;
-	background-color: rgb(15 23 42 / 80%);
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 4px 6px rgb(0 0 0 / 50%);
-	border: 1px solid #334155;
-	max-width: 300px;
+input[type="range"]:focus {
+	outline: none;
 }
 
-.control-group {
-	margin-bottom: 15px;
-}
-
-.control-group label {
-	display: block;
-	margin-bottom: 5px;
-	font-size: 0.9rem;
-}
-
-.control-group select,
-.control-group input[type="range"] {
-	width: 100%;
-	background-color: #1e293b;
-	border: 1px solid #334155;
-	color: #f8fafc;
-	padding: 5px;
-	border-radius: 4px;
-}
-
-.control-group input[type="checkbox"] {
-	margin-right: 8px;
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
