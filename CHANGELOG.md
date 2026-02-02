@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Unified Bottom Control Bar** — Sleek control panel with panel toggles and menu buttons
+- **Multi-select Panel Toggles** — Enable any combination of △ Flavor, 〰 P(t), 📊 P(E) panels
+- **Scroll Zoom** — Mouse wheel zoom in/out on neutrino sphere (0.5x to 2x)
+- **11 new tooltip positioning tests** — Comprehensive edge case coverage
+
+### Changed
+- Moved menu actions (Share, Learn More, Settings, Help) to bottom control bar
+- Removed hamburger menu in favor of always-visible action buttons
+- Improved probability plot aspect ratio (taller for better curve visibility)
+- Added bottom padding to main visualization area to prevent panel overlap
+
+### Fixed
+- Tooltip viewport overflow — tooltips now use fixed positioning with viewport clamping
+- Ternary plot tooltip positioning — tooltips render correctly inside embedded panels
+
 ## [1.2.0] - 2026-02-02
 
 ### Added

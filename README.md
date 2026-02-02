@@ -105,7 +105,7 @@ Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://a
 npm install      # Install dependencies
 npm run dev      # Dev server at localhost:5173
 npm run build    # Production build
-npm test         # Run tests (64 passing)
+npm test         # Run tests (75 passing)
 ```
 
 ## Project Structure
