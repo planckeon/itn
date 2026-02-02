@@ -110,21 +110,26 @@ const TernaryPlot: React.FC = () => {
 			ctx.stroke();
 		}
 
-		// Draw vertex labels
+		// Draw vertex labels with proper subscripts
 		ctx.font = "bold 12px monospace";
 		ctx.textAlign = "center";
 
-		// Electron (top)
+		// Electron (top) - νₑ
 		ctx.fillStyle = COLORS.electron;
 		ctx.fillText("νₑ", electronVertex.x, electronVertex.y - 8);
 
-		// Muon (bottom-left)
+		// Muon (bottom-left) - νᵤ (using Unicode subscript mu: ᵤ doesn't exist, use μ with smaller font)
 		ctx.fillStyle = COLORS.muon;
-		ctx.fillText("νμ", muonVertex.x - 10, muonVertex.y + 15);
+		ctx.fillText("ν", muonVertex.x - 14, muonVertex.y + 15);
+		ctx.font = "bold 9px monospace";
+		ctx.fillText("μ", muonVertex.x - 6, muonVertex.y + 17);
+		ctx.font = "bold 12px monospace";
 
-		// Tau (bottom-right)
+		// Tau (bottom-right) - ντ (similar approach)
 		ctx.fillStyle = COLORS.tau;
-		ctx.fillText("ντ", tauVertex.x + 10, tauVertex.y + 15);
+		ctx.fillText("ν", tauVertex.x + 6, tauVertex.y + 15);
+		ctx.font = "bold 9px monospace";
+		ctx.fillText("τ", tauVertex.x + 14, tauVertex.y + 17);
 
 		// Convert probabilities to ternary coordinates
 		const toTernary = (Pe: number, Pmu: number, Ptau: number) => {

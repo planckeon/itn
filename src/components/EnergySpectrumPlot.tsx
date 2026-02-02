@@ -136,11 +136,14 @@ const EnergySpectrumPlot: React.FC = () => {
 		ctx.fillText("5", padding.left + plotWidth / 2, height - 5);
 		ctx.fillText("10 GeV", padding.left + plotWidth - 5, height - 5);
 
-		// Title
+		// Title with subscript-style formatting
 		ctx.fillStyle = COLORS.text;
 		ctx.font = "10px monospace";
 		ctx.textAlign = "left";
-		ctx.fillText(`P vs E (L=${state.distance.toFixed(0)} km)`, padding.left, 12);
+		const titleX = padding.left;
+		ctx.fillText("P vs E", titleX, 12);
+		ctx.font = "9px monospace";
+		ctx.fillText(`(L=${state.distance.toFixed(0)} km)`, titleX + 42, 12);
 
 		if (spectrumData.length === 0) {
 			ctx.fillStyle = COLORS.text;
@@ -191,11 +194,20 @@ const EnergySpectrumPlot: React.FC = () => {
 			ctx.stroke();
 			ctx.setLineDash([]);
 
-			// Label
+			// Label - position depends on x to avoid title overlap
 			ctx.fillStyle = COLORS.currentEnergy;
 			ctx.font = "8px monospace";
 			ctx.textAlign = "center";
-			ctx.fillText(`${state.energy.toFixed(1)}`, currentX, padding.top - 3);
+			// If energy marker is in left third, put label on right side of line
+			// Otherwise put it above the line
+			if (currentX < padding.left + plotWidth * 0.4) {
+				// Put label to the right of the dashed line
+				ctx.textAlign = "left";
+				ctx.fillText(`${state.energy.toFixed(1)}`, currentX + 3, padding.top + 10);
+			} else {
+				// Put label above the dashed line
+				ctx.fillText(`${state.energy.toFixed(1)}`, currentX, padding.top - 3);
+			}
 		}
 
 	}, [spectrumData, state.distance, state.energy]);

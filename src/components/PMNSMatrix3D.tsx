@@ -273,16 +273,23 @@ const PMNSMatrix3D: React.FC<Props> = ({ isOpen, onClose }) => {
 			ctx.fillText(label, p.x - 8, p.y);
 		});
 
-		// Row labels (νe, νμ, ντ)
+		// Row labels (νₑ, νμ, ντ) - draw subscripts properly
 		const rowLabels = [
 			{ label: "νₑ", color: COLORS.electron },
-			{ label: "νμ", color: COLORS.muon },
-			{ label: "ντ", color: COLORS.tau },
+			{ label: "ν", subscript: "μ", color: COLORS.muon },
+			{ label: "ν", subscript: "τ", color: COLORS.tau },
 		];
 		rowLabels.forEach((item, i) => {
 			const p = project(-2.5, 0, (i - 1) * 1.2);
 			ctx.fillStyle = `rgb(${item.color.r}, ${item.color.g}, ${item.color.b})`;
-			ctx.fillText(item.label, p.x - 5, p.y + 4);
+			if (item.subscript) {
+				ctx.font = "bold 12px sans-serif";
+				ctx.fillText(item.label, p.x - 10, p.y + 4);
+				ctx.font = "bold 9px sans-serif";
+				ctx.fillText(item.subscript, p.x - 2, p.y + 6);
+			} else {
+				ctx.fillText(item.label, p.x - 5, p.y + 4);
+			}
 		});
 
 		// Title and info
