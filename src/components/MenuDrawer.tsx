@@ -26,7 +26,7 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ onOpenLearnMore, onOpenSettings
 	};
 
 	return (
-		<div className="fixed top-4 left-4 z-30">
+		<div className="fixed top-[72px] left-4 z-30">
 			{/* Toggle button */}
 			<button
 				type="button"

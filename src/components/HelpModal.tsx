@@ -25,8 +25,18 @@ interface HelpModalProps {
  */
 const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }) => {
 	const [internalOpen, setInternalOpen] = useState(false);
-	const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
-	const setIsOpen = onClose ? (open: boolean) => { if (!open) onClose(); } : setInternalOpen;
+	
+	// In controlled mode, use controlledOpen; otherwise use internal state
+	const isControlled = controlledOpen !== undefined;
+	const isOpen = isControlled ? controlledOpen : internalOpen;
+
+	const handleClose = () => {
+		if (isControlled && onClose) {
+			onClose();
+		} else {
+			setInternalOpen(false);
+		}
+	};
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,19 +46,21 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 			
 			if (e.key === "?" || (e.shiftKey && e.key === "/")) {
 				e.preventDefault();
-				if (controlledOpen !== undefined && onClose) {
-					onClose();
+				if (isControlled) {
+					// In controlled mode, ? key should toggle but we can't open from here
+					// Just close if open
+					if (isOpen && onClose) onClose();
 				} else {
 					setInternalOpen((prev) => !prev);
 				}
 			} else if (e.key === "Escape" && isOpen) {
-				setIsOpen(false);
+				handleClose();
 			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isOpen, controlledOpen, onClose]);
+	}, [isOpen, isControlled, onClose]);
 
 	if (!isOpen) {
 		// In controlled mode, don't render anything when closed
@@ -58,7 +70,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 		return (
 			<button
 				type="button"
-				onClick={() => setIsOpen(true)}
+				onClick={() => setInternalOpen(true)}
 				className="fixed bottom-4 z-30 px-2 py-1 rounded text-xs text-white/40 hover:text-white/70 transition-colors hidden sm:block"
 				style={{
 					// Position between center plot and right spectrum plot
@@ -76,7 +88,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 		<div
 			className="fixed inset-0 z-50 flex items-center justify-center"
 			style={{ background: "rgba(0, 0, 0, 0.75)" }}
-			onClick={() => setIsOpen(false)}
+			onClick={() => handleClose()}
 		>
 			<div
 				className="rounded-xl p-8 max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto scrollbar-hide"
@@ -92,7 +104,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 					<h2 className="text-xl font-semibold text-white">Keyboard Shortcuts</h2>
 					<button
 						type="button"
-						onClick={() => setIsOpen(false)}
+						onClick={() => handleClose()}
 						className="text-white/50 hover:text-white text-2xl leading-none"
 					>
 						×
