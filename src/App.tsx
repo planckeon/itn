@@ -251,8 +251,8 @@ function AppContent() {
 			{/* PMNS Matrix - top right */}
 			<PMNSMatrix />
 
-			{/* Main visualization - with bottom padding for HUD */}
-			<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none pb-48">
+			{/* Main visualization - centered */}
+			<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">
 				<VisualizationArea />
 			</main>
 
