@@ -46,11 +46,27 @@ const TopControlBar: React.FC = () => {
 						<option value="" disabled style={{ background: "#1e1e28" }}>
 							Select...
 						</option>
-						{EXPERIMENT_PRESETS.map((preset) => (
-							<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
-								{preset.name}
-							</option>
-						))}
+						<optgroup label="Accelerator (νμ beam)" style={{ background: "#1e1e28" }}>
+							{EXPERIMENT_PRESETS.filter(p => ["T2K", "NOvA", "DUNE", "Hyper-K"].includes(p.name)).map((preset) => (
+								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+									{preset.name} — {preset.baseline}km
+								</option>
+							))}
+						</optgroup>
+						<optgroup label="Reactor (ν̄e)" style={{ background: "#1e1e28" }}>
+							{EXPERIMENT_PRESETS.filter(p => ["KamLAND", "Daya Bay", "JUNO", "Double Chooz"].includes(p.name)).map((preset) => (
+								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+									{preset.name} — {preset.baseline}km
+								</option>
+							))}
+						</optgroup>
+						<optgroup label="Atmospheric / Other" style={{ background: "#1e1e28" }}>
+							{EXPERIMENT_PRESETS.filter(p => ["Super-K Atm", "IceCube", "Solar"].includes(p.name)).map((preset) => (
+								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+									{preset.name}
+								</option>
+							))}
+						</optgroup>
 					</select>
 				</div>
 
