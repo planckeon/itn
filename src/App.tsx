@@ -1,4 +1,5 @@
 import { memo, useCallback, useState } from "react";
+import CPAsymmetryPlot from "./components/CPAsymmetryPlot";
 import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import HelpModal from "./components/HelpModal";
 import LearnMorePanel from "./components/LearnMorePanel";
@@ -19,6 +20,7 @@ interface PanelState {
 	ternary: boolean;
 	probability: boolean;
 	spectrum: boolean;
+	cpAsymmetry: boolean;
 }
 
 const panelStyle = {
@@ -101,6 +103,17 @@ const FlexSpectrumPanel = memo(({ canExpand }: { canExpand: boolean }) => (
 ));
 FlexSpectrumPanel.displayName = "FlexSpectrumPanel";
 
+// CP Asymmetry panel
+const FlexCPAsymmetryPanel = memo(({ canExpand }: { canExpand: boolean }) => (
+	<div
+		className={`rounded-xl p-3 ${canExpand ? "flex-1 min-w-[280px] max-w-3xl" : "flex-shrink-0"}`}
+		style={panelStyle}
+	>
+		<CPAsymmetryPlot embedded fillContainer={canExpand} />
+	</div>
+));
+FlexCPAsymmetryPanel.displayName = "FlexCPAsymmetryPanel";
+
 interface BottomHUDProps {
 	panels: PanelState;
 	onTogglePanel: (panel: keyof PanelState) => void;
@@ -127,10 +140,11 @@ function BottomHUD({
 	
 	const isAtMax = distance >= 2999; // Near max distance (3000km)
 
-	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum;
+	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum || panels.cpAsymmetry;
 
 	// Spectrum can expand if it's the only plot panel
-	const spectrumCanExpand = !panels.probability && panels.spectrum;
+	const spectrumCanExpand = !panels.probability && !panels.cpAsymmetry && panels.spectrum;
+	const cpAsymmetryCanExpand = !panels.probability && !panels.spectrum && panels.cpAsymmetry;
 
 	const pillStyle = {
 		background: "rgba(20, 20, 30, 0.75)",
@@ -152,6 +166,9 @@ function BottomHUD({
 					{panels.probability && <FlexProbabilityPanel />}
 					{panels.spectrum && (
 						<FlexSpectrumPanel canExpand={spectrumCanExpand} />
+					)}
+					{panels.cpAsymmetry && (
+						<FlexCPAsymmetryPanel canExpand={cpAsymmetryCanExpand} />
 					)}
 				</div>
 			)}
@@ -212,6 +229,14 @@ function BottomHUD({
 					>
 						📊
 					</button>
+					<button
+						type="button"
+						onClick={() => onTogglePanel("cpAsymmetry")}
+						className={`${btnBase} ${panels.cpAsymmetry ? btnActive : btnInactive}`}
+						title="CP asymmetry"
+					>
+						⚖️
+					</button>
 				</div>
 
 				{/* Menu */}
@@ -271,6 +296,7 @@ function AppContent() {
 		ternary: false,
 		probability: true,
 		spectrum: false,
+		cpAsymmetry: false,
 	});
 	const [shareOpen, setShareOpen] = useState(false);
 	const [learnOpen, setLearnOpen] = useState(false);
