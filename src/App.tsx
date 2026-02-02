@@ -1,3 +1,4 @@
+import { useState } from "react";
 import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import HelpModal from "./components/HelpModal";
 import LearnMorePanel from "./components/LearnMorePanel";
@@ -87,6 +88,9 @@ function App() {
 function AppContent() {
 	// Enable keyboard shortcuts
 	useKeyboardShortcuts();
+	
+	// Panel visibility - analysis panels hidden by default for cleaner look
+	const [showAnalysis, setShowAnalysis] = useState(false);
 
 	return (
 		<>
@@ -102,7 +106,7 @@ function AppContent() {
 				<TopControlBar />
 
 				{/* PMNS Matrix display - top right - z-index 10 */}
-				<PMNSMatrix />
+				{showAnalysis && <PMNSMatrix />}
 
 				{/* Left side panels - z-index 10 */}
 				<ShareButton />
@@ -118,10 +122,25 @@ function AppContent() {
 				<PlotWrapper />
 
 				{/* Ternary flavor space plot - bottom left - z-index 10 */}
-				<TernaryPlot />
+				{showAnalysis && <TernaryPlot />}
 
 				{/* Energy spectrum plot - bottom right - z-index 10 */}
-				<EnergySpectrumPlot />
+				{showAnalysis && <EnergySpectrumPlot />}
+
+				{/* Analysis toggle button - bottom left corner */}
+				<button
+					type="button"
+					onClick={() => setShowAnalysis(!showAnalysis)}
+					className="fixed bottom-4 left-4 z-30 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+					style={{
+						background: showAnalysis ? "rgba(59, 130, 246, 0.8)" : "rgba(40, 40, 50, 0.85)",
+						border: "1px solid rgba(255, 255, 255, 0.2)",
+						backdropFilter: "blur(8px)",
+					}}
+					title="Toggle analysis panels (Ternary plot, Energy spectrum, PMNS matrix)"
+				>
+					{showAnalysis ? "📊 Hide Analysis" : "📊 Analysis"}
+				</button>
 
 				{/* Help modal - press ? to toggle */}
 				<HelpModal />
