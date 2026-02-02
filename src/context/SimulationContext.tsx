@@ -27,6 +27,19 @@ const Ye = 0.5; // Electron fraction in typical matter (e.g., Earth's crust)
 const LmaxSim = 3000; // km
 const c = 299792.458; // km/s
 
+// Default simulation state values
+const DEFAULT_STATE = {
+	initialFlavor: "electron" as Flavor,
+	energy: 2, // GeV
+	speed: 1, // relative to c
+	matter: false,
+	density: 2.6, // g/cm^3
+	deltaCP: 0, // degrees
+	isAntineutrino: false,
+	massOrdering: "normal" as MassOrdering,
+	zoom: 0.75, // 0.5 to 2.0
+};
+
 type Flavor = "electron" | "muon" | "tau";
 type MassOrdering = "normal" | "inverted";
 
@@ -62,6 +75,7 @@ interface SimulationContextType {
 	setMassOrdering: (massOrdering: MassOrdering) => void;
 	setZoom: (zoom: number) => void;
 	resetSimulation: () => void;
+	resetToDefaults: () => void;
 	applyPreset: (preset: ExperimentPreset) => void;
 }
 
@@ -208,15 +222,15 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 	// Load initial state from localStorage or use defaults
 	const persisted = loadPersistedState();
 	
-	const [initialFlavor, setInitialFlavor] = useState<Flavor>(persisted.initialFlavor ?? "electron");
-	const [energy, setEnergy] = useState<number>(persisted.energy ?? 2); // GeV
-	const [speed, setSpeed] = useState<number>(persisted.speed ?? 1); // relative to c
-	const [matter, setMatter] = useState<boolean>(persisted.matter ?? false);
-	const [density, setDensity] = useState<number>(persisted.density ?? 2.6); // g/cm^3
-	const [deltaCP, setDeltaCP] = useState<number>(persisted.deltaCP ?? 0); // degrees
-	const [isAntineutrino, setIsAntineutrino] = useState<boolean>(persisted.isAntineutrino ?? false);
-	const [massOrdering, setMassOrdering] = useState<MassOrdering>(persisted.massOrdering ?? "normal");
-	const [zoom, setZoom] = useState<number>(persisted.zoom ?? 0.75); // 0.5 to 2.0
+	const [initialFlavor, setInitialFlavor] = useState<Flavor>(persisted.initialFlavor ?? DEFAULT_STATE.initialFlavor);
+	const [energy, setEnergy] = useState<number>(persisted.energy ?? DEFAULT_STATE.energy);
+	const [speed, setSpeed] = useState<number>(persisted.speed ?? DEFAULT_STATE.speed);
+	const [matter, setMatter] = useState<boolean>(persisted.matter ?? DEFAULT_STATE.matter);
+	const [density, setDensity] = useState<number>(persisted.density ?? DEFAULT_STATE.density);
+	const [deltaCP, setDeltaCP] = useState<number>(persisted.deltaCP ?? DEFAULT_STATE.deltaCP);
+	const [isAntineutrino, setIsAntineutrino] = useState<boolean>(persisted.isAntineutrino ?? DEFAULT_STATE.isAntineutrino);
+	const [massOrdering, setMassOrdering] = useState<MassOrdering>(persisted.massOrdering ?? DEFAULT_STATE.massOrdering);
+	const [zoom, setZoom] = useState<number>(persisted.zoom ?? DEFAULT_STATE.zoom);
 	const [time, setTime] = useState<number>(0); // seconds (transient)
 	const [distance, setDistance] = useState<number>(0); // km (transient)
 	const [probabilityHistory, setProbabilityHistory] = useState<
@@ -265,6 +279,29 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		setTime(0);
 		setDistance(0);
 		setProbabilityHistory([]);
+	}, []);
+
+	const resetToDefaults = useCallback(() => {
+		// Reset all parameters to default values
+		setInitialFlavor(DEFAULT_STATE.initialFlavor);
+		setEnergy(DEFAULT_STATE.energy);
+		setSpeed(DEFAULT_STATE.speed);
+		setMatter(DEFAULT_STATE.matter);
+		setDensity(DEFAULT_STATE.density);
+		setDeltaCP(DEFAULT_STATE.deltaCP);
+		setIsAntineutrino(DEFAULT_STATE.isAntineutrino);
+		setMassOrdering(DEFAULT_STATE.massOrdering);
+		setZoom(DEFAULT_STATE.zoom);
+		// Also reset transient state
+		setTime(0);
+		setDistance(0);
+		setProbabilityHistory([]);
+		// Clear persisted state
+		try {
+			localStorage.removeItem(STORAGE_KEY);
+		} catch (e) {
+			console.warn("Failed to clear persisted state:", e);
+		}
 	}, []);
 
 	const applyPreset = useCallback((preset: ExperimentPreset) => {
@@ -395,6 +432,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		setMassOrdering,
 		setZoom,
 		resetSimulation,
+		resetToDefaults,
 		applyPreset,
 	};
 

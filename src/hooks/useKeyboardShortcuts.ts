@@ -11,7 +11,8 @@ import {
  * A - Toggle antineutrino mode
  * M - Toggle matter effect
  * N - Toggle mass ordering (Normal/Inverted)
- * R - Reset simulation
+ * R - Reset simulation (time/distance only)
+ * Shift+R - Reset to defaults (all parameters)
  * S - Copy share URL to clipboard
  * 1-4 - Apply experiment presets (T2K, NOvA, DUNE, KamLAND)
  * Arrow Up/Down - Adjust energy
@@ -31,6 +32,7 @@ export function useKeyboardShortcuts() {
 		setMassOrdering,
 		setZoom,
 		resetSimulation,
+		resetToDefaults,
 		applyPreset,
 	} = useSimulation();
 
@@ -64,8 +66,12 @@ export function useKeyboardShortcuts() {
 					);
 					break;
 
-				case "r": // R - reset
-					resetSimulation();
+				case "r": // R - reset, Shift+R - reset to defaults
+					if (e.shiftKey) {
+						resetToDefaults();
+					} else {
+						resetSimulation();
+					}
 					break;
 
 				case "1": // Presets 1-4
@@ -129,6 +135,7 @@ export function useKeyboardShortcuts() {
 			setMassOrdering,
 			setZoom,
 			resetSimulation,
+			resetToDefaults,
 			applyPreset,
 		],
 	);

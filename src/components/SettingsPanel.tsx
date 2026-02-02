@@ -16,7 +16,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 	const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
 	const { language, setLanguage, t, languageNames, availableLanguages } =
 		useI18n();
-	const { state, setDensity } = useSimulation();
+	const { state, setDensity, resetToDefaults } = useSimulation();
 
 	const handleClose = () => {
 		if (onClose) onClose();
@@ -131,6 +131,20 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 							</button>
 						))}
 					</div>
+				</div>
+
+				{/* Reset to defaults */}
+				<div className="pt-2 border-t border-white/10">
+					<button
+						type="button"
+						onClick={resetToDefaults}
+						className="w-full px-4 py-2.5 rounded-lg text-sm font-medium transition-all bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25 hover:border-red-500/50"
+					>
+						↺ Reset to Defaults
+					</button>
+					<p className="text-xs text-white/40 mt-2 text-center">
+						Clears saved state and restores default parameters
+					</p>
 				</div>
 
 				{/* Physics constants info */}

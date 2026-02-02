@@ -7,6 +7,7 @@ const SHORTCUTS = [
 	{ key: "M", action: "Toggle matter effect" },
 	{ key: "N", action: "Toggle mass ordering (NO/IO)" },
 	{ key: "R", action: "Reset simulation" },
+	{ key: "⇧R", action: "Reset to defaults" },
 	{ key: "S", action: "Copy share URL" },
 	{ key: "1-4", action: "Quick presets (T2K, NOvA, DUNE, KamLAND)" },
 	{ key: "↑ / ↓", action: "Adjust energy" },
