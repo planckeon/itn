@@ -222,12 +222,12 @@ const TernaryPlot: React.FC = () => {
 
 	return (
 		<div
-			className="absolute bottom-44 left-4 z-10"
+			className="absolute bottom-4 left-4 z-10"
 			style={{
 				background: "rgba(20, 20, 30, 0.85)",
 				backdropFilter: "blur(8px)",
 				borderRadius: "8px",
-				padding: "6px",
+				padding: "10px",
 				border: "1px solid rgba(255, 255, 255, 0.1)",
 			}}
 		>
@@ -237,7 +237,7 @@ const TernaryPlot: React.FC = () => {
 			</div>
 			<canvas
 				ref={canvasRef}
-				style={{ width: "120px", height: "120px" }}
+				style={{ width: "150px", height: "150px" }}
 			/>
 		</div>
 	);

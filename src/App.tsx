@@ -1,16 +1,79 @@
-import { useState } from "react";
-import BottomHUD from "./components/BottomHUD";
+
 import HelpModal from "./components/HelpModal";
 import LearnMorePanel from "./components/LearnMorePanel";
-import MenuDrawer from "./components/MenuDrawer";
 import PMNSMatrix from "./components/PMNSMatrix";
+import ProbabilityPlot from "./components/ProbabilityPlot";
 import SettingsPanel from "./components/SettingsPanel";
+import ShareButton from "./components/ShareButton";
 import Starfield from "./components/Starfield";
+import TernaryPlot from "./components/TernaryPlot";
+import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import TopControlBar from "./components/TopControlBar";
 import VisualizationArea from "./components/VisualizationArea";
-import { SimulationProvider } from "./context/SimulationContext";
+import { SimulationProvider, useSimulation } from "./context/SimulationContext";
 import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts";
 import { I18nProvider } from "./i18n";
+
+// Wrapper component to access simulation context for the plot
+function PlotWrapper() {
+	const { state } = useSimulation();
+	const { probabilityHistory, energy } = state;
+
+	const probabilityData = probabilityHistory.map((item) => ({
+		distance: item.distance,
+		probabilities: {
+			electron: item.Pe,
+			muon: item.Pmu,
+			tau: item.Ptau,
+		},
+	}));
+
+	return (
+		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-[50vw] max-w-lg min-w-[320px]">
+			{/* Semi-transparent plot container */}
+			<div
+				className="rounded-xl px-4 py-3"
+				style={{
+					background: "rgba(20, 20, 30, 0.9)",
+					border: "1px solid rgba(255, 255, 255, 0.1)",
+				}}
+			>
+				{/* Title and legend row */}
+				<div className="flex items-center justify-between mb-2">
+					<span className="text-white/70 text-sm font-mono">Probability</span>
+					<div className="flex items-center gap-4">
+						<div className="flex items-center gap-1.5">
+							<div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+							<span className="text-[11px] text-white/60">ν<sub>e</sub></span>
+						</div>
+						<div className="flex items-center gap-1.5">
+							<div className="w-2.5 h-2.5 rounded-full bg-orange-400" />
+							<span className="text-[11px] text-white/60">ν<sub>μ</sub></span>
+						</div>
+						<div className="flex items-center gap-1.5">
+							<div className="w-2.5 h-2.5 rounded-full bg-fuchsia-500" />
+							<span className="text-[11px] text-white/60">ν<sub>τ</sub></span>
+						</div>
+					</div>
+				</div>
+				<ProbabilityPlot
+					data={probabilityData}
+					flavors={["electron", "muon", "tau"]}
+					flavorColors={{
+						electron: "rgb(59, 130, 246)",
+						muon: "rgb(251, 146, 60)",
+						tau: "rgb(217, 70, 239)",
+					}}
+					height={100}
+					distanceLabel="Time →"
+					probabilityLabel=""
+					energy={energy}
+					showOscillationLength={true}
+				/>
+			</div>
+		</div>
+	);
+}
 
 function App() {
 	return (
@@ -25,12 +88,6 @@ function App() {
 function AppContent() {
 	// Enable keyboard shortcuts
 	useKeyboardShortcuts();
-	
-	// Panel states
-	const [showLearnMore, setShowLearnMore] = useState(false);
-	const [showSettings, setShowSettings] = useState(false);
-	const [showHelp, setShowHelp] = useState(false);
-	const [showPMNS, setShowPMNS] = useState(false);
 
 	return (
 		<div className="App text-white font-mono min-h-screen overflow-hidden relative bg-black">
@@ -40,46 +97,33 @@ function AppContent() {
 			{/* Starfield fills the entire screen - z-index 0 */}
 			<Starfield />
 
-			{/* Compact controls bar at top - z-index 20 */}
+			{/* Horizontal controls bar at top - z-index 20 */}
 			<TopControlBar />
 
-			{/* Menu drawer - replaces scattered left buttons */}
-			<MenuDrawer 
-				onOpenLearnMore={() => setShowLearnMore(true)}
-				onOpenSettings={() => setShowSettings(true)}
-				onOpenHelp={() => setShowHelp(true)}
-			/>
+			{/* PMNS Matrix display - top right - always visible */}
+			<PMNSMatrix />
 
-			{/* PMNS Matrix toggle - top right */}
-			<button
-				type="button"
-				onClick={() => setShowPMNS(!showPMNS)}
-				className="fixed top-20 right-4 z-20 w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-105"
-				style={{
-					background: showPMNS ? "rgba(59, 130, 246, 0.3)" : "rgba(30, 30, 40, 0.9)",
-					border: "1px solid rgba(255, 255, 255, 0.15)",
-					backdropFilter: "blur(8px)",
-				}}
-				title="Toggle PMNS Matrix"
-			>
-				<span className="text-white/80 text-xs font-bold">|U|²</span>
-			</button>
-
-			{/* PMNS Matrix panel */}
-			{showPMNS && <PMNSMatrix />}
+			{/* Left side panels */}
+			<ShareButton />
+			<LearnMorePanel />
+			<SettingsPanel />
 
 			{/* Main visualization - centered neutrino sphere */}
 			<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">
 				<VisualizationArea />
 			</main>
 
-			{/* Unified bottom HUD with all three plots */}
-			<BottomHUD />
+			{/* Probability plot at bottom center */}
+			<PlotWrapper />
 
-			{/* Modals/Panels */}
-			{showLearnMore && <LearnMorePanel isOpen onClose={() => setShowLearnMore(false)} />}
-			{showSettings && <SettingsPanel isOpen onClose={() => setShowSettings(false)} />}
-			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+			{/* Ternary flavor space plot - bottom left */}
+			<TernaryPlot />
+
+			{/* Energy spectrum plot - bottom right */}
+			<EnergySpectrumPlot />
+
+			{/* Help modal - press ? to toggle */}
+			<HelpModal />
 		</div>
 	);
 }

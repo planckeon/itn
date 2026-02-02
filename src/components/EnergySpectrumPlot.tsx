@@ -94,7 +94,7 @@ const EnergySpectrumPlot: React.FC = () => {
 		if (!ctx) return;
 
 		const dpr = window.devicePixelRatio || 1;
-		const width = 300;
+		const width = 260;
 		const height = 150;
 
 		canvas.width = width * dpr;
@@ -214,7 +214,7 @@ const EnergySpectrumPlot: React.FC = () => {
 
 	return (
 		<div
-			className="absolute bottom-44 right-4 z-10"
+			className="absolute bottom-4 right-4 z-10"
 			style={{
 				background: "rgba(20, 20, 30, 0.85)",
 				backdropFilter: "blur(8px)",
@@ -228,7 +228,7 @@ const EnergySpectrumPlot: React.FC = () => {
 			</div>
 			<canvas
 				ref={canvasRef}
-				style={{ width: "220px", height: "120px" }}
+				style={{ width: "260px", height: "150px" }}
 			/>
 		</div>
 	);
