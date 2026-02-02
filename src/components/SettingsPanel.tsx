@@ -1,7 +1,8 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSimulation } from "../context/SimulationContext";
 import { type Language, useI18n } from "../i18n";
+import { getAverageDensity, getMaxDepth, describeBaseline } from "../physics/prem";
 
 interface SettingsPanelProps {
 	isOpen?: boolean;
@@ -17,6 +18,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 	const { language, setLanguage, t, languageNames, availableLanguages } =
 		useI18n();
 	const { state, setDensity, resetToDefaults } = useSimulation();
+	
+	// Calculate PREM-based density from current baseline
+	const premDensity = useMemo(() => getAverageDensity(state.distance), [state.distance]);
+	const maxDepth = useMemo(() => getMaxDepth(state.distance), [state.distance]);
+	const pathDescription = useMemo(() => describeBaseline(state.distance), [state.distance]);
 
 	const handleClose = () => {
 		if (onClose) onClose();
@@ -109,13 +115,25 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 						Density Presets
 					</label>
 					<div className="flex flex-wrap gap-1.5">
+						{/* PREM preset - calculated from baseline */}
+						<button
+							type="button"
+							onClick={() => setDensity(premDensity)}
+							className={`px-2.5 py-1.5 rounded text-xs transition-colors ${
+								Math.abs(state.density - premDensity) < 0.1
+									? "bg-green-500/30 text-green-300 border-green-500/50"
+									: "bg-green-500/10 text-green-300/70 border-green-500/20"
+							} border`}
+							title={`PREM density for ${state.distance.toFixed(0)} km baseline`}
+						>
+							🌍 PREM ({premDensity.toFixed(1)})
+						</button>
 						{[
 							{ label: "Vacuum", value: 0 },
 							{ label: "Air", value: 0.001 },
 							{ label: "Water", value: 1.0 },
 							{ label: "Earth", value: 2.8 },
 							{ label: "Core", value: 13.0 },
-							{ label: "Sun", value: 150 },
 						].map((preset) => (
 							<button
 								key={preset.label}
@@ -131,6 +149,13 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 							</button>
 						))}
 					</div>
+					{/* PREM path info */}
+					{state.matter && (
+						<div className="mt-2 text-xs text-white/40">
+							{pathDescription}
+							{maxDepth > 0 && <span className="block">Max depth: {maxDepth.toFixed(0)} km</span>}
+						</div>
+					)}
 				</div>
 
 				{/* Reset to defaults */}
