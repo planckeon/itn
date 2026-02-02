@@ -1,7 +1,9 @@
 import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import HelpModal from "./components/HelpModal";
+import LearnMorePanel from "./components/LearnMorePanel";
 import PMNSMatrix from "./components/PMNSMatrix";
 import ProbabilityPlot from "./components/ProbabilityPlot";
+import SettingsPanel from "./components/SettingsPanel";
 import ShareButton from "./components/ShareButton";
 import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
@@ -9,6 +11,7 @@ import TopControlBar from "./components/TopControlBar";
 import VisualizationArea from "./components/VisualizationArea";
 import { SimulationProvider, useSimulation } from "./context/SimulationContext";
 import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts";
+import { I18nProvider } from "./i18n";
 
 // Wrapper component to access simulation context for the plot
 function PlotWrapper() {
@@ -73,9 +76,11 @@ function PlotWrapper() {
 
 function App() {
 	return (
-		<SimulationProvider>
-			<AppContent />
-		</SimulationProvider>
+		<I18nProvider>
+			<SimulationProvider>
+				<AppContent />
+			</SimulationProvider>
+		</I18nProvider>
 	);
 }
 
@@ -99,8 +104,10 @@ function AppContent() {
 				{/* PMNS Matrix display - top right - z-index 10 */}
 				<PMNSMatrix />
 
-				{/* Share button - top left - z-index 10 */}
+				{/* Left side panels - z-index 10 */}
 				<ShareButton />
+				<LearnMorePanel />
+				<SettingsPanel />
 
 				{/* Main visualization - centered neutrino sphere - z-index 10 */}
 				<main className="relative w-full h-screen flex items-center justify-center z-10 pointer-events-none">

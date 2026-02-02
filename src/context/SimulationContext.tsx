@@ -73,6 +73,7 @@ export interface ExperimentPreset {
 }
 
 export const EXPERIMENT_PRESETS: ExperimentPreset[] = [
+	// Accelerator experiments (νμ beam)
 	{
 		name: "T2K",
 		baseline: 295,
@@ -91,14 +92,66 @@ export const EXPERIMENT_PRESETS: ExperimentPreset[] = [
 		name: "DUNE",
 		baseline: 1300,
 		energy: 2.5,
-		description: "Future experiment, high precision",
+		description: "Future, high precision CP violation",
 		initialFlavor: "muon",
 	},
+	{
+		name: "Hyper-K",
+		baseline: 295,
+		energy: 0.6,
+		description: "Japan, next-gen T2K successor",
+		initialFlavor: "muon",
+	},
+	// Reactor experiments (ν̄e)
 	{
 		name: "KamLAND",
 		baseline: 180,
 		energy: 0.003, // 3 MeV
-		description: "Reactor ν̄e disappearance",
+		description: "Japan, reactor ν̄e disappearance",
+		initialFlavor: "electron",
+	},
+	{
+		name: "Daya Bay",
+		baseline: 1.6,
+		energy: 0.004, // 4 MeV
+		description: "China, θ13 measurement",
+		initialFlavor: "electron",
+	},
+	{
+		name: "JUNO",
+		baseline: 53,
+		energy: 0.003, // 3 MeV
+		description: "China, mass ordering determination",
+		initialFlavor: "electron",
+	},
+	{
+		name: "Double Chooz",
+		baseline: 1.05,
+		energy: 0.004,
+		description: "France, θ13 measurement",
+		initialFlavor: "electron",
+	},
+	// Atmospheric
+	{
+		name: "Super-K Atm",
+		baseline: 500,
+		energy: 1.0,
+		description: "Japan, atmospheric neutrinos",
+		initialFlavor: "muon",
+	},
+	{
+		name: "IceCube",
+		baseline: 10000,
+		energy: 25,
+		description: "South Pole, high-energy atmospheric",
+		initialFlavor: "muon",
+	},
+	// Solar
+	{
+		name: "Solar",
+		baseline: 15000, // ~0.1 AU effective
+		energy: 0.001, // 1 MeV (pp chain)
+		description: "Sun to Earth, MSW effect",
 		initialFlavor: "electron",
 	},
 ];
