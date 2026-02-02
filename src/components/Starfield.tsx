@@ -7,6 +7,8 @@ interface Star {
 	x: number;
 	y: number;
 	z: number;
+	prevScreenX: number;
+	prevScreenY: number;
 	size: number;
 	brightness: number;
 }
@@ -21,13 +23,13 @@ const Starfield: React.FC = () => {
 	
 	// Camera rotation state (spherical coordinates)
 	const cameraYawRef = useRef(0); // Horizontal rotation
-	const cameraPitchRef = useRef(0); // Vertical rotation (clamped)
+	const cameraPitchRef = useRef(0.3); // Slight downward tilt initially
 	const isDraggingRef = useRef(false);
 	const lastMouseRef = useRef({ x: 0, y: 0 });
 
-	const numStars = 500;
-	const fieldSize = 2000; // Size of the star field cube
-	const cameraDistance = 500; // Camera distance from center
+	const numStars = 600;
+	const fieldSize = 1500;
+	const cameraDistance = 400;
 
 	// Keep speed ref updated
 	useEffect(() => {
@@ -49,12 +51,12 @@ const Starfield: React.FC = () => {
 		const deltaY = e.clientY - lastMouseRef.current.y;
 		lastMouseRef.current = { x: e.clientX, y: e.clientY };
 		
-		// Update camera angles
-		cameraYawRef.current -= deltaX * 0.005;
-		cameraPitchRef.current -= deltaY * 0.005;
+		// Reduced sensitivity for smoother rotation
+		cameraYawRef.current -= deltaX * 0.002;
+		cameraPitchRef.current -= deltaY * 0.002;
 		
 		// Clamp pitch to avoid flipping
-		cameraPitchRef.current = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, cameraPitchRef.current));
+		cameraPitchRef.current = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, cameraPitchRef.current));
 	}, []);
 
 	const handleMouseUp = useCallback(() => {
@@ -95,9 +97,11 @@ const Starfield: React.FC = () => {
 				stars.push({
 					x: (Math.random() - 0.5) * fieldSize,
 					y: (Math.random() - 0.5) * fieldSize,
-					z: (Math.random() - 0.5) * fieldSize,
-					size: 0.5 + Math.random() * 1.5,
-					brightness: 0.4 + Math.random() * 0.6,
+					z: Math.random() * fieldSize - fieldSize * 0.3,
+					prevScreenX: 0,
+					prevScreenY: 0,
+					size: 0.5 + Math.random() * 2,
+					brightness: 0.5 + Math.random() * 0.5,
 				});
 			}
 			starsRef.current = stars;
@@ -128,9 +132,9 @@ const Starfield: React.FC = () => {
 			rz += cameraDistance;
 			
 			// Perspective projection
-			if (rz <= 10) return null; // Behind camera
+			if (rz <= 1) return null; // Behind camera
 			
-			const fov = width * 0.8;
+			const fov = width * 0.9;
 			const scale = fov / rz;
 			const screenX = width / 2 + rx * scale;
 			const screenY = height / 2 + ry * scale;
@@ -166,80 +170,77 @@ const Starfield: React.FC = () => {
 			context.fillRect(0, 0, width, height);
 
 			// Stars move toward the camera (decreasing z)
-			const moveSpeed = speed * 8;
+			const moveSpeed = speed * 5;
 
-			// Collect stars with their projected positions for depth sorting
-			const projectedStars: Array<{
-				star: Star;
-				current: { x: number; y: number; z: number; scale: number };
-				previous: { x: number; y: number } | null;
-			}> = [];
-
+			// Draw and update stars
 			for (const star of starsRef.current) {
 				// Project current position
 				const current = project(star.x, star.y, star.z, width, height);
-				if (!current) continue;
 				
-				// Project previous position (for motion trail)
-				const prevZ = star.z + moveSpeed;
-				const previous = project(star.x, star.y, prevZ, width, height);
-				
-				projectedStars.push({
-					star,
-					current,
-					previous: previous && speed > 0.1 ? { x: previous.x, y: previous.y } : null,
-				});
-			}
-
-			// Sort by depth (far to near)
-			projectedStars.sort((a, b) => b.current.z - a.current.z);
-
-			// Draw stars
-			for (const { star, current, previous } of projectedStars) {
-				const { x, y, z, scale } = current;
-				
-				// Skip if off screen
-				if (x < -50 || x > width + 50 || y < -50 || y > height + 50) continue;
-
-				// Calculate size and alpha based on depth
-				const depthFactor = 1 - (z - 10) / (cameraDistance + fieldSize / 2);
-				const starSize = Math.max(0.5, star.size * scale * 0.15);
-				const alpha = star.brightness * Math.max(0.2, depthFactor);
-
-				// Draw motion blur trail
-				if (previous && speed > 0.1) {
-					const trailAlpha = alpha * Math.min(0.7, speed * 0.2);
+				if (current) {
+					const { x, y, z } = current;
 					
-					const gradient = context.createLinearGradient(previous.x, previous.y, x, y);
-					gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
-					gradient.addColorStop(1, `rgba(255, 255, 255, ${trailAlpha})`);
+					// Skip if off screen
+					if (x >= -100 && x <= width + 100 && y >= -100 && y <= height + 100) {
+						// Calculate size and alpha based on depth
+						const maxZ = cameraDistance + fieldSize;
+						const depthFactor = 1 - z / maxZ;
+						const starSize = Math.max(0.5, star.size * depthFactor * 2);
+						const alpha = star.brightness * Math.max(0.3, depthFactor);
 
-					context.strokeStyle = gradient;
-					context.lineWidth = starSize * 0.8;
-					context.lineCap = "round";
-					context.beginPath();
-					context.moveTo(previous.x, previous.y);
-					context.lineTo(x, y);
-					context.stroke();
+						// Draw motion blur trail using stored previous screen position
+						if (star.prevScreenX !== 0 && star.prevScreenY !== 0 && speed > 0.05) {
+							const dx = x - star.prevScreenX;
+							const dy = y - star.prevScreenY;
+							const trailLength = Math.sqrt(dx * dx + dy * dy);
+							
+							// Only draw trail if there's visible movement
+							if (trailLength > 2) {
+								// Extend the trail for more visibility
+								const extendFactor = Math.max(3, speed * 5);
+								const trailStartX = x - dx * extendFactor;
+								const trailStartY = y - dy * extendFactor;
+								
+								const trailAlpha = alpha * Math.min(0.8, 0.3 + speed * 0.2);
+								
+								const gradient = context.createLinearGradient(trailStartX, trailStartY, x, y);
+								gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+								gradient.addColorStop(0.7, `rgba(255, 255, 255, ${trailAlpha * 0.5})`);
+								gradient.addColorStop(1, `rgba(255, 255, 255, ${trailAlpha})`);
+
+								context.strokeStyle = gradient;
+								context.lineWidth = Math.max(1, starSize * 0.6);
+								context.lineCap = "round";
+								context.beginPath();
+								context.moveTo(trailStartX, trailStartY);
+								context.lineTo(x, y);
+								context.stroke();
+							}
+						}
+
+						// Draw the star point
+						context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+						context.beginPath();
+						context.arc(x, y, starSize, 0, Math.PI * 2);
+						context.fill();
+
+						// Store current screen position for next frame's trail
+						star.prevScreenX = x;
+						star.prevScreenY = y;
+					}
 				}
 
-				// Draw the star point
-				context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-				context.beginPath();
-				context.arc(x, y, starSize, 0, Math.PI * 2);
-				context.fill();
-			}
-
-			// Update star positions (move toward camera)
-			for (const star of starsRef.current) {
+				// Update star 3D position (move toward camera)
 				star.z -= moveSpeed;
 				
 				// Respawn stars that pass the camera
-				if (star.z < -cameraDistance) {
-					star.z = fieldSize / 2;
+				if (star.z < -cameraDistance * 0.5) {
+					star.z = fieldSize * 0.7;
 					star.x = (Math.random() - 0.5) * fieldSize;
 					star.y = (Math.random() - 0.5) * fieldSize;
-					star.brightness = 0.4 + Math.random() * 0.6;
+					star.brightness = 0.5 + Math.random() * 0.5;
+					star.prevScreenX = 0;
+					star.prevScreenY = 0;
 				}
 			}
 
