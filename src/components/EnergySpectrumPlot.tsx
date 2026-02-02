@@ -214,7 +214,7 @@ const EnergySpectrumPlot: React.FC = () => {
 
 	return (
 		<div
-			className="absolute bottom-28 right-4 z-10"
+			className="absolute bottom-44 right-4 z-10"
 			style={{
 				background: "rgba(20, 20, 30, 0.85)",
 				backdropFilter: "blur(8px)",
