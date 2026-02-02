@@ -1,8 +1,9 @@
 import type React from "react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSimulation } from "../context/SimulationContext";
 import { getProbabilitiesForInitialFlavor } from "../physics/NuFastPort";
 import type { OscillationParameters } from "../physics/types";
+import { initWasm, isWasmReady, wasmCalculateEnergySpectrum } from "../physics/wasmBridge";
 import InfoTooltip from "./InfoTooltip";
 
 // NuFit 5.2 values
@@ -45,8 +46,14 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { state } = useSimulation();
+	const [wasmReady, setWasmReady] = useState(false);
 
-	// Calculate spectrum data
+	// Initialize WASM on mount
+	useEffect(() => {
+		initWasm().then(setWasmReady);
+	}, []);
+
+	// Calculate spectrum data - use WASM if available, fallback to JS
 	const spectrumData = useMemo(() => {
 		const {
 			distance,
@@ -65,11 +72,39 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({
 		const effectiveDeltaCP = isAntineutrino ? -deltaCP : deltaCP;
 		const dm31sq = massOrdering === "normal" ? DM31_SQ_NO : DM31_SQ_IO;
 
-		const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] =
-			[];
 		const minE = 0.1;
 		const maxE = 10;
-		const numPoints = 200;
+		const numPoints = wasmReady ? 400 : 200; // More points with WASM!
+
+		// Try WASM first
+		if (isWasmReady()) {
+			try {
+				return wasmCalculateEnergySpectrum(
+					{
+						theta12_deg: THETA12_DEG,
+						theta13_deg: THETA13_DEG,
+						theta23_deg: THETA23_DEG,
+						deltaCP_deg: effectiveDeltaCP,
+						dm21sq_eV2: DM21_SQ,
+						dm31sq_eV2: dm31sq,
+						matterEffect: matter,
+						rho: density,
+						Ye: YE,
+						initialFlavorIndex,
+						isAntineutrino,
+					},
+					distance,
+					minE,
+					maxE,
+					numPoints,
+				);
+			} catch {
+				// Fall through to JS implementation
+			}
+		}
+
+		// Fallback: JavaScript implementation
+		const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] = [];
 
 		for (let i = 0; i <= numPoints; i++) {
 			const energy = minE + (maxE - minE) * (i / numPoints);
@@ -110,6 +145,7 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({
 		state.deltaCP,
 		state.isAntineutrino,
 		state.massOrdering,
+		wasmReady,
 	]);
 
 	// Draw the plot
