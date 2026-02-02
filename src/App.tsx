@@ -144,15 +144,6 @@ function BottomHUD() {
 						📊 P(E)
 					</button>
 				</div>
-
-				{/* Help on right */}
-				<button
-					type="button"
-					onClick={() => {/* help handled by keyboard ? */}}
-					className="ml-4 px-2 py-1 text-xs text-white/40 hover:text-white/70 transition-colors"
-				>
-					? Help
-				</button>
 			</div>
 		</div>
 	);

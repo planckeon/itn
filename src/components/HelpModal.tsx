@@ -51,7 +51,10 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 	}, [isOpen, controlledOpen, onClose]);
 
 	if (!isOpen) {
-		// Show small hint in corner - positioned relative to viewport
+		// In controlled mode, don't render anything when closed
+		if (controlledOpen !== undefined) return null;
+		
+		// Uncontrolled mode: Show small hint in corner
 		return (
 			<button
 				type="button"
