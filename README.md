@@ -34,9 +34,10 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 - **Energy & Speed** — Continuous sliders
 
 ### Educational
-- **Learn More Panel** — 7 sections covering neutrino physics
+- **Learn More Panel** — 8 sections covering neutrino physics with LaTeX formulas
 - **Settings Panel** — Language selection, density presets
 - **3D PMNS Matrix** — Interactive rotatable visualization
+- **KaTeX Math Rendering** — Beautiful LaTeX equations
 - **Internationalization** — EN, ES, JA, ZH, HI, FR, DE
 
 ### Quality of Life
