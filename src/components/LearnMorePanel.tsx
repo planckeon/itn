@@ -161,8 +161,8 @@ const LearnMorePanel: React.FC = () => {
 				</button>
 			</div>
 
-			{/* Scrollable content */}
-			<div className="flex-1 overflow-y-auto p-2">
+			{/* Scrollable content - hidden scrollbar */}
+			<div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
 				{SECTIONS.map((section) => (
 					<div key={section.id} className="mb-1">
 						<button

@@ -65,7 +65,7 @@ const HelpModal: React.FC = () => {
 			onClick={() => setIsOpen(false)}
 		>
 			<div
-				className="rounded-xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto"
+				className="rounded-xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto scrollbar-hide"
 				style={{
 					background: "rgba(20, 20, 30, 0.95)",
 					border: "1px solid rgba(255, 255, 255, 0.2)",
