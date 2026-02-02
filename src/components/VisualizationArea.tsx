@@ -19,15 +19,15 @@ const FLAVOR_CONFIG = {
  * Calculate MSW resonance energy
  */
 function calculateResonanceEnergy(density: number, Ye = 0.5): number {
-	const cos2theta = Math.cos(2 * THETA13_DEG * Math.PI / 180);
+	const cos2theta = Math.cos((2 * THETA13_DEG * Math.PI) / 180);
 	return (DM31_SQ * cos2theta) / (1.52e-4 * density * Ye);
 }
 
 // Component for consistent neutrino symbol rendering
-const NeutrinoSymbol: React.FC<{ flavor: keyof typeof FLAVOR_CONFIG; className?: string }> = ({ 
-	flavor, 
-	className = "" 
-}) => {
+const NeutrinoSymbol: React.FC<{
+	flavor: keyof typeof FLAVOR_CONFIG;
+	className?: string;
+}> = ({ flavor, className = "" }) => {
 	const config = FLAVOR_CONFIG[flavor];
 	return (
 		<span className={className} style={{ color: config.color }}>
@@ -38,7 +38,16 @@ const NeutrinoSymbol: React.FC<{ flavor: keyof typeof FLAVOR_CONFIG; className?:
 
 const VisualizationArea: React.FC = () => {
 	const { state } = useSimulation();
-	const { probabilityHistory, distance, initialFlavor, matter, density, energy, isAntineutrino, zoom } = state;
+	const {
+		probabilityHistory,
+		distance,
+		initialFlavor,
+		matter,
+		density,
+		energy,
+		isAntineutrino,
+		zoom,
+	} = state;
 
 	// Get latest probabilities
 	const latestProbs = useMemo(() => {
@@ -61,18 +70,21 @@ const VisualizationArea: React.FC = () => {
 		if (!matter || isAntineutrino) {
 			return false;
 		}
-		
+
 		const E_res = calculateResonanceEnergy(density);
 		const ratio = energy / E_res;
 		const proximity = Math.exp(-Math.pow(Math.log(ratio), 2) * 2);
-		
+
 		return proximity > 0.3;
 	}, [matter, density, energy, isAntineutrino]);
 
 	return (
-		<div 
+		<div
 			className="relative flex flex-col items-center justify-center pointer-events-auto"
-			style={{ transform: `scale(${zoom})`, transition: "transform 0.15s ease-out" }}
+			style={{
+				transform: `scale(${zoom})`,
+				transition: "transform 0.15s ease-out",
+			}}
 		>
 			{/* The neutrino sphere - the star of the show */}
 			<NeutrinoSphere />
@@ -91,12 +103,13 @@ const VisualizationArea: React.FC = () => {
 
 				{/* Starting flavor (subtle) */}
 				<p className="text-xs text-white/30 mt-1">
-					from <NeutrinoSymbol flavor={initialFlavor} className="text-white/40" />
+					from{" "}
+					<NeutrinoSymbol flavor={initialFlavor} className="text-white/40" />
 				</p>
 
 				{/* MSW Resonance indicator */}
 				{isNearResonance && (
-					<div 
+					<div
 						className="mt-3 px-2 py-1 rounded-full text-xs font-mono animate-pulse"
 						style={{
 							background: "rgba(255, 200, 50, 0.2)",

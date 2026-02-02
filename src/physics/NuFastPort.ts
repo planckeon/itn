@@ -238,7 +238,7 @@ export function calculateNuFastProbs(
 		L,
 		E,
 		rho,
-		Ye
+		Ye,
 	);
 }
 

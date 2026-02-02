@@ -1,5 +1,5 @@
 import type React from "react";
-import { useRef, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSimulation } from "../context/SimulationContext";
 import { getProbabilitiesForInitialFlavor } from "../physics/NuFastPort";
 import type { OscillationParameters } from "../physics/types";
@@ -27,11 +27,19 @@ const EnergySpectrumMini: React.FC<{ distance: number }> = ({ distance }) => {
 	const spectrumData = useMemo(() => {
 		if (distance <= 0) return [];
 
-		const initialFlavorIndex = state.initialFlavor === "electron" ? 0 : state.initialFlavor === "muon" ? 1 : 2;
-		const effectiveDeltaCP = state.isAntineutrino ? -state.deltaCP : state.deltaCP;
+		const initialFlavorIndex =
+			state.initialFlavor === "electron"
+				? 0
+				: state.initialFlavor === "muon"
+					? 1
+					: 2;
+		const effectiveDeltaCP = state.isAntineutrino
+			? -state.deltaCP
+			: state.deltaCP;
 		const dm31sq = state.massOrdering === "normal" ? DM31_SQ_NO : DM31_SQ_IO;
 
-		const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] = [];
+		const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] =
+			[];
 		const minE = 0.1;
 		const maxE = 10;
 		const numPoints = 50;
@@ -67,7 +75,15 @@ const EnergySpectrumMini: React.FC<{ distance: number }> = ({ distance }) => {
 		}
 
 		return points;
-	}, [distance, state.initialFlavor, state.matter, state.density, state.deltaCP, state.isAntineutrino, state.massOrdering]);
+	}, [
+		distance,
+		state.initialFlavor,
+		state.matter,
+		state.density,
+		state.deltaCP,
+		state.isAntineutrino,
+		state.massOrdering,
+	]);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -120,8 +136,10 @@ const EnergySpectrumMini: React.FC<{ distance: number }> = ({ distance }) => {
 		// Map to coordinates
 		const minE = 0.1;
 		const maxE = 10;
-		const eToX = (e: number) => padding.left + ((e - minE) / (maxE - minE)) * plotW;
-		const pToY = (p: number) => padding.top + plotH * (1 - Math.max(0, Math.min(1, p)));
+		const eToX = (e: number) =>
+			padding.left + ((e - minE) / (maxE - minE)) * plotW;
+		const pToY = (p: number) =>
+			padding.top + plotH * (1 - Math.max(0, Math.min(1, p)));
 
 		// Draw curves
 		const drawCurve = (key: "Pe" | "Pmu" | "Ptau", color: string) => {
@@ -151,15 +169,9 @@ const EnergySpectrumMini: React.FC<{ distance: number }> = ({ distance }) => {
 		ctx.lineTo(markerX, height - padding.bottom);
 		ctx.stroke();
 		ctx.setLineDash([]);
-
 	}, [spectrumData, state.energy, distance]);
 
-	return (
-		<canvas
-			ref={canvasRef}
-			style={{ width, height, display: "block" }}
-		/>
-	);
+	return <canvas ref={canvasRef} style={{ width, height, display: "block" }} />;
 };
 
 export default EnergySpectrumMini;

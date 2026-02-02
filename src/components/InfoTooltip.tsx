@@ -1,5 +1,11 @@
 import type React from "react";
-import { useState, useRef, useLayoutEffect, useCallback, useEffect } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 
 interface InfoTooltipProps {
 	text: string;
@@ -25,7 +31,7 @@ const HIDE_DELAY_MS = 100; // Increased for smoother UX
  */
 function calculatePosition(
 	button: DOMRect,
-	preferredPosition: "auto" | "top" | "bottom" | "left" | "right"
+	preferredPosition: "auto" | "top" | "bottom" | "left" | "right",
 ): TooltipPosition {
 	const viewportWidth = window.innerWidth;
 	const viewportHeight = window.innerHeight;
@@ -62,22 +68,46 @@ function calculatePosition(
 		case "bottom":
 			return {
 				top: button.bottom + ARROW_SIZE,
-				left: Math.max(MARGIN, Math.min(buttonCenterX - TOOLTIP_WIDTH / 2, viewportWidth - TOOLTIP_WIDTH - MARGIN)),
+				left: Math.max(
+					MARGIN,
+					Math.min(
+						buttonCenterX - TOOLTIP_WIDTH / 2,
+						viewportWidth - TOOLTIP_WIDTH - MARGIN,
+					),
+				),
 			};
 		case "top":
 			return {
 				bottom: viewportHeight - button.top + ARROW_SIZE,
-				left: Math.max(MARGIN, Math.min(buttonCenterX - TOOLTIP_WIDTH / 2, viewportWidth - TOOLTIP_WIDTH - MARGIN)),
+				left: Math.max(
+					MARGIN,
+					Math.min(
+						buttonCenterX - TOOLTIP_WIDTH / 2,
+						viewportWidth - TOOLTIP_WIDTH - MARGIN,
+					),
+				),
 			};
 		case "right":
 			return {
 				left: button.right + ARROW_SIZE,
-				top: Math.max(MARGIN, Math.min(buttonCenterY - TOOLTIP_HEIGHT / 2, viewportHeight - TOOLTIP_HEIGHT - MARGIN)),
+				top: Math.max(
+					MARGIN,
+					Math.min(
+						buttonCenterY - TOOLTIP_HEIGHT / 2,
+						viewportHeight - TOOLTIP_HEIGHT - MARGIN,
+					),
+				),
 			};
 		case "left":
 			return {
 				right: viewportWidth - button.left + ARROW_SIZE,
-				top: Math.max(MARGIN, Math.min(buttonCenterY - TOOLTIP_HEIGHT / 2, viewportHeight - TOOLTIP_HEIGHT - MARGIN)),
+				top: Math.max(
+					MARGIN,
+					Math.min(
+						buttonCenterY - TOOLTIP_HEIGHT / 2,
+						viewportHeight - TOOLTIP_HEIGHT - MARGIN,
+					),
+				),
 			};
 	}
 }
@@ -86,8 +116,14 @@ function calculatePosition(
  * Small info button that shows a tooltip with physics explanations
  * Positions synchronously to avoid flicker on hover
  */
-const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "auto" }) => {
-	const [hoverState, setHoverState] = useState<"hidden" | "showing" | "visible">("hidden");
+const InfoTooltip: React.FC<InfoTooltipProps> = ({
+	text,
+	children,
+	position = "auto",
+}) => {
+	const [hoverState, setHoverState] = useState<
+		"hidden" | "showing" | "visible"
+	>("hidden");
 	const [tooltipPos, setTooltipPos] = useState<TooltipPosition | null>(null);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const hideTimeoutRef = useRef<number | null>(null);
@@ -173,7 +209,7 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "a
 			>
 				{children || "?"}
 			</button>
-			
+
 			{isVisible && (
 				<div
 					className="text-xs text-white/90 font-sans leading-relaxed"

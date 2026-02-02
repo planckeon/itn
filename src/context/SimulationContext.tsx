@@ -283,7 +283,16 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 				return newHistory;
 			});
 		}
-	}, [initialFlavor, energy, matter, density, distance, deltaCP, isAntineutrino, massOrdering]);
+	}, [
+		initialFlavor,
+		energy,
+		matter,
+		density,
+		distance,
+		deltaCP,
+		isAntineutrino,
+		massOrdering,
+	]);
 
 	const state: SimulationState = {
 		initialFlavor,

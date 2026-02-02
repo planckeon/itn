@@ -1,17 +1,21 @@
 import type React from "react";
 import { useState } from "react";
-import { useI18n, type Language } from "../i18n";
 import { useSimulation } from "../context/SimulationContext";
+import { type Language, useI18n } from "../i18n";
 
 interface SettingsPanelProps {
 	isOpen?: boolean;
 	onClose?: () => void;
 }
 
-const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen: controlledOpen, onClose }) => {
+const SettingsPanel: React.FC<SettingsPanelProps> = ({
+	isOpen: controlledOpen,
+	onClose,
+}) => {
 	const [internalOpen, setInternalOpen] = useState(false);
 	const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
-	const { language, setLanguage, t, languageNames, availableLanguages } = useI18n();
+	const { language, setLanguage, t, languageNames, availableLanguages } =
+		useI18n();
 	const { state, setDensity } = useSimulation();
 
 	const handleClose = () => {
@@ -89,7 +93,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen: controlledOpen, o
 						max="15"
 						step="0.1"
 						value={state.density}
-						onChange={(e) => setDensity(parseFloat(e.target.value))}
+						onChange={(e) => setDensity(Number.parseFloat(e.target.value))}
 						className="w-full accent-blue-500"
 					/>
 					<div className="flex justify-between text-xs text-white/45 mt-1.5">
@@ -101,7 +105,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen: controlledOpen, o
 
 				{/* Quick presets for density */}
 				<div>
-					<label className="block text-sm text-white/65 mb-2">Density Presets</label>
+					<label className="block text-sm text-white/65 mb-2">
+						Density Presets
+					</label>
 					<div className="flex flex-wrap gap-1.5">
 						{[
 							{ label: "Vacuum", value: 0 },

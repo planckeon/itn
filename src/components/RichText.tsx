@@ -1,11 +1,11 @@
-import type React from "react";
-import { useMemo, Fragment } from "react";
 import katex from "katex";
+import type React from "react";
+import { Fragment, useMemo } from "react";
 
 // KaTeX macros for neutrino physics
 const KATEX_MACROS: Record<string, string> = {
 	"\\nue": "\\nu_e",
-	"\\numu": "\\nu_\\mu", 
+	"\\numu": "\\nu_\\mu",
 	"\\nutau": "\\nu_\\tau",
 	"\\nuebar": "\\bar{\\nu}_e",
 	"\\numubar": "\\bar{\\nu}_\\mu",
@@ -25,7 +25,7 @@ interface TextPart {
 function parseMath(text: string): TextPart[] {
 	const parts: TextPart[] = [];
 	let i = 0;
-	
+
 	while (i < text.length) {
 		// Check for display math $$...$$
 		if (text[i] === "$" && text[i + 1] === "$") {
@@ -37,7 +37,7 @@ function parseMath(text: string): TextPart[] {
 				continue;
 			}
 		}
-		
+
 		// Check for inline math $...$
 		if (text[i] === "$") {
 			const start = i + 1;
@@ -55,7 +55,7 @@ function parseMath(text: string): TextPart[] {
 				continue;
 			}
 		}
-		
+
 		// Regular text - collect until next $
 		const start = i;
 		while (i < text.length && text[i] !== "$") {
@@ -65,14 +65,14 @@ function parseMath(text: string): TextPart[] {
 			parts.push({ type: "text", content: text.slice(start, i) });
 		}
 	}
-	
+
 	return parts;
 }
 
 /**
  * Renders text with inline math (using $...$ delimiters)
  * and display math (using $$...$$ delimiters)
- * 
+ *
  * Also supports markdown-style formatting:
  * - **bold**
  */
@@ -94,19 +94,20 @@ const RichText: React.FC<RichTextProps> = ({ children, className = "" }) => {
 				macros: KATEX_MACROS,
 			});
 			return display ? (
-				<div 
+				<div
 					key={key}
-					className="my-2 text-center overflow-x-auto" 
-					dangerouslySetInnerHTML={{ __html: html }} 
+					className="my-2 text-center overflow-x-auto"
+					dangerouslySetInnerHTML={{ __html: html }}
 				/>
 			) : (
-				<span 
-					key={key}
-					dangerouslySetInnerHTML={{ __html: html }} 
-				/>
+				<span key={key} dangerouslySetInnerHTML={{ __html: html }} />
 			);
 		} catch {
-			return <span key={key} className="text-red-400">{latex}</span>;
+			return (
+				<span key={key} className="text-red-400">
+					{latex}
+				</span>
+			);
 		}
 	};
 
@@ -120,11 +121,15 @@ const RichText: React.FC<RichTextProps> = ({ children, className = "" }) => {
 					const boldParts = line.split(/\*\*([^*]+)\*\*/g);
 					const lineContent = boldParts.map((part, j) => {
 						if (j % 2 === 1) {
-							return <strong key={j} className="text-white/90">{part}</strong>;
+							return (
+								<strong key={j} className="text-white/90">
+									{part}
+								</strong>
+							);
 						}
 						return part;
 					});
-					
+
 					return (
 						<Fragment key={i}>
 							{lineContent}

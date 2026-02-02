@@ -1,8 +1,8 @@
 import type React from "react";
 import { useSimulation } from "../context/SimulationContext";
+import EnergySpectrumMini from "./EnergySpectrumMini";
 import ProbabilityPlot from "./ProbabilityPlot";
 import TernaryPlotMini from "./TernaryPlotMini";
-import EnergySpectrumMini from "./EnergySpectrumMini";
 
 /**
  * Unified bottom HUD - three plots side by side in a cohesive bar
@@ -22,38 +22,38 @@ const BottomHUD: React.FC = () => {
 	}));
 
 	// Current probabilities for ternary plot
-	const currentProbs = probabilityHistory.length > 0 
-		? probabilityHistory[probabilityHistory.length - 1]
-		: { Pe: 1, Pmu: 0, Ptau: 0 };
+	const currentProbs =
+		probabilityHistory.length > 0
+			? probabilityHistory[probabilityHistory.length - 1]
+			: { Pe: 1, Pmu: 0, Ptau: 0 };
 
 	return (
-		<div 
+		<div
 			className="fixed bottom-0 left-0 right-0 z-20 px-4 pb-4"
 			style={{
-				background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)",
+				background:
+					"linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)",
 			}}
 		>
-			<div 
-				className="mx-auto max-w-4xl flex items-end gap-2"
-			>
+			<div className="mx-auto max-w-4xl flex items-end gap-2">
 				{/* Left: Ternary flavor triangle */}
-				<div 
+				<div
 					className="flex-shrink-0 rounded-lg overflow-hidden"
 					style={{
 						background: "rgba(20, 20, 30, 0.9)",
 						border: "1px solid rgba(255, 255, 255, 0.1)",
 					}}
 				>
-					<TernaryPlotMini 
-						Pe={currentProbs.Pe} 
-						Pmu={currentProbs.Pmu} 
+					<TernaryPlotMini
+						Pe={currentProbs.Pe}
+						Pmu={currentProbs.Pmu}
 						Ptau={currentProbs.Ptau}
 						history={probabilityHistory}
 					/>
 				</div>
 
 				{/* Center: Main probability plot - constrained width */}
-				<div 
+				<div
 					className="flex-1 max-w-md rounded-lg px-3 py-2"
 					style={{
 						background: "rgba(20, 20, 30, 0.9)",
@@ -62,7 +62,9 @@ const BottomHUD: React.FC = () => {
 				>
 					{/* Legend row */}
 					<div className="flex items-center justify-between mb-1">
-						<span className="text-white/50 text-[10px] font-mono uppercase tracking-wider">Oscillation</span>
+						<span className="text-white/50 text-[10px] font-mono uppercase tracking-wider">
+							Oscillation
+						</span>
 						<div className="flex items-center gap-3">
 							<div className="flex items-center gap-1">
 								<div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
@@ -95,7 +97,7 @@ const BottomHUD: React.FC = () => {
 				</div>
 
 				{/* Right: Energy spectrum */}
-				<div 
+				<div
 					className="flex-shrink-0 rounded-lg overflow-hidden"
 					style={{
 						background: "rgba(20, 20, 30, 0.9)",

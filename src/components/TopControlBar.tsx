@@ -1,5 +1,8 @@
 import type React from "react";
-import { useSimulation, EXPERIMENT_PRESETS } from "../context/SimulationContext";
+import {
+	EXPERIMENT_PRESETS,
+	useSimulation,
+} from "../context/SimulationContext";
 import InfoTooltip, { PHYSICS_INFO } from "./InfoTooltip";
 
 const TopControlBar: React.FC = () => {
@@ -39,7 +42,9 @@ const TopControlBar: React.FC = () => {
 						className="bg-transparent text-white rounded px-2 py-1 border border-white/20 focus:border-blue-400/50 focus:outline-none cursor-pointer"
 						style={{ background: "rgba(30, 30, 40, 0.8)" }}
 						onChange={(e) => {
-							const preset = EXPERIMENT_PRESETS.find(p => p.name === e.target.value);
+							const preset = EXPERIMENT_PRESETS.find(
+								(p) => p.name === e.target.value,
+							);
 							if (preset) applyPreset(preset);
 						}}
 						defaultValue=""
@@ -47,23 +52,49 @@ const TopControlBar: React.FC = () => {
 						<option value="" disabled style={{ background: "#1e1e28" }}>
 							Select...
 						</option>
-						<optgroup label="Accelerator (νμ beam)" style={{ background: "#1e1e28" }}>
-							{EXPERIMENT_PRESETS.filter(p => ["T2K", "NOvA", "DUNE", "Hyper-K"].includes(p.name)).map((preset) => (
-								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+						<optgroup
+							label="Accelerator (νμ beam)"
+							style={{ background: "#1e1e28" }}
+						>
+							{EXPERIMENT_PRESETS.filter((p) =>
+								["T2K", "NOvA", "DUNE", "Hyper-K"].includes(p.name),
+							).map((preset) => (
+								<option
+									key={preset.name}
+									value={preset.name}
+									style={{ background: "#1e1e28" }}
+								>
 									{preset.name} — {preset.baseline}km
 								</option>
 							))}
 						</optgroup>
 						<optgroup label="Reactor (ν̄e)" style={{ background: "#1e1e28" }}>
-							{EXPERIMENT_PRESETS.filter(p => ["KamLAND", "Daya Bay", "JUNO", "Double Chooz"].includes(p.name)).map((preset) => (
-								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+							{EXPERIMENT_PRESETS.filter((p) =>
+								["KamLAND", "Daya Bay", "JUNO", "Double Chooz"].includes(
+									p.name,
+								),
+							).map((preset) => (
+								<option
+									key={preset.name}
+									value={preset.name}
+									style={{ background: "#1e1e28" }}
+								>
 									{preset.name} — {preset.baseline}km
 								</option>
 							))}
 						</optgroup>
-						<optgroup label="Atmospheric / Other" style={{ background: "#1e1e28" }}>
-							{EXPERIMENT_PRESETS.filter(p => ["Super-K Atm", "IceCube", "Solar"].includes(p.name)).map((preset) => (
-								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+						<optgroup
+							label="Atmospheric / Other"
+							style={{ background: "#1e1e28" }}
+						>
+							{EXPERIMENT_PRESETS.filter((p) =>
+								["Super-K Atm", "IceCube", "Solar"].includes(p.name),
+							).map((preset) => (
+								<option
+									key={preset.name}
+									value={preset.name}
+									style={{ background: "#1e1e28" }}
+								>
 									{preset.name}
 								</option>
 							))}
@@ -90,13 +121,21 @@ const TopControlBar: React.FC = () => {
 				<div className="flex items-center gap-2">
 					<button
 						type="button"
-						onClick={() => setMassOrdering(state.massOrdering === "normal" ? "inverted" : "normal")}
+						onClick={() =>
+							setMassOrdering(
+								state.massOrdering === "normal" ? "inverted" : "normal",
+							)
+						}
 						className={`px-2 py-1 rounded border transition-colors text-xs ${
 							state.massOrdering === "normal"
 								? "bg-green-600/30 border-green-400/50 text-green-300"
 								: "bg-amber-600/30 border-amber-400/50 text-amber-300"
 						}`}
-						title={state.massOrdering === "normal" ? "Normal Ordering (m₁ < m₂ < m₃)" : "Inverted Ordering (m₃ < m₁ < m₂)"}
+						title={
+							state.massOrdering === "normal"
+								? "Normal Ordering (m₁ < m₂ < m₃)"
+								: "Inverted Ordering (m₃ < m₁ < m₂)"
+						}
 					>
 						{state.massOrdering === "normal" ? "NO" : "IO"}
 					</button>
@@ -104,7 +143,10 @@ const TopControlBar: React.FC = () => {
 
 				{/* Initial Flavor */}
 				<div className="flex items-center gap-2">
-					<label htmlFor="initialFlavor" className="text-white/80 whitespace-nowrap">
+					<label
+						htmlFor="initialFlavor"
+						className="text-white/80 whitespace-nowrap"
+					>
 						Flavor:
 					</label>
 					<select
@@ -143,12 +185,17 @@ const TopControlBar: React.FC = () => {
 						value={state.energy}
 						onChange={(e) => setEnergy(Number.parseFloat(e.target.value))}
 					/>
-					<span className="text-blue-400 w-12">{state.energy.toFixed(1)} GeV</span>
+					<span className="text-blue-400 w-12">
+						{state.energy.toFixed(1)} GeV
+					</span>
 				</div>
 
 				{/* δCP Slider */}
 				<div className="flex items-center gap-2">
-					<label htmlFor="deltaCP" className="text-white/80 whitespace-nowrap flex items-center gap-1">
+					<label
+						htmlFor="deltaCP"
+						className="text-white/80 whitespace-nowrap flex items-center gap-1"
+					>
 						δ<sub>CP</sub>:
 						<InfoTooltip text={PHYSICS_INFO.deltaCP} />
 					</label>
@@ -185,7 +232,10 @@ const TopControlBar: React.FC = () => {
 
 				{/* Matter Effect Toggle */}
 				<div className="flex items-center gap-2">
-					<label htmlFor="matterEffect" className="text-white/80 whitespace-nowrap flex items-center gap-1">
+					<label
+						htmlFor="matterEffect"
+						className="text-white/80 whitespace-nowrap flex items-center gap-1"
+					>
 						Matter:
 						<InfoTooltip text={PHYSICS_INFO.matterEffect} />
 					</label>
@@ -208,14 +258,22 @@ const TopControlBar: React.FC = () => {
 							className="bg-transparent text-white rounded px-1 py-0.5 border border-white/20 focus:outline-none cursor-pointer text-xs"
 							style={{ background: "rgba(30, 30, 40, 0.8)" }}
 							onChange={(e) => {
-								const preset = EXPERIMENT_PRESETS.find(p => p.name === e.target.value);
+								const preset = EXPERIMENT_PRESETS.find(
+									(p) => p.name === e.target.value,
+								);
 								if (preset) applyPreset(preset);
 							}}
 							defaultValue=""
 						>
-							<option value="" disabled style={{ background: "#1e1e28" }}>Preset</option>
+							<option value="" disabled style={{ background: "#1e1e28" }}>
+								Preset
+							</option>
 							{EXPERIMENT_PRESETS.map((preset) => (
-								<option key={preset.name} value={preset.name} style={{ background: "#1e1e28" }}>
+								<option
+									key={preset.name}
+									value={preset.name}
+									style={{ background: "#1e1e28" }}
+								>
 									{preset.name}
 								</option>
 							))}
@@ -234,7 +292,11 @@ const TopControlBar: React.FC = () => {
 					</button>
 					<button
 						type="button"
-						onClick={() => setMassOrdering(state.massOrdering === "normal" ? "inverted" : "normal")}
+						onClick={() =>
+							setMassOrdering(
+								state.massOrdering === "normal" ? "inverted" : "normal",
+							)
+						}
 						className={`px-2 py-0.5 rounded border transition-colors text-xs ${
 							state.massOrdering === "normal"
 								? "bg-green-600/30 border-green-400/50 text-green-300"
@@ -256,9 +318,15 @@ const TopControlBar: React.FC = () => {
 								setInitialFlavor(e.target.value as "electron" | "muon" | "tau")
 							}
 						>
-							<option value="electron" style={{ background: "#1e1e28" }}>νₑ</option>
-							<option value="muon" style={{ background: "#1e1e28" }}>νμ</option>
-							<option value="tau" style={{ background: "#1e1e28" }}>ντ</option>
+							<option value="electron" style={{ background: "#1e1e28" }}>
+								νₑ
+							</option>
+							<option value="muon" style={{ background: "#1e1e28" }}>
+								νμ
+							</option>
+							<option value="tau" style={{ background: "#1e1e28" }}>
+								ντ
+							</option>
 						</select>
 					</div>
 					<div className="flex items-center gap-2">
@@ -278,7 +346,9 @@ const TopControlBar: React.FC = () => {
 				{/* Row 2: Energy and δCP */}
 				<div className="flex items-center justify-between gap-3">
 					<div className="flex items-center gap-1 flex-1">
-						<label htmlFor="energyMobile" className="text-white/80">E:</label>
+						<label htmlFor="energyMobile" className="text-white/80">
+							E:
+						</label>
 						<input
 							type="range"
 							id="energyMobile"
@@ -289,10 +359,14 @@ const TopControlBar: React.FC = () => {
 							value={state.energy}
 							onChange={(e) => setEnergy(Number.parseFloat(e.target.value))}
 						/>
-						<span className="text-blue-400 w-12 text-right">{state.energy.toFixed(1)}</span>
+						<span className="text-blue-400 w-12 text-right">
+							{state.energy.toFixed(1)}
+						</span>
 					</div>
 					<div className="flex items-center gap-1 flex-1">
-						<label htmlFor="deltaCPMobile" className="text-white/80">δ:</label>
+						<label htmlFor="deltaCPMobile" className="text-white/80">
+							δ:
+						</label>
 						<input
 							type="range"
 							id="deltaCPMobile"
@@ -303,13 +377,17 @@ const TopControlBar: React.FC = () => {
 							value={state.deltaCP}
 							onChange={(e) => setDeltaCP(Number.parseFloat(e.target.value))}
 						/>
-						<span className="text-purple-400 w-10 text-right">{state.deltaCP}°</span>
+						<span className="text-purple-400 w-10 text-right">
+							{state.deltaCP}°
+						</span>
 					</div>
 				</div>
 
 				{/* Row 3: Speed */}
 				<div className="flex items-center gap-1">
-					<label htmlFor="speedMobile" className="text-white/80">Speed:</label>
+					<label htmlFor="speedMobile" className="text-white/80">
+						Speed:
+					</label>
 					<input
 						type="range"
 						id="speedMobile"
@@ -320,7 +398,9 @@ const TopControlBar: React.FC = () => {
 						value={state.speed}
 						onChange={(e) => setSpeed(Number.parseFloat(e.target.value))}
 					/>
-					<span className="text-white/80 w-10 text-right">{state.speed.toFixed(1)}x</span>
+					<span className="text-white/80 w-10 text-right">
+						{state.speed.toFixed(1)}x
+					</span>
 				</div>
 			</div>
 		</div>

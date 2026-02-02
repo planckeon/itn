@@ -1,6 +1,18 @@
 import type React from "react";
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
-import { type Language, type Translations, getTranslation, languageNames } from "./translations";
+import {
+	type ReactNode,
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
+import {
+	type Language,
+	type Translations,
+	getTranslation,
+	languageNames,
+} from "./translations";
 
 interface I18nContextType {
 	language: Language;
@@ -16,7 +28,9 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 function detectBrowserLanguage(): Language {
 	const browserLang = navigator.language.split("-")[0];
 	const supported: Language[] = ["en", "es", "fr", "de", "ja", "zh", "hi"];
-	return supported.includes(browserLang as Language) ? (browserLang as Language) : "en";
+	return supported.includes(browserLang as Language)
+		? (browserLang as Language)
+		: "en";
 }
 
 // Load saved language preference
@@ -32,7 +46,9 @@ function loadSavedLanguage(): Language | null {
 	return null;
 }
 
-export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const I18nProvider: React.FC<{ children: ReactNode }> = ({
+	children,
+}) => {
 	const [language, setLanguageState] = useState<Language>(() => {
 		return loadSavedLanguage() || detectBrowserLanguage();
 	});

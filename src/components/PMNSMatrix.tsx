@@ -29,9 +29,12 @@ const PMNSMatrix: React.FC = () => {
 		const t13 = (THETA13_DEG * Math.PI) / 180;
 		const t23 = (THETA23_DEG * Math.PI) / 180;
 
-		const c12 = Math.cos(t12), s12 = Math.sin(t12);
-		const c13 = Math.cos(t13), s13 = Math.sin(t13);
-		const c23 = Math.cos(t23), s23 = Math.sin(t23);
+		const c12 = Math.cos(t12),
+			s12 = Math.sin(t12);
+		const c13 = Math.cos(t13),
+			s13 = Math.sin(t13);
+		const c23 = Math.cos(t23),
+			s23 = Math.sin(t23);
 
 		// Row 1: electron
 		const Ue1 = c12 * c13;
@@ -85,7 +88,7 @@ const PMNSMatrix: React.FC = () => {
 						<InfoTooltip text={INFO_TEXT} position="left" />
 					</div>
 				</div>
-				
+
 				{/* Matrix header */}
 				<div className="grid grid-cols-4 gap-1 text-white/55 mb-2 text-[11px]">
 					<span></span>

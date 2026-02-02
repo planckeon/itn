@@ -1,5 +1,5 @@
 import type React from "react";
-import { useRef, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSimulation } from "../context/SimulationContext";
 import { getProbabilitiesForInitialFlavor } from "../physics/NuFastPort";
 import type { OscillationParameters } from "../physics/types";
@@ -38,22 +38,35 @@ interface EnergySpectrumPlotProps {
 	fillContainer?: boolean;
 }
 
-const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = false, fillContainer = false }) => {
+const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({
+	embedded = false,
+	fillContainer = false,
+}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { state } = useSimulation();
 
 	// Calculate spectrum data
 	const spectrumData = useMemo(() => {
-		const { distance, initialFlavor, matter, density, deltaCP, isAntineutrino, massOrdering } = state;
-		
+		const {
+			distance,
+			initialFlavor,
+			matter,
+			density,
+			deltaCP,
+			isAntineutrino,
+			massOrdering,
+		} = state;
+
 		if (distance <= 0) return [];
 
-		const initialFlavorIndex = initialFlavor === "electron" ? 0 : initialFlavor === "muon" ? 1 : 2;
+		const initialFlavorIndex =
+			initialFlavor === "electron" ? 0 : initialFlavor === "muon" ? 1 : 2;
 		const effectiveDeltaCP = isAntineutrino ? -deltaCP : deltaCP;
 		const dm31sq = massOrdering === "normal" ? DM31_SQ_NO : DM31_SQ_IO;
 
-		const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] = [];
+		const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] =
+			[];
 		const minE = 0.1;
 		const maxE = 10;
 		const numPoints = 200;
@@ -89,7 +102,15 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 		}
 
 		return points;
-	}, [state.distance, state.initialFlavor, state.matter, state.density, state.deltaCP, state.isAntineutrino, state.massOrdering]);
+	}, [
+		state.distance,
+		state.initialFlavor,
+		state.matter,
+		state.density,
+		state.deltaCP,
+		state.isAntineutrino,
+		state.massOrdering,
+	]);
 
 	// Draw the plot
 	useEffect(() => {
@@ -100,11 +121,11 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 		if (!ctx) return;
 
 		const dpr = window.devicePixelRatio || 1;
-		
+
 		// Get dimensions - use container size if fillContainer, else fixed
 		let width = 260;
 		let height = 150;
-		
+
 		if (fillContainer && containerRef.current) {
 			const rect = containerRef.current.getBoundingClientRect();
 			width = Math.max(260, rect.width - 16); // Subtract padding
@@ -171,8 +192,10 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 		// Map energy to x (log scale would be nice but linear is clearer)
 		const minE = 0.1;
 		const maxE = 10;
-		const eToX = (e: number) => padding.left + ((e - minE) / (maxE - minE)) * plotWidth;
-		const pToY = (p: number) => padding.top + plotHeight * (1 - Math.max(0, Math.min(1, p)));
+		const eToX = (e: number) =>
+			padding.left + ((e - minE) / (maxE - minE)) * plotWidth;
+		const pToY = (p: number) =>
+			padding.top + plotHeight * (1 - Math.max(0, Math.min(1, p)));
 
 		// Draw probability curves
 		const drawCurve = (key: "Pe" | "Pmu" | "Ptau", color: string) => {
@@ -219,35 +242,38 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 			if (currentX < padding.left + plotWidth * 0.4) {
 				// Put label to the right of the dashed line
 				ctx.textAlign = "left";
-				ctx.fillText(`${state.energy.toFixed(1)}`, currentX + 3, padding.top + 10);
+				ctx.fillText(
+					`${state.energy.toFixed(1)}`,
+					currentX + 3,
+					padding.top + 10,
+				);
 			} else {
 				// Put label above the dashed line
 				ctx.fillText(`${state.energy.toFixed(1)}`, currentX, padding.top - 3);
 			}
 		}
-
 	}, [spectrumData, state.distance, state.energy, fillContainer]);
 
 	// Resize handler for fillContainer mode
 	useEffect(() => {
 		if (!fillContainer) return;
-		
+
 		const handleResize = () => {
 			// Trigger re-render by forcing a state update via the canvas
 			if (canvasRef.current) {
-				canvasRef.current.dispatchEvent(new Event('resize'));
+				canvasRef.current.dispatchEvent(new Event("resize"));
 			}
 		};
-		
-		window.addEventListener('resize', handleResize);
+
+		window.addEventListener("resize", handleResize);
 		// Also observe container size changes
 		const observer = new ResizeObserver(handleResize);
 		if (containerRef.current) {
 			observer.observe(containerRef.current);
 		}
-		
+
 		return () => {
-			window.removeEventListener('resize', handleResize);
+			window.removeEventListener("resize", handleResize);
 			observer.disconnect();
 		};
 	}, [fillContainer]);
@@ -257,7 +283,7 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 		return (
 			<div
 				ref={containerRef}
-				className={`rounded-lg relative ${fillContainer ? 'w-full' : 'flex-shrink-0'}`}
+				className={`rounded-lg relative ${fillContainer ? "w-full" : "flex-shrink-0"}`}
 				style={{
 					background: "transparent",
 				}}
@@ -267,8 +293,12 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 				</div>
 				<canvas
 					ref={canvasRef}
-					className={fillContainer ? 'w-full' : ''}
-					style={fillContainer ? { height: "110px" } : { width: "220px", height: "140px" }}
+					className={fillContainer ? "w-full" : ""}
+					style={
+						fillContainer
+							? { height: "110px" }
+							: { width: "220px", height: "140px" }
+					}
 				/>
 			</div>
 		);
@@ -288,10 +318,7 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 			<div className="absolute top-1 right-1">
 				<InfoTooltip text={INFO_TEXT} position="left" />
 			</div>
-			<canvas
-				ref={canvasRef}
-				style={{ width: "260px", height: "150px" }}
-			/>
+			<canvas ref={canvasRef} style={{ width: "260px", height: "150px" }} />
 		</div>
 	);
 };

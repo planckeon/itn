@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useSimulation } from "../context/SimulationContext";
 
 interface Star {
@@ -20,7 +20,7 @@ const Starfield: React.FC = () => {
 	const starsRef = useRef<Star[]>([]);
 	const animationIdRef = useRef<number | null>(null);
 	const initializedRef = useRef(false);
-	
+
 	// Camera rotation state (spherical coordinates)
 	const cameraYawRef = useRef(0); // Horizontal rotation
 	const cameraPitchRef = useRef(0.3); // Slight downward tilt initially
@@ -46,17 +46,20 @@ const Starfield: React.FC = () => {
 
 	const handleMove = useCallback((clientX: number, clientY: number) => {
 		if (!isDraggingRef.current) return;
-		
+
 		const deltaX = clientX - lastMouseRef.current.x;
 		const deltaY = clientY - lastMouseRef.current.y;
 		lastMouseRef.current = { x: clientX, y: clientY };
-		
+
 		// Reduced sensitivity for smoother rotation
 		cameraYawRef.current -= deltaX * 0.003;
 		cameraPitchRef.current -= deltaY * 0.003;
-		
+
 		// Clamp pitch to avoid flipping
-		cameraPitchRef.current = Math.max(-Math.PI / 4, Math.min(Math.PI / 4, cameraPitchRef.current));
+		cameraPitchRef.current = Math.max(
+			-Math.PI / 4,
+			Math.min(Math.PI / 4, cameraPitchRef.current),
+		);
 	}, []);
 
 	const handleEnd = useCallback(() => {
@@ -66,31 +69,43 @@ const Starfield: React.FC = () => {
 	}, []);
 
 	// Mouse handlers
-	const handleMouseDown = useCallback((e: MouseEvent) => {
-		handleStart(e.clientX, e.clientY);
-	}, [handleStart]);
+	const handleMouseDown = useCallback(
+		(e: MouseEvent) => {
+			handleStart(e.clientX, e.clientY);
+		},
+		[handleStart],
+	);
 
-	const handleMouseMove = useCallback((e: MouseEvent) => {
-		handleMove(e.clientX, e.clientY);
-	}, [handleMove]);
+	const handleMouseMove = useCallback(
+		(e: MouseEvent) => {
+			handleMove(e.clientX, e.clientY);
+		},
+		[handleMove],
+	);
 
 	const handleMouseUp = useCallback(() => {
 		handleEnd();
 	}, [handleEnd]);
 
 	// Touch handlers
-	const handleTouchStart = useCallback((e: TouchEvent) => {
-		if (e.touches.length === 1) {
-			handleStart(e.touches[0].clientX, e.touches[0].clientY);
-		}
-	}, [handleStart]);
+	const handleTouchStart = useCallback(
+		(e: TouchEvent) => {
+			if (e.touches.length === 1) {
+				handleStart(e.touches[0].clientX, e.touches[0].clientY);
+			}
+		},
+		[handleStart],
+	);
 
-	const handleTouchMove = useCallback((e: TouchEvent) => {
-		if (e.touches.length === 1) {
-			e.preventDefault(); // Prevent scrolling
-			handleMove(e.touches[0].clientX, e.touches[0].clientY);
-		}
-	}, [handleMove]);
+	const handleTouchMove = useCallback(
+		(e: TouchEvent) => {
+			if (e.touches.length === 1) {
+				e.preventDefault(); // Prevent scrolling
+				handleMove(e.touches[0].clientX, e.touches[0].clientY);
+			}
+		},
+		[handleMove],
+	);
 
 	const handleTouchEnd = useCallback(() => {
 		handleEnd();
@@ -102,12 +117,12 @@ const Starfield: React.FC = () => {
 		if (!canvas) return;
 
 		canvas.style.cursor = "grab";
-		
+
 		// Mouse events
 		canvas.addEventListener("mousedown", handleMouseDown);
 		window.addEventListener("mousemove", handleMouseMove);
 		window.addEventListener("mouseup", handleMouseUp);
-		
+
 		// Touch events
 		canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
 		canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
@@ -121,7 +136,14 @@ const Starfield: React.FC = () => {
 			canvas.removeEventListener("touchmove", handleTouchMove);
 			canvas.removeEventListener("touchend", handleTouchEnd);
 		};
-	}, [handleMouseDown, handleMouseMove, handleMouseUp, handleTouchStart, handleTouchMove, handleTouchEnd]);
+	}, [
+		handleMouseDown,
+		handleMouseMove,
+		handleMouseUp,
+		handleTouchStart,
+		handleTouchMove,
+		handleTouchEnd,
+	]);
 
 	// Animation loop
 	useEffect(() => {
@@ -150,17 +172,23 @@ const Starfield: React.FC = () => {
 		};
 
 		// Project 3D point to 2D screen with camera rotation
-		const project = (x: number, y: number, z: number, width: number, height: number) => {
+		const project = (
+			x: number,
+			y: number,
+			z: number,
+			width: number,
+			height: number,
+		) => {
 			const yaw = cameraYawRef.current;
 			const pitch = cameraPitchRef.current;
-			
+
 			// Rotate around Y axis (yaw)
 			const cosYaw = Math.cos(yaw);
 			const sinYaw = Math.sin(yaw);
-			let rx = x * cosYaw - z * sinYaw;
+			const rx = x * cosYaw - z * sinYaw;
 			let rz = x * sinYaw + z * cosYaw;
 			let ry = y;
-			
+
 			// Rotate around X axis (pitch)
 			const cosPitch = Math.cos(pitch);
 			const sinPitch = Math.sin(pitch);
@@ -168,18 +196,18 @@ const Starfield: React.FC = () => {
 			const rz2 = ry * sinPitch + rz * cosPitch;
 			ry = ry2;
 			rz = rz2;
-			
+
 			// Move camera back
 			rz += cameraDistance;
-			
+
 			// Perspective projection
 			if (rz <= 1) return null; // Behind camera
-			
+
 			const fov = width * 0.9;
 			const scale = fov / rz;
 			const screenX = width / 2 + rx * scale;
 			const screenY = height / 2 + ry * scale;
-			
+
 			return { x: screenX, y: screenY, z: rz, scale };
 		};
 
@@ -217,10 +245,10 @@ const Starfield: React.FC = () => {
 			for (const star of starsRef.current) {
 				// Project current position
 				const current = project(star.x, star.y, star.z, width, height);
-				
+
 				if (current) {
 					const { x, y, z } = current;
-					
+
 					// Skip if off screen
 					if (x >= -100 && x <= width + 100 && y >= -100 && y <= height + 100) {
 						// Calculate size and alpha based on depth
@@ -230,23 +258,35 @@ const Starfield: React.FC = () => {
 						const alpha = star.brightness * Math.max(0.3, depthFactor);
 
 						// Draw motion blur trail using stored previous screen position
-						if (star.prevScreenX !== 0 && star.prevScreenY !== 0 && speed > 0.05) {
+						if (
+							star.prevScreenX !== 0 &&
+							star.prevScreenY !== 0 &&
+							speed > 0.05
+						) {
 							const dx = x - star.prevScreenX;
 							const dy = y - star.prevScreenY;
 							const trailLength = Math.sqrt(dx * dx + dy * dy);
-							
+
 							// Only draw trail if there's visible movement
 							if (trailLength > 2) {
 								// Extend the trail for more visibility
 								const extendFactor = Math.max(3, speed * 5);
 								const trailStartX = x - dx * extendFactor;
 								const trailStartY = y - dy * extendFactor;
-								
+
 								const trailAlpha = alpha * Math.min(0.8, 0.3 + speed * 0.2);
-								
-								const gradient = context.createLinearGradient(trailStartX, trailStartY, x, y);
+
+								const gradient = context.createLinearGradient(
+									trailStartX,
+									trailStartY,
+									x,
+									y,
+								);
 								gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
-								gradient.addColorStop(0.7, `rgba(255, 255, 255, ${trailAlpha * 0.5})`);
+								gradient.addColorStop(
+									0.7,
+									`rgba(255, 255, 255, ${trailAlpha * 0.5})`,
+								);
 								gradient.addColorStop(1, `rgba(255, 255, 255, ${trailAlpha})`);
 
 								context.strokeStyle = gradient;
@@ -273,7 +313,7 @@ const Starfield: React.FC = () => {
 
 				// Update star 3D position (move toward camera)
 				star.z -= moveSpeed;
-				
+
 				// Respawn stars that pass the camera
 				if (star.z < -cameraDistance * 0.5) {
 					star.z = fieldSize * 0.7;

@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const SHORTCUTS = [
 	{ key: "Space", action: "Play / Pause" },
@@ -26,9 +26,12 @@ interface HelpModalProps {
  * Help modal showing keyboard shortcuts
  * Press ? to toggle, or control via props
  */
-const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }) => {
+const HelpModal: React.FC<HelpModalProps> = ({
+	isOpen: controlledOpen,
+	onClose,
+}) => {
 	const [internalOpen, setInternalOpen] = useState(false);
-	
+
 	// In controlled mode, use controlledOpen; otherwise use internal state
 	const isControlled = controlledOpen !== undefined;
 	const isOpen = isControlled ? controlledOpen : internalOpen;
@@ -43,10 +46,13 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) {
+			if (
+				e.target instanceof HTMLInputElement ||
+				e.target instanceof HTMLSelectElement
+			) {
 				return;
 			}
-			
+
 			if (e.key === "?" || (e.shiftKey && e.key === "/")) {
 				e.preventDefault();
 				if (isControlled) {
@@ -68,7 +74,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 	if (!isOpen) {
 		// In controlled mode, don't render anything when closed
 		if (controlledOpen !== undefined) return null;
-		
+
 		// Uncontrolled mode: Show small hint in corner
 		return (
 			<button
@@ -104,7 +110,9 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex items-center justify-between mb-6">
-					<h2 className="text-xl font-semibold text-white">Keyboard Shortcuts</h2>
+					<h2 className="text-xl font-semibold text-white">
+						Keyboard Shortcuts
+					</h2>
 					<button
 						type="button"
 						onClick={() => handleClose()}
@@ -116,7 +124,10 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 
 				<div className="space-y-3">
 					{SHORTCUTS.map(({ key, action }) => (
-						<div key={key} className="flex items-center justify-between text-[15px]">
+						<div
+							key={key}
+							className="flex items-center justify-between text-[15px]"
+						>
 							<kbd
 								className="px-3 py-1.5 rounded text-sm font-mono"
 								style={{
@@ -133,7 +144,11 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }
 				</div>
 
 				<div className="mt-8 pt-5 border-t border-white/10 text-center text-sm text-white/45">
-					Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70">Esc</kbd> or click outside to close
+					Press{" "}
+					<kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70">
+						Esc
+					</kbd>{" "}
+					or click outside to close
 				</div>
 			</div>
 		</div>

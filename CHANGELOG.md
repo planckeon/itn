@@ -7,25 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-02-03
+
+### Added
+- **Physics-based Neutrino Sphere** — Hybrid visualization with solid 3D core and wavefunction particle cloud
+- **Flavor-colored Particles** — 40-70 particles on sphere surface colored by actual probability distribution
+- **Matter Effect Visualization** — Particles orbit faster and wobble more in matter
+- **MSW Resonance Effect** — Triple pulsing golden rings when near resonance energy
+- **Smooth Color Transitions** — Core color blends gradually when flavor mix changes
+- **Responsive Panel Layout** — Flexbox-based panels resize dynamically based on which are enabled
+- **Scroll Detection** — Wheel zoom no longer hijacks scroll in modals/scrollable elements
+
+### Changed
+- **Three Pill Clusters Design** — Minimal control bar split into Zoom, Panels, Menu clusters
+- **Dynamic Panel Sizing** — Spectrum plot expands to fill space when it's the only active panel
+- Reduced sphere core radius for better particle visibility
+- Improved 3D shading with specular highlight and depth-based particle opacity
+
+### Fixed
+- Removed broken wavefunction oscillation causing orbital ring artifacts
+- Scroll now works properly inside Learn More panel and other modals
+- Energy spectrum plot fills container width when expanded
+
+## [1.2.0] - 2026-02-02
+
 ### Added
 - **Unified Bottom Control Bar** — Sleek control panel with panel toggles and menu buttons
 - **Multi-select Panel Toggles** — Enable any combination of △ Flavor, 〰 P(t), 📊 P(E) panels
 - **Scroll Zoom** — Mouse wheel zoom in/out on neutrino sphere (0.5x to 2x)
 - **11 new tooltip positioning tests** — Comprehensive edge case coverage
-
-### Changed
-- Moved menu actions (Share, Learn More, Settings, Help) to bottom control bar
-- Removed hamburger menu in favor of always-visible action buttons
-- Improved probability plot aspect ratio (taller for better curve visibility)
-- Added bottom padding to main visualization area to prevent panel overlap
-
-### Fixed
-- Tooltip viewport overflow — tooltips now use fixed positioning with viewport clamping
-- Ternary plot tooltip positioning — tooltips render correctly inside embedded panels
-
-## [1.2.0] - 2026-02-02
-
-### Added
 - **Learn More Panel** — 8 educational sections covering neutrino physics
 - **Settings Panel** — Language selector and density presets
 - **KaTeX Math Rendering** — Beautiful LaTeX equations in educational content
@@ -34,11 +44,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **URL State Sharing** — Share exact simulation configurations via URL hash
 
 ### Changed
+- Moved menu actions (Share, Learn More, Settings, Help) to bottom control bar
+- Removed hamburger menu in favor of always-visible action buttons
+- Improved probability plot aspect ratio (taller for better curve visibility)
 - Improved canvas text rendering for Greek letters with proper subscripts
 - Better energy spectrum plot label positioning to avoid overlaps
 - Grouped experiment presets by type (Accelerator, Reactor, Natural) in dropdown
 
 ### Fixed
+- Tooltip viewport overflow — tooltips now use fixed positioning with viewport clamping
+- Ternary plot tooltip positioning — tooltips render correctly inside embedded panels
 - KaTeX CSS loading issue (removed SRI hash that was blocking stylesheet)
 - Double rendering in RichText component math parser
 

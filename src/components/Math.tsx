@@ -1,6 +1,6 @@
+import katex from "katex";
 import type React from "react";
 import { useMemo } from "react";
-import katex from "katex";
 
 interface MathProps {
 	children: string;
@@ -9,7 +9,7 @@ interface MathProps {
 
 /**
  * Renders LaTeX math using KaTeX
- * 
+ *
  * Usage:
  *   <Math>E = mc^2</Math>              // inline
  *   <Math display>E = mc^2</Math>      // display (centered block)
@@ -48,12 +48,7 @@ const Math: React.FC<MathProps> = ({ children, display = false }) => {
 		);
 	}
 
-	return (
-		<span
-			className="inline"
-			dangerouslySetInnerHTML={{ __html: html }}
-		/>
-	);
+	return <span className="inline" dangerouslySetInnerHTML={{ __html: html }} />;
 };
 
 export default Math;

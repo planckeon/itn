@@ -1,5 +1,5 @@
 import type React from "react";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSimulation } from "../context/SimulationContext";
 
 // NuFit 5.2 values
@@ -12,43 +12,46 @@ const theta23 = (49.2 * Math.PI) / 180;
  */
 function calculatePMNS(deltaCP_deg: number) {
 	const delta = (deltaCP_deg * Math.PI) / 180;
-	
-	const c12 = Math.cos(theta12), s12 = Math.sin(theta12);
-	const c13 = Math.cos(theta13), s13 = Math.sin(theta13);
-	const c23 = Math.cos(theta23), s23 = Math.sin(theta23);
-	
+
+	const c12 = Math.cos(theta12),
+		s12 = Math.sin(theta12);
+	const c13 = Math.cos(theta13),
+		s13 = Math.sin(theta13);
+	const c23 = Math.cos(theta23),
+		s23 = Math.sin(theta23);
+
 	// Complex exponential e^(-i*delta)
 	const eidRe = Math.cos(delta);
 	const eidIm = -Math.sin(delta);
-	
+
 	// PMNS matrix elements (real and imaginary parts)
 	// U_e1, U_e2, U_e3
 	const Ue1 = { re: c12 * c13, im: 0 };
 	const Ue2 = { re: s12 * c13, im: 0 };
 	const Ue3 = { re: s13 * eidRe, im: s13 * eidIm };
-	
+
 	// U_mu1, U_mu2, U_mu3
-	const Umu1 = { 
+	const Umu1 = {
 		re: -s12 * c23 - c12 * s23 * s13 * eidRe,
-		im: -c12 * s23 * s13 * eidIm
+		im: -c12 * s23 * s13 * eidIm,
 	};
 	const Umu2 = {
 		re: c12 * c23 - s12 * s23 * s13 * eidRe,
-		im: -s12 * s23 * s13 * eidIm
+		im: -s12 * s23 * s13 * eidIm,
 	};
 	const Umu3 = { re: s23 * c13, im: 0 };
-	
+
 	// U_tau1, U_tau2, U_tau3
 	const Utau1 = {
 		re: s12 * s23 - c12 * c23 * s13 * eidRe,
-		im: -c12 * c23 * s13 * eidIm
+		im: -c12 * c23 * s13 * eidIm,
 	};
 	const Utau2 = {
 		re: -c12 * s23 - s12 * c23 * s13 * eidRe,
-		im: -s12 * c23 * s13 * eidIm
+		im: -s12 * c23 * s13 * eidIm,
 	};
 	const Utau3 = { re: c23 * c13, im: 0 };
-	
+
 	return {
 		electron: [Ue1, Ue2, Ue3],
 		muon: [Umu1, Umu2, Umu3],
@@ -58,9 +61,9 @@ function calculatePMNS(deltaCP_deg: number) {
 
 // Color palette
 const COLORS = {
-	electron: { r: 59, g: 130, b: 246 },   // Blue
-	muon: { r: 251, g: 146, b: 60 },       // Orange
-	tau: { r: 217, g: 70, b: 239 },        // Magenta
+	electron: { r: 59, g: 130, b: 246 }, // Blue
+	muon: { r: 251, g: 146, b: 60 }, // Orange
+	tau: { r: 217, g: 70, b: 239 }, // Magenta
 	grid: "rgba(255, 255, 255, 0.1)",
 	axis: "rgba(255, 255, 255, 0.3)",
 	text: "rgba(255, 255, 255, 0.6)",
@@ -164,7 +167,7 @@ const PMNSMatrix3D: React.FC<Props> = ({ isOpen, onClose }) => {
 			ctx.moveTo(p1.x, p1.y);
 			ctx.lineTo(p2.x, p2.y);
 			ctx.stroke();
-			
+
 			const p3 = project(-2, 0, i);
 			const p4 = project(2, 0, i);
 			ctx.beginPath();
@@ -196,7 +199,7 @@ const PMNSMatrix3D: React.FC<Props> = ({ isOpen, onClose }) => {
 				const x = (colIdx - 1) * 1.2;
 				const z = (rowIdx - 1) * 1.2;
 				const centerProj = project(x, 0, z);
-				
+
 				bars.push({
 					row,
 					col: colIdx,
@@ -266,7 +269,7 @@ const PMNSMatrix3D: React.FC<Props> = ({ isOpen, onClose }) => {
 		// Draw axis labels
 		ctx.font = "11px monospace";
 		ctx.fillStyle = COLORS.text;
-		
+
 		// Column labels (ν1, ν2, ν3)
 		["ν₁", "ν₂", "ν₃"].forEach((label, i) => {
 			const p = project((i - 1) * 1.2, 0, 2.5);
@@ -296,12 +299,11 @@ const PMNSMatrix3D: React.FC<Props> = ({ isOpen, onClose }) => {
 		ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
 		ctx.font = "bold 13px sans-serif";
 		ctx.fillText("3D PMNS Matrix |U|²", 15, 25);
-		
+
 		ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
 		ctx.font = "10px monospace";
 		ctx.fillText(`δCP = ${state.deltaCP}°`, 15, 42);
 		ctx.fillText("Drag to rotate", width - 90, height - 10);
-
 	}, [isOpen, matrix, rotation, state.deltaCP]);
 
 	if (!isOpen) return null;
@@ -322,7 +324,9 @@ const PMNSMatrix3D: React.FC<Props> = ({ isOpen, onClose }) => {
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
-					<span className="text-sm text-white/80">3D PMNS Matrix Visualization</span>
+					<span className="text-sm text-white/80">
+						3D PMNS Matrix Visualization
+					</span>
 					<button
 						type="button"
 						onClick={onClose}
@@ -340,7 +344,8 @@ const PMNSMatrix3D: React.FC<Props> = ({ isOpen, onClose }) => {
 					onMouseLeave={handleMouseUp}
 				/>
 				<div className="px-4 py-2 border-t border-white/10 text-[10px] text-white/50">
-					Bar height = |U|² (probability). Color = flavor. Brightness varies with CP phase.
+					Bar height = |U|² (probability). Color = flavor. Brightness varies
+					with CP phase.
 				</div>
 			</div>
 		</div>

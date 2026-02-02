@@ -1,4 +1,5 @@
-import { useState, useCallback, memo } from "react";
+import { memo, useCallback, useState } from "react";
+import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import HelpModal from "./components/HelpModal";
 import LearnMorePanel from "./components/LearnMorePanel";
 import PMNSMatrix from "./components/PMNSMatrix";
@@ -7,7 +8,6 @@ import SettingsPanel from "./components/SettingsPanel";
 import ShareButton from "./components/ShareButton";
 import Starfield from "./components/Starfield";
 import TernaryPlot from "./components/TernaryPlot";
-import EnergySpectrumPlot from "./components/EnergySpectrumPlot";
 import TopControlBar from "./components/TopControlBar";
 import VisualizationArea from "./components/VisualizationArea";
 import { SimulationProvider, useSimulation } from "./context/SimulationContext";
@@ -41,7 +41,7 @@ const FlexProbabilityPanel = memo(() => {
 	}));
 
 	return (
-		<div 
+		<div
 			className="flex-1 min-w-[280px] max-w-3xl rounded-xl px-4 py-3"
 			style={panelStyle}
 		>
@@ -83,10 +83,7 @@ FlexProbabilityPanel.displayName = "FlexProbabilityPanel";
 
 // Inline Ternary Panel
 const FlexTernaryPanel = memo(() => (
-	<div 
-		className="flex-shrink-0 rounded-xl p-3"
-		style={panelStyle}
-	>
+	<div className="flex-shrink-0 rounded-xl p-3" style={panelStyle}>
 		<TernaryPlot embedded />
 	</div>
 ));
@@ -94,8 +91,8 @@ FlexTernaryPanel.displayName = "FlexTernaryPanel";
 
 // Inline Spectrum Panel that can expand
 const FlexSpectrumPanel = memo(({ canExpand }: { canExpand: boolean }) => (
-	<div 
-		className={`rounded-xl p-3 ${canExpand ? 'flex-1 min-w-[280px] max-w-3xl' : 'flex-shrink-0'}`}
+	<div
+		className={`rounded-xl p-3 ${canExpand ? "flex-1 min-w-[280px] max-w-3xl" : "flex-shrink-0"}`}
 		style={panelStyle}
 	>
 		<EnergySpectrumPlot embedded fillContainer={canExpand} />
@@ -113,13 +110,13 @@ interface BottomHUDProps {
 }
 
 // Unified bottom HUD with flexbox layout
-function BottomHUD({ 
-	panels, 
-	onTogglePanel, 
-	onOpenShare, 
-	onOpenLearnMore, 
-	onOpenSettings, 
-	onOpenHelp 
+function BottomHUD({
+	panels,
+	onTogglePanel,
+	onOpenShare,
+	onOpenLearnMore,
+	onOpenSettings,
+	onOpenHelp,
 }: BottomHUDProps) {
 	const { state, setZoom } = useSimulation();
 	const { zoom } = state;
@@ -128,7 +125,7 @@ function BottomHUD({
 	const zoomOut = () => setZoom(Math.max(0.5, zoom - 0.15));
 
 	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum;
-	
+
 	// Spectrum can expand if it's the only plot panel
 	const spectrumCanExpand = !panels.probability && panels.spectrum;
 
@@ -138,7 +135,8 @@ function BottomHUD({
 		border: "1px solid rgba(255, 255, 255, 0.08)",
 	};
 
-	const btnBase = "w-8 h-8 rounded-full flex items-center justify-center text-sm transition-colors";
+	const btnBase =
+		"w-8 h-8 rounded-full flex items-center justify-center text-sm transition-colors";
 	const btnInactive = "text-white/40 hover:text-white hover:bg-white/10";
 	const btnActive = "text-white bg-white/20";
 
@@ -149,7 +147,9 @@ function BottomHUD({
 				<div className="flex justify-center items-end gap-3 mb-3 pointer-events-auto">
 					{panels.ternary && <FlexTernaryPanel />}
 					{panels.probability && <FlexProbabilityPanel />}
-					{panels.spectrum && <FlexSpectrumPanel canExpand={spectrumCanExpand} />}
+					{panels.spectrum && (
+						<FlexSpectrumPanel canExpand={spectrumCanExpand} />
+					)}
 				</div>
 			)}
 
@@ -255,7 +255,7 @@ function App() {
 
 function AppContent() {
 	useKeyboardShortcuts();
-	
+
 	const [panels, setPanels] = useState<PanelState>({
 		ternary: false,
 		probability: true,
@@ -267,7 +267,7 @@ function AppContent() {
 	const [helpOpen, setHelpOpen] = useState(false);
 
 	const togglePanel = useCallback((panel: keyof PanelState) => {
-		setPanels(prev => ({ ...prev, [panel]: !prev[panel] }));
+		setPanels((prev) => ({ ...prev, [panel]: !prev[panel] }));
 	}, []);
 
 	const openShare = useCallback(() => setShareOpen(true), []);
@@ -309,8 +309,12 @@ function AppContent() {
 
 			{/* Modals */}
 			{shareOpen && <ShareButton isOpen={shareOpen} onClose={closeShare} />}
-			{learnOpen && <LearnMorePanel isOpen={learnOpen} onClose={closeLearnMore} />}
-			{settingsOpen && <SettingsPanel isOpen={settingsOpen} onClose={closeSettings} />}
+			{learnOpen && (
+				<LearnMorePanel isOpen={learnOpen} onClose={closeLearnMore} />
+			)}
+			{settingsOpen && (
+				<SettingsPanel isOpen={settingsOpen} onClose={closeSettings} />
+			)}
 			{helpOpen && <HelpModal isOpen={helpOpen} onClose={closeHelp} />}
 		</div>
 	);

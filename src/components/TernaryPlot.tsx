@@ -1,16 +1,16 @@
 import type React from "react";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSimulation } from "../context/SimulationContext";
 import InfoTooltip, { PHYSICS_INFO } from "./InfoTooltip";
 
 /**
  * Ternary Plot (Triangle Plot) for visualizing neutrino flavor evolution
- * 
+ *
  * Each corner represents 100% probability of one flavor:
  * - Top: νₑ (electron, blue)
  * - Bottom-left: νμ (muon, orange)
  * - Bottom-right: ντ (tau, magenta)
- * 
+ *
  * The neutrino traces a path through this space as it oscillates.
  * Inspired by VISOS (VISualisation of OScillation) project.
  */
@@ -147,30 +147,40 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 		const history = state.probabilityHistory;
 		if (history.length > 1) {
 			ctx.beginPath();
-			const firstPoint = toTernary(history[0].Pe, history[0].Pmu, history[0].Ptau);
+			const firstPoint = toTernary(
+				history[0].Pe,
+				history[0].Pmu,
+				history[0].Ptau,
+			);
 			ctx.moveTo(firstPoint.x, firstPoint.y);
 
 			for (let i = 1; i < history.length; i++) {
 				const h = history[i];
 				// Skip invalid points
-				if (Number.isNaN(h.Pe) || Number.isNaN(h.Pmu) || Number.isNaN(h.Ptau)) continue;
+				if (Number.isNaN(h.Pe) || Number.isNaN(h.Pmu) || Number.isNaN(h.Ptau))
+					continue;
 				const point = toTernary(h.Pe, h.Pmu, h.Ptau);
 				ctx.lineTo(point.x, point.y);
 			}
 
 			// Create gradient for trail (fade older points)
 			const gradient = ctx.createLinearGradient(
-				firstPoint.x, firstPoint.y,
-				history[history.length - 1] ? toTernary(
-					history[history.length - 1].Pe,
-					history[history.length - 1].Pmu,
-					history[history.length - 1].Ptau
-				).x : firstPoint.x,
-				history[history.length - 1] ? toTernary(
-					history[history.length - 1].Pe,
-					history[history.length - 1].Pmu,
-					history[history.length - 1].Ptau
-				).y : firstPoint.y
+				firstPoint.x,
+				firstPoint.y,
+				history[history.length - 1]
+					? toTernary(
+							history[history.length - 1].Pe,
+							history[history.length - 1].Pmu,
+							history[history.length - 1].Ptau,
+						).x
+					: firstPoint.x,
+				history[history.length - 1]
+					? toTernary(
+							history[history.length - 1].Pe,
+							history[history.length - 1].Pmu,
+							history[history.length - 1].Ptau,
+						).y
+					: firstPoint.y,
 			);
 			gradient.addColorStop(0, "rgba(255, 255, 255, 0.1)");
 			gradient.addColorStop(1, "rgba(255, 255, 255, 0.6)");
@@ -183,24 +193,36 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 		// Draw current position
 		if (history.length > 0) {
 			const current = history[history.length - 1];
-			if (!Number.isNaN(current.Pe) && !Number.isNaN(current.Pmu) && !Number.isNaN(current.Ptau)) {
+			if (
+				!Number.isNaN(current.Pe) &&
+				!Number.isNaN(current.Pmu) &&
+				!Number.isNaN(current.Ptau)
+			) {
 				const currentPoint = toTernary(current.Pe, current.Pmu, current.Ptau);
 
 				// Glow effect
 				const glowGradient = ctx.createRadialGradient(
-					currentPoint.x, currentPoint.y, 0,
-					currentPoint.x, currentPoint.y, 12
+					currentPoint.x,
+					currentPoint.y,
+					0,
+					currentPoint.x,
+					currentPoint.y,
+					12,
 				);
 
 				// Color based on dominant flavor
-				const dominantColor = current.Pe >= current.Pmu && current.Pe >= current.Ptau
-					? COLORS.electron
-					: current.Pmu >= current.Ptau
-						? COLORS.muon
-						: COLORS.tau;
+				const dominantColor =
+					current.Pe >= current.Pmu && current.Pe >= current.Ptau
+						? COLORS.electron
+						: current.Pmu >= current.Ptau
+							? COLORS.muon
+							: COLORS.tau;
 
 				glowGradient.addColorStop(0, dominantColor);
-				glowGradient.addColorStop(0.5, dominantColor.replace(")", ", 0.5)").replace("rgb", "rgba"));
+				glowGradient.addColorStop(
+					0.5,
+					dominantColor.replace(")", ", 0.5)").replace("rgb", "rgba"),
+				);
 				glowGradient.addColorStop(1, "transparent");
 
 				ctx.beginPath();
@@ -221,7 +243,6 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 		ctx.font = "10px monospace";
 		ctx.textAlign = "center";
 		ctx.fillText("Flavor Space", centerX, height - 5);
-
 	}, [state.probabilityHistory]);
 
 	// When embedded, render just the panel content (no fixed positioning)
@@ -239,10 +260,7 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 				<div className="absolute top-2 right-2 z-10">
 					<InfoTooltip text={PHYSICS_INFO.ternaryPlot} position="bottom" />
 				</div>
-				<canvas
-					ref={canvasRef}
-					style={{ width: "140px", height: "140px" }}
-				/>
+				<canvas ref={canvasRef} style={{ width: "140px", height: "140px" }} />
 			</div>
 		);
 	}
@@ -262,16 +280,17 @@ const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 			<div className="absolute top-1 right-1">
 				<InfoTooltip text={PHYSICS_INFO.ternaryPlot} position="top" />
 			</div>
-			<canvas
-				ref={canvasRef}
-				style={{ width: "160px", height: "160px" }}
-			/>
+			<canvas ref={canvasRef} style={{ width: "160px", height: "160px" }} />
 		</div>
 	);
 };
 
 // Linear interpolation between two points
-function lerpPoint(a: { x: number; y: number }, b: { x: number; y: number }, t: number) {
+function lerpPoint(
+	a: { x: number; y: number },
+	b: { x: number; y: number },
+	t: number,
+) {
 	return {
 		x: a.x + (b.x - a.x) * t,
 		y: a.y + (b.y - a.y) * t,

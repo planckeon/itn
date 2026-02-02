@@ -148,7 +148,10 @@ interface LearnMorePanelProps {
 	onClose?: () => void;
 }
 
-const LearnMorePanel: React.FC<LearnMorePanelProps> = ({ isOpen: controlledOpen, onClose }) => {
+const LearnMorePanel: React.FC<LearnMorePanelProps> = ({
+	isOpen: controlledOpen,
+	onClose,
+}) => {
 	const [internalOpen, setInternalOpen] = useState(false);
 	const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
 	const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -206,9 +209,11 @@ const LearnMorePanel: React.FC<LearnMorePanelProps> = ({ isOpen: controlledOpen,
 					<div key={section.id} className="mb-1.5">
 						<button
 							type="button"
-							onClick={() => setExpandedSection(
-								expandedSection === section.id ? null : section.id
-							)}
+							onClick={() =>
+								setExpandedSection(
+									expandedSection === section.id ? null : section.id,
+								)
+							}
 							className="w-full text-left px-4 py-3 rounded-lg text-[15px] text-white/85 hover:bg-white/5 transition-colors flex items-center justify-between"
 						>
 							<span>{section.title}</span>
@@ -216,9 +221,9 @@ const LearnMorePanel: React.FC<LearnMorePanelProps> = ({ isOpen: controlledOpen,
 								{expandedSection === section.id ? "▼" : "▶"}
 							</span>
 						</button>
-						
+
 						{expandedSection === section.id && (
-							<div 
+							<div
 								className="px-4 py-5 text-[14px] text-white/80 leading-[1.8] rounded-lg mx-1 mt-1"
 								style={{ background: "rgba(255, 255, 255, 0.02)" }}
 							>

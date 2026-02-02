@@ -33,10 +33,13 @@ const DM31_SQ = 2.517e-3; // eV²
  * With E in GeV and Δm² in eV², L_osc in km is:
  * L_osc = 2.48 * E(GeV) / Δm²(eV²) km
  */
-function calculateOscillationLength(energyGeV: number, deltaMSq: number): number {
+function calculateOscillationLength(
+	energyGeV: number,
+	deltaMSq: number,
+): number {
 	// L_osc = 4π * ℏc * E / (Δm² * c⁴)
 	// Numerically: L_osc ≈ 2.48 * E[GeV] / Δm²[eV²] km
-	return 2.48 * energyGeV / deltaMSq;
+	return (2.48 * energyGeV) / deltaMSq;
 }
 
 const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
@@ -147,10 +150,18 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 		// X-axis label
 		ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
 		ctx.textAlign = "right";
-		ctx.fillText(distanceLabel, MARGIN.left + plotWidth, MARGIN.top + plotHeight + 16);
+		ctx.fillText(
+			distanceLabel,
+			MARGIN.left + plotWidth,
+			MARGIN.top + plotHeight + 16,
+		);
 
 		// Draw probability lines
-		const flavors: ("electron" | "muon" | "tau")[] = ["electron", "muon", "tau"];
+		const flavors: ("electron" | "muon" | "tau")[] = [
+			"electron",
+			"muon",
+			"tau",
+		];
 
 		for (const flavor of flavors) {
 			if (data.length < 2) continue;
@@ -165,10 +176,10 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			for (let i = 0; i < data.length; i++) {
 				const item = data[i];
 				const prob = item.probabilities[flavor];
-				
+
 				// Skip invalid data
-				if (typeof prob !== 'number' || Number.isNaN(prob)) continue;
-				
+				if (typeof prob !== "number" || Number.isNaN(prob)) continue;
+
 				const x = MARGIN.left + (item.distance / maxDistance) * plotWidth;
 				const y = MARGIN.top + plotHeight - prob * plotHeight;
 
@@ -190,8 +201,8 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			const lastData = data[data.length - 1];
 			for (const flavor of flavors) {
 				const prob = lastData.probabilities[flavor];
-				if (typeof prob !== 'number' || Number.isNaN(prob)) continue;
-				
+				if (typeof prob !== "number" || Number.isNaN(prob)) continue;
+
 				const x = MARGIN.left + (lastData.distance / maxDistance) * plotWidth;
 				const y = MARGIN.top + plotHeight - prob * plotHeight;
 
@@ -218,9 +229,9 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			for (let n = 1; n <= 5; n++) {
 				const L = n * L31;
 				if (L > maxDistance) break;
-				
+
 				const x = MARGIN.left + (L / maxDistance) * plotWidth;
-				
+
 				// Vertical line
 				ctx.strokeStyle = "rgba(217, 70, 239, 0.4)"; // fuchsia
 				ctx.beginPath();
@@ -253,7 +264,15 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 
 			ctx.setLineDash([]); // Reset line dash
 		}
-	}, [data, containerWidth, height, flavorColors, distanceLabel, energy, showOscillationLength]);
+	}, [
+		data,
+		containerWidth,
+		height,
+		flavorColors,
+		distanceLabel,
+		energy,
+		showOscillationLength,
+	]);
 
 	return (
 		<div ref={containerRef} className="w-full">

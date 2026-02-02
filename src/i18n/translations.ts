@@ -14,17 +14,17 @@ export interface Translations {
 	matter: string;
 	help: string;
 	share: string;
-	
+
 	// Flavors
 	electron: string;
 	muon: string;
 	tau: string;
-	
+
 	// Controls
 	play: string;
 	pause: string;
 	reset: string;
-	
+
 	// Physics terms
 	probability: string;
 	distance: string;
@@ -36,7 +36,7 @@ export interface Translations {
 	invertedOrdering: string;
 	cpPhase: string;
 	matterEffect: string;
-	
+
 	// Panels
 	flavorSpace: string;
 	energySpectrum: string;
@@ -44,12 +44,12 @@ export interface Translations {
 	keyboardShortcuts: string;
 	learnMore: string;
 	settings: string;
-	
+
 	// Educational content
 	whatIsNeutrino: string;
 	whatIsOscillation: string;
 	whyItMatters: string;
-	
+
 	// Tooltips (shortened)
 	tooltipDeltaCP: string;
 	tooltipMassOrdering: string;
@@ -68,15 +68,15 @@ const en: Translations = {
 	matter: "Matter",
 	help: "Help",
 	share: "Share",
-	
+
 	electron: "Electron",
 	muon: "Muon",
 	tau: "Tau",
-	
+
 	play: "Play",
 	pause: "Pause",
 	reset: "Reset",
-	
+
 	probability: "Probability",
 	distance: "Distance",
 	time: "Time",
@@ -87,25 +87,32 @@ const en: Translations = {
 	invertedOrdering: "Inverted",
 	cpPhase: "CP Phase",
 	matterEffect: "Matter Effect",
-	
+
 	flavorSpace: "Flavor Space",
 	energySpectrum: "Energy Spectrum",
 	pmnsMatrix: "PMNS Matrix",
 	keyboardShortcuts: "Keyboard Shortcuts",
 	learnMore: "Learn More",
 	settings: "Settings",
-	
+
 	whatIsNeutrino: "What is a Neutrino?",
 	whatIsOscillation: "What is Oscillation?",
 	whyItMatters: "Why Does This Matter?",
-	
-	tooltipDeltaCP: "δCP is the CP violation phase (0-360°). If δCP ≠ 0° or 180°, neutrinos and antineutrinos oscillate differently.",
-	tooltipMassOrdering: "Normal: m₁ < m₂ < m₃. Inverted: m₃ < m₁ < m₂. One of the biggest unknowns in neutrino physics!",
-	tooltipMatter: "MSW Effect: oscillations change in matter due to electron neutrino interactions.",
-	tooltipAntineutrino: "Antineutrinos oscillate differently: δCP and matter potential signs flip.",
-	tooltipTernary: "Flavor space triangle: each corner = 100% of one flavor. The dot traces flavor changes over distance.",
-	tooltipSpectrum: "Energy Spectrum: P vs E at current distance. Lower E = faster oscillation.",
-	tooltipPMNS: "PMNS Matrix: how flavor states relate to mass states. |Uαi|² = probability.",
+
+	tooltipDeltaCP:
+		"δCP is the CP violation phase (0-360°). If δCP ≠ 0° or 180°, neutrinos and antineutrinos oscillate differently.",
+	tooltipMassOrdering:
+		"Normal: m₁ < m₂ < m₃. Inverted: m₃ < m₁ < m₂. One of the biggest unknowns in neutrino physics!",
+	tooltipMatter:
+		"MSW Effect: oscillations change in matter due to electron neutrino interactions.",
+	tooltipAntineutrino:
+		"Antineutrinos oscillate differently: δCP and matter potential signs flip.",
+	tooltipTernary:
+		"Flavor space triangle: each corner = 100% of one flavor. The dot traces flavor changes over distance.",
+	tooltipSpectrum:
+		"Energy Spectrum: P vs E at current distance. Lower E = faster oscillation.",
+	tooltipPMNS:
+		"PMNS Matrix: how flavor states relate to mass states. |Uαi|² = probability.",
 };
 
 const es: Translations = {
@@ -116,15 +123,15 @@ const es: Translations = {
 	matter: "Materia",
 	help: "Ayuda",
 	share: "Compartir",
-	
+
 	electron: "Electrón",
 	muon: "Muón",
 	tau: "Tau",
-	
+
 	play: "Reproducir",
 	pause: "Pausa",
 	reset: "Reiniciar",
-	
+
 	probability: "Probabilidad",
 	distance: "Distancia",
 	time: "Tiempo",
@@ -135,25 +142,30 @@ const es: Translations = {
 	invertedOrdering: "Invertido",
 	cpPhase: "Fase CP",
 	matterEffect: "Efecto Materia",
-	
+
 	flavorSpace: "Espacio de Sabor",
 	energySpectrum: "Espectro de Energía",
 	pmnsMatrix: "Matriz PMNS",
 	keyboardShortcuts: "Atajos de Teclado",
 	learnMore: "Más Información",
 	settings: "Configuración",
-	
+
 	whatIsNeutrino: "¿Qué es un Neutrino?",
 	whatIsOscillation: "¿Qué es la Oscilación?",
 	whyItMatters: "¿Por qué Importa?",
-	
-	tooltipDeltaCP: "δCP es la fase de violación CP (0-360°). Si δCP ≠ 0° o 180°, neutrinos y antineutrinos oscilan diferente.",
-	tooltipMassOrdering: "Normal: m₁ < m₂ < m₃. Invertido: m₃ < m₁ < m₂. ¡Uno de los mayores misterios!",
-	tooltipMatter: "Efecto MSW: las oscilaciones cambian en materia por interacciones con electrones.",
-	tooltipAntineutrino: "Los antineutrinos oscilan diferente: signos de δCP y potencial de materia se invierten.",
+
+	tooltipDeltaCP:
+		"δCP es la fase de violación CP (0-360°). Si δCP ≠ 0° o 180°, neutrinos y antineutrinos oscilan diferente.",
+	tooltipMassOrdering:
+		"Normal: m₁ < m₂ < m₃. Invertido: m₃ < m₁ < m₂. ¡Uno de los mayores misterios!",
+	tooltipMatter:
+		"Efecto MSW: las oscilaciones cambian en materia por interacciones con electrones.",
+	tooltipAntineutrino:
+		"Los antineutrinos oscilan diferente: signos de δCP y potencial de materia se invierten.",
 	tooltipTernary: "Triángulo de sabor: cada esquina = 100% de un sabor.",
 	tooltipSpectrum: "Espectro de Energía: P vs E a distancia actual.",
-	tooltipPMNS: "Matriz PMNS: cómo los estados de sabor se relacionan con los de masa.",
+	tooltipPMNS:
+		"Matriz PMNS: cómo los estados de sabor se relacionan con los de masa.",
 };
 
 const ja: Translations = {
@@ -164,15 +176,15 @@ const ja: Translations = {
 	matter: "物質",
 	help: "ヘルプ",
 	share: "共有",
-	
+
 	electron: "電子",
 	muon: "ミュー",
 	tau: "タウ",
-	
+
 	play: "再生",
 	pause: "一時停止",
 	reset: "リセット",
-	
+
 	probability: "確率",
 	distance: "距離",
 	time: "時間",
@@ -183,18 +195,18 @@ const ja: Translations = {
 	invertedOrdering: "逆転",
 	cpPhase: "CP位相",
 	matterEffect: "物質効果",
-	
+
 	flavorSpace: "フレーバー空間",
 	energySpectrum: "エネルギースペクトル",
 	pmnsMatrix: "PMNS行列",
 	keyboardShortcuts: "キーボードショートカット",
 	learnMore: "詳細",
 	settings: "設定",
-	
+
 	whatIsNeutrino: "ニュートリノとは？",
 	whatIsOscillation: "振動とは？",
 	whyItMatters: "なぜ重要か？",
-	
+
 	tooltipDeltaCP: "δCPはCP対称性の破れの位相です（0-360°）。",
 	tooltipMassOrdering: "正常: m₁ < m₂ < m₃。逆転: m₃ < m₁ < m₂。",
 	tooltipMatter: "MSW効果：物質中でニュートリノ振動が変化します。",
@@ -212,15 +224,15 @@ const zh: Translations = {
 	matter: "物质",
 	help: "帮助",
 	share: "分享",
-	
+
 	electron: "电子",
 	muon: "μ子",
 	tau: "τ子",
-	
+
 	play: "播放",
 	pause: "暂停",
 	reset: "重置",
-	
+
 	probability: "概率",
 	distance: "距离",
 	time: "时间",
@@ -231,18 +243,18 @@ const zh: Translations = {
 	invertedOrdering: "倒置",
 	cpPhase: "CP相位",
 	matterEffect: "物质效应",
-	
+
 	flavorSpace: "味空间",
 	energySpectrum: "能谱",
 	pmnsMatrix: "PMNS矩阵",
 	keyboardShortcuts: "键盘快捷键",
 	learnMore: "了解更多",
 	settings: "设置",
-	
+
 	whatIsNeutrino: "什么是中微子？",
 	whatIsOscillation: "什么是振荡？",
 	whyItMatters: "为什么重要？",
-	
+
 	tooltipDeltaCP: "δCP是CP破坏相位（0-360°）。",
 	tooltipMassOrdering: "正常：m₁ < m₂ < m₃。倒置：m₃ < m₁ < m₂。",
 	tooltipMatter: "MSW效应：物质中的振荡会发生变化。",
@@ -260,15 +272,15 @@ const hi: Translations = {
 	matter: "पदार्थ",
 	help: "सहायता",
 	share: "साझा करें",
-	
+
 	electron: "इलेक्ट्रॉन",
 	muon: "म्यूऑन",
 	tau: "टाउ",
-	
+
 	play: "चलाएं",
 	pause: "रोकें",
 	reset: "रीसेट",
-	
+
 	probability: "संभावना",
 	distance: "दूरी",
 	time: "समय",
@@ -279,18 +291,18 @@ const hi: Translations = {
 	invertedOrdering: "उल्टा",
 	cpPhase: "CP चरण",
 	matterEffect: "पदार्थ प्रभाव",
-	
+
 	flavorSpace: "फ्लेवर स्पेस",
 	energySpectrum: "ऊर्जा स्पेक्ट्रम",
 	pmnsMatrix: "PMNS मैट्रिक्स",
 	keyboardShortcuts: "कीबोर्ड शॉर्टकट",
 	learnMore: "और जानें",
 	settings: "सेटिंग्स",
-	
+
 	whatIsNeutrino: "न्यूट्रिनो क्या है?",
 	whatIsOscillation: "दोलन क्या है?",
 	whyItMatters: "यह क्यों मायने रखता है?",
-	
+
 	tooltipDeltaCP: "δCP CP उल्लंघन चरण है (0-360°)।",
 	tooltipMassOrdering: "सामान्य: m₁ < m₂ < m₃। उल्टा: m₃ < m₁ < m₂।",
 	tooltipMatter: "MSW प्रभाव: पदार्थ में दोलन बदलते हैं।",
@@ -301,8 +313,22 @@ const hi: Translations = {
 };
 
 // French and German as stubs - can be expanded
-const fr: Translations = { ...en, preset: "Préréglage", energy: "Énergie", speed: "Vitesse", help: "Aide", share: "Partager" };
-const de: Translations = { ...en, preset: "Voreinstellung", energy: "Energie", speed: "Geschwindigkeit", help: "Hilfe", share: "Teilen" };
+const fr: Translations = {
+	...en,
+	preset: "Préréglage",
+	energy: "Énergie",
+	speed: "Vitesse",
+	help: "Aide",
+	share: "Partager",
+};
+const de: Translations = {
+	...en,
+	preset: "Voreinstellung",
+	energy: "Energie",
+	speed: "Geschwindigkeit",
+	help: "Hilfe",
+	share: "Teilen",
+};
 
 export const translations: Record<Language, Translations> = {
 	en,

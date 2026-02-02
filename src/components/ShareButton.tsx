@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useURLState from "../hooks/useURLState";
 
 interface ShareButtonProps {
@@ -10,12 +10,15 @@ interface ShareButtonProps {
 /**
  * Share button/modal that copies the current simulation URL to clipboard
  */
-const ShareButton: React.FC<ShareButtonProps> = ({ isOpen: controlledOpen, onClose }) => {
+const ShareButton: React.FC<ShareButtonProps> = ({
+	isOpen: controlledOpen,
+	onClose,
+}) => {
 	const { copyShareURL } = useURLState();
 	const [copied, setCopied] = useState(false);
 	const [internalOpen] = useState(false);
 	const hasTriedCopy = useRef(false);
-	
+
 	const isControlled = controlledOpen !== undefined;
 	const isOpen = isControlled ? controlledOpen : internalOpen;
 
@@ -59,9 +62,9 @@ const ShareButton: React.FC<ShareButtonProps> = ({ isOpen: controlledOpen, onClo
 	// Controlled mode: show modal
 	if (isControlled) {
 		if (!isOpen) return null;
-		
+
 		return (
-			<div 
+			<div
 				className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 pointer-events-auto"
 				onClick={onClose}
 			>
@@ -89,8 +92,12 @@ const ShareButton: React.FC<ShareButtonProps> = ({ isOpen: controlledOpen, onClo
 			onClick={handleClick}
 			className="fixed top-[60px] left-4 z-10 px-2 py-1 rounded-lg text-xs font-mono"
 			style={{
-				background: copied ? "rgba(34, 197, 94, 0.3)" : "rgba(20, 20, 30, 0.85)",
-				border: copied ? "1px solid rgba(34, 197, 94, 0.5)" : "1px solid rgba(255, 255, 255, 0.1)",
+				background: copied
+					? "rgba(34, 197, 94, 0.3)"
+					: "rgba(20, 20, 30, 0.85)",
+				border: copied
+					? "1px solid rgba(34, 197, 94, 0.5)"
+					: "1px solid rgba(255, 255, 255, 0.1)",
 				color: copied ? "rgb(134, 239, 172)" : "rgba(255, 255, 255, 0.7)",
 				backdropFilter: "blur(8px)",
 			}}

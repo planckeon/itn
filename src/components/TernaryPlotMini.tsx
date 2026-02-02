@@ -1,5 +1,5 @@
 import type React from "react";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface TernaryPlotMiniProps {
 	Pe: number;
@@ -12,7 +12,12 @@ interface TernaryPlotMiniProps {
  * Compact ternary plot for the bottom HUD
  * Shows flavor composition in a triangle
  */
-const TernaryPlotMini: React.FC<TernaryPlotMiniProps> = ({ Pe, Pmu, Ptau, history = [] }) => {
+const TernaryPlotMini: React.FC<TernaryPlotMiniProps> = ({
+	Pe,
+	Pmu,
+	Ptau,
+	history = [],
+}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const size = 120;
 	const padding = 8;
@@ -82,9 +87,16 @@ const TernaryPlotMini: React.FC<TernaryPlotMiniProps> = ({ Pe, Pmu, Ptau, histor
 
 		// Draw current position
 		const current = toXY(Pe, Pmu, Ptau);
-		
+
 		// Glow
-		const gradient = ctx.createRadialGradient(current.x, current.y, 0, current.x, current.y, 8);
+		const gradient = ctx.createRadialGradient(
+			current.x,
+			current.y,
+			0,
+			current.x,
+			current.y,
+			8,
+		);
 		gradient.addColorStop(0, "rgba(96, 165, 250, 0.6)");
 		gradient.addColorStop(1, "rgba(96, 165, 250, 0)");
 		ctx.fillStyle = gradient;
@@ -97,7 +109,6 @@ const TernaryPlotMini: React.FC<TernaryPlotMiniProps> = ({ Pe, Pmu, Ptau, histor
 		ctx.beginPath();
 		ctx.arc(current.x, current.y, 3, 0, Math.PI * 2);
 		ctx.fill();
-
 	}, [Pe, Pmu, Ptau, history]);
 
 	return (
