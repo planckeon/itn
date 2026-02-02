@@ -124,129 +124,129 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 				</div>
 			)}
 
-			{/* Control bar - floating pill, not full-width */}
+			{/* Control bar - floating centered pill */}
 			<div className="flex justify-center pb-4 pointer-events-auto">
 				<div 
-					className="flex items-center gap-2 py-2 px-4 rounded-full"
+					className="flex items-center gap-3 py-2 px-4 rounded-full"
 					style={{
-						background: "rgba(20, 20, 30, 0.6)",
+						background: "rgba(20, 20, 30, 0.75)",
 						backdropFilter: "blur(12px)",
 						border: "1px solid rgba(255, 255, 255, 0.1)",
 					}}
 				>
-				{/* Zoom controls */}
-				<div className="flex items-center gap-0.5 mr-1">
-					<button
-						type="button"
-						onClick={() => setZoom(Math.max(0.5, zoom - 0.15))}
-						className="w-6 h-6 rounded text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
-						title="Zoom out (−)"
-					>
-						−
-					</button>
-					<button
-						type="button"
-						onClick={() => setZoom(Math.min(2, zoom + 0.15))}
-						className="w-6 h-6 rounded text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
-						title="Zoom in (+)"
-					>
-						+
-					</button>
+					{/* Zoom controls */}
+					<div className="flex items-center gap-1">
+						<button
+							type="button"
+							onClick={() => setZoom(Math.max(0.5, zoom - 0.15))}
+							className="w-8 h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/10 flex items-center justify-center text-base"
+							title="Zoom out (−)"
+						>
+							−
+						</button>
+						<button
+							type="button"
+							onClick={() => setZoom(Math.min(2, zoom + 0.15))}
+							className="w-8 h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/10 flex items-center justify-center text-base"
+							title="Zoom in (+)"
+						>
+							+
+						</button>
+					</div>
+
+					{/* Divider */}
+					<div className="w-px h-4 bg-white/15" />
+
+					{/* Quick stats - hidden on very small screens */}
+					<div className="hidden sm:flex items-center gap-2 text-[11px] font-mono text-white/50">
+						<span>{distance.toFixed(0)} km</span>
+						<span className="text-blue-400">{(currentProbs.Pe * 100).toFixed(0)}%</span>
+						<span className="text-orange-400">{(currentProbs.Pmu * 100).toFixed(0)}%</span>
+						<span className="text-fuchsia-400">{(currentProbs.Ptau * 100).toFixed(0)}%</span>
+					</div>
+
+					{/* Divider - hidden when stats hidden */}
+					<div className="hidden sm:block w-px h-4 bg-white/15" />
+
+					{/* Panel toggles */}
+					<div className="flex items-center gap-1">
+						<button
+							type="button"
+							onClick={() => togglePanel("ternary")}
+							className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
+								panels.ternary 
+									? "bg-white/20 text-white" 
+									: "text-white/50 hover:text-white hover:bg-white/10"
+							}`}
+							title="Flavor Space"
+						>
+							△
+						</button>
+						<button
+							type="button"
+							onClick={() => togglePanel("probability")}
+							className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
+								panels.probability 
+									? "bg-white/20 text-white" 
+									: "text-white/50 hover:text-white hover:bg-white/10"
+							}`}
+							title="Oscillation Plot"
+						>
+							〰
+						</button>
+						<button
+							type="button"
+							onClick={() => togglePanel("spectrum")}
+							className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm ${
+								panels.spectrum 
+									? "bg-white/20 text-white" 
+									: "text-white/50 hover:text-white hover:bg-white/10"
+							}`}
+							title="Energy Spectrum"
+						>
+							📊
+						</button>
+					</div>
+
+					{/* Divider */}
+					<div className="w-px h-4 bg-white/15" />
+
+					{/* Menu buttons */}
+					<div className="flex items-center gap-1">
+						<button
+							type="button"
+							onClick={() => setShareOpen(true)}
+							className="w-8 h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
+							title="Share"
+						>
+							🔗
+						</button>
+						<button
+							type="button"
+							onClick={onOpenLearnMore}
+							className="hidden sm:flex w-8 h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/10 items-center justify-center text-sm"
+							title="Learn More"
+						>
+							📖
+						</button>
+						<button
+							type="button"
+							onClick={onOpenSettings}
+							className="w-8 h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
+							title="Settings"
+						>
+							⚙️
+						</button>
+						<button
+							type="button"
+							onClick={onOpenHelp}
+							className="w-8 h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/10 flex items-center justify-center text-sm"
+							title="Help (?)"
+						>
+							?
+						</button>
+					</div>
 				</div>
-
-				{/* Divider */}
-				<div className="w-px h-4 bg-white/20" />
-
-				{/* Quick stats */}
-				<div className="flex items-center gap-2 mx-2 text-[10px] font-mono text-white/40">
-					<span>{distance.toFixed(0)} km</span>
-					<span className="text-blue-400">{(currentProbs.Pe * 100).toFixed(0)}%</span>
-					<span className="text-orange-400">{(currentProbs.Pmu * 100).toFixed(0)}%</span>
-					<span className="text-fuchsia-400">{(currentProbs.Ptau * 100).toFixed(0)}%</span>
-				</div>
-
-				{/* Divider */}
-				<div className="w-px h-4 bg-white/20" />
-
-				{/* Panel toggles - direct onClick, no delays */}
-				<div className="flex items-center gap-1">
-					<button
-						type="button"
-						onClick={() => togglePanel("ternary")}
-						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
-							panels.ternary 
-								? "bg-white/20 text-white" 
-								: "text-white/50 hover:text-white/80 hover:bg-white/10"
-						}`}
-						title="Toggle Flavor Space triangle"
-					>
-						△
-					</button>
-					<button
-						type="button"
-						onClick={() => togglePanel("probability")}
-						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
-							panels.probability 
-								? "bg-white/20 text-white" 
-								: "text-white/50 hover:text-white/80 hover:bg-white/10"
-						}`}
-						title="Toggle Probability vs Time plot"
-					>
-						〰
-					</button>
-					<button
-						type="button"
-						onClick={() => togglePanel("spectrum")}
-						className={`px-2.5 py-1.5 rounded text-xs font-mono ${
-							panels.spectrum 
-								? "bg-white/20 text-white" 
-								: "text-white/50 hover:text-white/80 hover:bg-white/10"
-						}`}
-						title="Toggle Energy Spectrum plot"
-					>
-						📊
-					</button>
-				</div>
-
-				{/* Divider */}
-				<div className="w-px h-4 bg-white/20" />
-
-				{/* Menu buttons */}
-				<div className="flex items-center gap-1">
-					<button
-						type="button"
-						onClick={() => setShareOpen(true)}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
-						title="Share"
-					>
-						🔗
-					</button>
-					<button
-						type="button"
-						onClick={onOpenLearnMore}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
-						title="Learn More"
-					>
-						📚
-					</button>
-					<button
-						type="button"
-						onClick={onOpenSettings}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
-						title="Settings"
-					>
-						⚙️
-					</button>
-					<button
-						type="button"
-						onClick={onOpenHelp}
-						className="px-2.5 py-1.5 rounded text-xs text-white/50 hover:text-white/80 hover:bg-white/10"
-						title="Help (Keyboard Shortcuts)"
-					>
-						❓
-					</button>
-				</div>
-			</div>
 			</div>
 
 			{/* Share modal */}
