@@ -3,16 +3,28 @@ import { useState } from "react";
 import { useI18n, type Language } from "../i18n";
 import { useSimulation } from "../context/SimulationContext";
 
-const SettingsPanel: React.FC = () => {
-	const [isOpen, setIsOpen] = useState(false);
+interface SettingsPanelProps {
+	isOpen?: boolean;
+	onClose?: () => void;
+}
+
+const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen: controlledOpen, onClose }) => {
+	const [internalOpen, setInternalOpen] = useState(false);
+	const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
 	const { language, setLanguage, t, languageNames, availableLanguages } = useI18n();
 	const { state, setDensity } = useSimulation();
 
+	const handleClose = () => {
+		if (onClose) onClose();
+		else setInternalOpen(false);
+	};
+
 	if (!isOpen) {
+		if (controlledOpen !== undefined) return null; // Controlled mode
 		return (
 			<button
 				type="button"
-				onClick={() => setIsOpen(true)}
+				onClick={() => setInternalOpen(true)}
 				className="fixed top-[116px] left-4 z-10 px-2 py-1 rounded-md text-xs font-medium transition-all hover:scale-105"
 				style={{
 					background: "rgba(20, 20, 30, 0.9)",
@@ -41,7 +53,7 @@ const SettingsPanel: React.FC = () => {
 				<h2 className="text-base font-semibold text-white">⚙️ {t.settings}</h2>
 				<button
 					type="button"
-					onClick={() => setIsOpen(false)}
+					onClick={handleClose}
 					className="text-white/50 hover:text-white transition-colors text-lg"
 				>
 					✕

@@ -60,7 +60,7 @@ const PMNSMatrix: React.FC = () => {
 	return (
 		<>
 			<div
-				className="absolute top-20 right-4 z-10"
+				className="absolute top-32 right-4 z-10"
 				style={{
 					background: "rgba(18, 18, 28, 0.92)",
 					backdropFilter: "blur(12px)",

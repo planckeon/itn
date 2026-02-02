@@ -14,12 +14,19 @@ const SHORTCUTS = [
 	{ key: "?", action: "Show this help" },
 ];
 
+interface HelpModalProps {
+	isOpen?: boolean;
+	onClose?: () => void;
+}
+
 /**
  * Help modal showing keyboard shortcuts
- * Press ? to toggle
+ * Press ? to toggle, or control via props
  */
-const HelpModal: React.FC = () => {
-	const [isOpen, setIsOpen] = useState(false);
+const HelpModal: React.FC<HelpModalProps> = ({ isOpen: controlledOpen, onClose }) => {
+	const [internalOpen, setInternalOpen] = useState(false);
+	const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+	const setIsOpen = onClose ? (open: boolean) => { if (!open) onClose(); } : setInternalOpen;
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -29,7 +36,11 @@ const HelpModal: React.FC = () => {
 			
 			if (e.key === "?" || (e.shiftKey && e.key === "/")) {
 				e.preventDefault();
-				setIsOpen((prev) => !prev);
+				if (controlledOpen !== undefined && onClose) {
+					onClose();
+				} else {
+					setInternalOpen((prev) => !prev);
+				}
 			} else if (e.key === "Escape" && isOpen) {
 				setIsOpen(false);
 			}
@@ -37,7 +48,7 @@ const HelpModal: React.FC = () => {
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isOpen]);
+	}, [isOpen, controlledOpen, onClose]);
 
 	if (!isOpen) {
 		// Show small hint in corner - positioned relative to viewport

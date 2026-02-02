@@ -143,16 +143,28 @@ JUNO, DUNE, and atmospheric measurements aim to resolve this.`,
 	},
 ];
 
-const LearnMorePanel: React.FC = () => {
-	const [isOpen, setIsOpen] = useState(false);
+interface LearnMorePanelProps {
+	isOpen?: boolean;
+	onClose?: () => void;
+}
+
+const LearnMorePanel: React.FC<LearnMorePanelProps> = ({ isOpen: controlledOpen, onClose }) => {
+	const [internalOpen, setInternalOpen] = useState(false);
+	const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
 	const [expandedSection, setExpandedSection] = useState<string | null>(null);
 	const { t } = useI18n();
 
+	const handleClose = () => {
+		if (onClose) onClose();
+		else setInternalOpen(false);
+	};
+
 	if (!isOpen) {
+		if (controlledOpen !== undefined) return null; // Controlled mode - don't show button
 		return (
 			<button
 				type="button"
-				onClick={() => setIsOpen(true)}
+				onClick={() => setInternalOpen(true)}
 				className="fixed top-[88px] left-4 z-10 px-2 py-1 rounded-md text-xs font-medium transition-all hover:scale-105"
 				style={{
 					background: "rgba(20, 20, 30, 0.9)",
@@ -181,7 +193,7 @@ const LearnMorePanel: React.FC = () => {
 				<h2 className="text-base font-semibold text-white">📚 {t.learnMore}</h2>
 				<button
 					type="button"
-					onClick={() => setIsOpen(false)}
+					onClick={handleClose}
 					className="text-white/50 hover:text-white transition-colors text-lg"
 				>
 					✕
