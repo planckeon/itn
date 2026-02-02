@@ -13,125 +13,133 @@ const SECTIONS: Section[] = [
 	{
 		id: "what-is-neutrino",
 		title: "What is a Neutrino?",
-		content: `Neutrinos are among the most abundant particles in the universe, yet incredibly elusive. Every second, about $10^{14}$ neutrinos pass through your body — but they rarely interact with matter.
+		content: `Neutrinos are among the most abundant particles in the universe, yet incredibly elusive. Every second, about 100 trillion neutrinos pass through your body — but they rarely interact with matter.
 
 **Key facts:**
 • Nearly massless (but not quite zero!)
 • Electrically neutral
-• Comes in three "flavors": electron ($\\nu_e$), muon ($\\nu_\\mu$), tau ($\\nu_\\tau$)
+• Comes in three "flavors": electron, muon, and tau
+$$\\nu_e \\quad \\nu_\\mu \\quad \\nu_\\tau$$
 • Produced in nuclear reactions: the Sun, reactors, cosmic rays
 • Can travel through entire planets without stopping`,
 	},
 	{
 		id: "what-is-oscillation",
 		title: "What is Neutrino Oscillation?",
-		content: `Neutrino oscillation is the quantum phenomenon where neutrinos change their flavor as they travel.
+		content: `Neutrino oscillation is the quantum phenomenon where neutrinos change flavor as they travel.
 
-A neutrino created as $\\nu_e$ can later be detected as $\\nu_\\mu$ or $\\nu_\\tau$!
+A neutrino created as an electron neutrino can later be detected as a muon or tau neutrino!
+
+**The key insight:** Flavor states are quantum superpositions of mass states:
+$$|\\nu_\\alpha\\rangle = \\sum_{i=1}^{3} U_{\\alpha i} \\, |\\nu_i\\rangle$$
 
 **How it works:**
-• Flavor states ($\\nu_e, \\nu_\\mu, \\nu_\\tau$) are mixtures of mass states ($\\nu_1, \\nu_2, \\nu_3$)
+• Flavor states (e, μ, τ) are mixtures of mass states (1, 2, 3)
 • Mass states travel at slightly different speeds
-• This creates interference, causing the flavor to oscillate
-• The oscillation probability depends on energy $E$, distance $L$, and mixing parameters`,
+• This creates quantum interference → flavor oscillates
+• Depends on: energy, distance, and mixing parameters`,
 	},
 	{
 		id: "pmns-matrix",
 		title: "The PMNS Matrix",
-		content: `The Pontecorvo-Maki-Nakagawa-Sakata (PMNS) matrix describes how flavor and mass states are related:
+		content: `The Pontecorvo-Maki-Nakagawa-Sakata (PMNS) matrix describes the mixing between flavor and mass states.
 
-$$|\\nu_\\alpha\\rangle = \\sum_i U_{\\alpha i} |\\nu_i\\rangle$$
+**The mixing matrix:**
+$$U = \\begin{pmatrix} U_{e1} & U_{e2} & U_{e3} \\\\ U_{\\mu 1} & U_{\\mu 2} & U_{\\mu 3} \\\\ U_{\\tau 1} & U_{\\tau 2} & U_{\\tau 3} \\end{pmatrix}$$
 
-**Parameters:**
-• Three mixing angles: $\\theta_{12} \\approx 33°$, $\\theta_{13} \\approx 8.5°$, $\\theta_{23} \\approx 49°$
-• One CP-violating phase: $\\delta_{CP}$ (key measurement target!)
-• Two mass-squared differences: $\\Delta m^2_{21}$, $\\Delta m^2_{31}$
+**Parameters (from NuFit 5.2):**
+$$\\theta_{12} \\approx 33.4° \\quad \\theta_{13} \\approx 8.6° \\quad \\theta_{23} \\approx 49°$$
+$$\\delta_{CP} = \\text{unknown (key target!)}$$
 
-The matrix elements $|U_{\\alpha i}|^2$ give the probability of finding mass state $i$ in flavor state $\\alpha$.`,
+**Mass splittings:**
+$$\\Delta m^2_{21} = 7.42 \\times 10^{-5} \\text{ eV}^2$$
+$$|\\Delta m^2_{31}| \\approx 2.5 \\times 10^{-3} \\text{ eV}^2$$`,
 	},
 	{
 		id: "oscillation-formula",
-		title: "Oscillation Formula",
-		content: `The probability of $\\nu_\\alpha \\to \\nu_\\beta$ oscillation in vacuum (two-flavor approximation):
+		title: "Oscillation Probability",
+		content: `The probability of flavor change (two-flavor approximation):
 
-$$P(\\nu_\\alpha \\to \\nu_\\beta) = \\sin^2(2\\theta) \\sin^2\\left(\\frac{\\Delta m^2 L}{4E}\\right)$$
+$$P(\\nu_\\alpha \\to \\nu_\\beta) = \\sin^2(2\\theta) \\, \\sin^2\\!\\left(\\frac{\\Delta m^2 L}{4E}\\right)$$
 
-**Key dependencies:**
-• $\\sin^2(2\\theta)$ — mixing strength (amplitude)
-• $\\Delta m^2$ — mass-squared difference (in $\\text{eV}^2$)
-• $L$ — distance traveled (in km)
-• $E$ — neutrino energy (in GeV)
+**Where:**
+$$\\begin{aligned} \\theta &= \\text{mixing angle} \\\\ \\Delta m^2 &= \\text{mass-squared difference (eV}^2\\text{)} \\\\ L &= \\text{baseline distance (km)} \\\\ E &= \\text{neutrino energy (GeV)} \\end{aligned}$$
 
-The oscillation length is:
-$$L_{\\text{osc}} = \\frac{4\\pi E}{\\Delta m^2} \\approx 2.48 \\times \\frac{E[\\text{GeV}]}{\\Delta m^2[\\text{eV}^2]} \\text{ km}$$`,
+**Oscillation length** (one full cycle):
+$$L_{\\text{osc}} = \\frac{4\\pi E}{\\Delta m^2} \\approx 2.48 \\, \\frac{E \\text{ [GeV]}}{\\Delta m^2 \\text{ [eV}^2\\text{]}} \\text{ km}$$`,
 	},
 	{
 		id: "cp-violation",
-		title: "CP Violation & Matter-Antimatter",
-		content: `CP violation means particles and antiparticles behave differently.
+		title: "CP Violation",
+		content: `CP violation means neutrinos and antineutrinos behave differently.
 
-If $\\delta_{CP} \\neq 0°$ or $180°$:
+**The asymmetry:**
 $$P(\\nu_\\mu \\to \\nu_e) \\neq P(\\bar{\\nu}_\\mu \\to \\bar{\\nu}_e)$$
 
-Neutrinos and antineutrinos oscillate at different rates!
+This occurs when the CP phase is non-trivial:
+$$\\delta_{CP} \\neq 0° \\text{ and } \\delta_{CP} \\neq 180°$$
 
 **Why it matters:**
 The universe has more matter than antimatter. CP violation in neutrinos could help explain this cosmic mystery — the "baryon asymmetry problem."
 
-Experiments like T2K, NOvA, and DUNE are racing to measure $\\delta_{CP}$!`,
+Current hints suggest maximal CP violation around:
+$$\\delta_{CP} \\sim -90° \\text{ (or } 270°\\text{)}$$`,
 	},
 	{
 		id: "msw-effect",
-		title: "The MSW Matter Effect",
-		content: `When neutrinos travel through matter (like the Sun or Earth), their oscillations change.
+		title: "MSW Matter Effect",
+		content: `When neutrinos travel through matter, oscillations are modified by the MSW (Mikheyev-Smirnov-Wolfenstein) effect.
 
-**The mechanism:**
-• $\\nu_e$ can scatter off electrons via charged current
-• This creates an effective potential: $V = \\sqrt{2} G_F N_e$
-• The mixing angle in matter differs from vacuum
+**Matter potential** from electron scattering:
+$$V = \\sqrt{2} \\, G_F \\, N_e$$
 
-**Matter-modified mixing:**
-$$\\sin^2(2\\theta_m) = \\frac{\\sin^2(2\\theta)}{\\sin^2(2\\theta) + (\\cos(2\\theta) - V/\\Delta)^2}$$
+**Modified mixing in matter:**
+$$\\sin^2(2\\theta_m) = \\frac{\\sin^2(2\\theta)}{\\sin^2(2\\theta) + \\left(\\cos 2\\theta - \\frac{2EV}{\\Delta m^2}\\right)^2}$$
 
-**Resonance condition (MSW):**
-$$E_{\\text{res}} = \\frac{\\Delta m^2 \\cos(2\\theta)}{2\\sqrt{2} G_F N_e}$$
+**Resonance condition** (MSW resonance):
+$$E_{\\text{res}} = \\frac{\\Delta m^2 \\cos 2\\theta}{2\\sqrt{2} \\, G_F \\, N_e}$$
 
-At resonance, even small vacuum mixing can become maximal!`,
+At resonance, even tiny vacuum mixing becomes maximal!`,
 	},
 	{
 		id: "mass-ordering",
-		title: "Mass Ordering Mystery",
-		content: `We know neutrinos have mass, but we don't know which arrangement is correct:
+		title: "Mass Ordering",
+		content: `We know neutrinos have mass, but not which arrangement:
 
-**Normal Ordering (NO):** $m_1 < m_2 \\ll m_3$
-• $\\nu_3$ is the heaviest
-• $\\Delta m^2_{31} > 0$
+**Normal Ordering (NO):**
+$$m_1 < m_2 \\ll m_3$$
+• The third mass state is heaviest
+• Solar pair at bottom
 
-**Inverted Ordering (IO):** $m_3 \\ll m_1 < m_2$
-• $\\nu_3$ is the lightest
-• $\\Delta m^2_{31} < 0$
+**Inverted Ordering (IO):**
+$$m_3 \\ll m_1 < m_2$$
+• The third mass state is lightest  
+• Solar pair at top
 
-**Current values (NuFit 5.2):**
-• $\\Delta m^2_{21} = 7.42 \\times 10^{-5}$ eV²
-• $|\\Delta m^2_{31}| \\approx 2.5 \\times 10^{-3}$ eV²`,
+**What we know:**
+$$\\Delta m^2_{21} > 0 \\quad \\text{(solar splitting)}$$
+$$\\Delta m^2_{31} \\gtrless 0 \\quad \\text{(unknown sign!)}$$
+
+JUNO, DUNE, and atmospheric measurements aim to resolve this.`,
 	},
 	{
 		id: "experiments",
 		title: "Neutrino Experiments",
-		content: `**Accelerator experiments** ($\\nu_\\mu$ beams):
-• T2K (Japan, 295 km): First hints of CP violation
-• NOvA (USA, 810 km): Complementary measurements
-• DUNE (USA, 1300 km): Future high-precision
-• Hyper-Kamiokande: Next-generation detector
+		content: `**Accelerator experiments** (muon neutrino beams):
+• T2K (Japan): L = 295 km, first CP hints
+• NOvA (USA): L = 810 km, complementary
+• DUNE (future): L = 1300 km, precision era
+• Hyper-Kamiokande: next-generation
 
-**Reactor experiments** ($\\bar{\\nu}_e$ disappearance):
-• Daya Bay, Double Chooz, RENO: Measured $\\theta_{13}$
-• KamLAND: Confirmed solar oscillations
-• JUNO: Will determine mass ordering
+**Reactor experiments** (electron antineutrinos):
+• Daya Bay, RENO: measured θ₁₃
+• KamLAND: confirmed solar oscillations  
+• JUNO: will determine mass ordering
 
-**Others:**
-• Super-Kamiokande, IceCube: Atmospheric neutrinos
-• SNO, Borexino: Solar neutrinos`,
+**Natural sources:**
+• Super-K, IceCube: atmospheric neutrinos
+• SNO, Borexino: solar neutrinos
+• IceCube: astrophysical neutrinos`,
 	},
 ];
 
@@ -160,12 +168,12 @@ const LearnMorePanel: React.FC = () => {
 
 	return (
 		<div
-			className="fixed top-16 left-4 z-40 w-[420px] max-w-[92vw] max-h-[80vh] overflow-hidden rounded-xl flex flex-col"
+			className="fixed top-16 left-4 z-40 w-[480px] max-w-[94vw] max-h-[82vh] overflow-hidden rounded-xl flex flex-col"
 			style={{
-				background: "rgba(12, 12, 20, 0.96)",
-				border: "1px solid rgba(255, 255, 255, 0.12)",
+				background: "rgba(10, 10, 18, 0.97)",
+				border: "1px solid rgba(255, 255, 255, 0.1)",
 				backdropFilter: "blur(20px)",
-				boxShadow: "0 12px 48px rgba(0, 0, 0, 0.6)",
+				boxShadow: "0 16px 64px rgba(0, 0, 0, 0.7)",
 			}}
 		>
 			{/* Header */}
@@ -180,7 +188,7 @@ const LearnMorePanel: React.FC = () => {
 				</button>
 			</div>
 
-			{/* Scrollable content - hidden scrollbar */}
+			{/* Scrollable content */}
 			<div className="flex-1 overflow-y-auto p-3 scrollbar-hide">
 				{SECTIONS.map((section) => (
 					<div key={section.id} className="mb-1.5">
@@ -199,8 +207,8 @@ const LearnMorePanel: React.FC = () => {
 						
 						{expandedSection === section.id && (
 							<div 
-								className="px-4 py-4 text-[13px] text-white/75 leading-[1.7] rounded-lg mx-1 mt-1"
-								style={{ background: "rgba(255, 255, 255, 0.03)" }}
+								className="px-4 py-5 text-[14px] text-white/80 leading-[1.8] rounded-lg mx-1 mt-1"
+								style={{ background: "rgba(255, 255, 255, 0.02)" }}
 							>
 								<RichText>{section.content}</RichText>
 							</div>
