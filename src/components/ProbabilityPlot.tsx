@@ -57,7 +57,7 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 		[containerWidth, height],
 	);
 
-	// Draw on canvas for better performance
+	// Draw on canvas with proper DPI scaling
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
@@ -65,13 +65,19 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 		const ctx = canvas.getContext("2d");
 		if (!ctx) return;
 
+		const dpr = window.devicePixelRatio || 1;
 		const { width: plotWidth, height: plotHeight } = dimensions;
 		const totalWidth = containerWidth;
 		const totalHeight = height;
 
-		// Set canvas size
-		canvas.width = totalWidth;
-		canvas.height = totalHeight;
+		// Set canvas size with DPI scaling
+		canvas.width = totalWidth * dpr;
+		canvas.height = totalHeight * dpr;
+		canvas.style.width = `${totalWidth}px`;
+		canvas.style.height = `${totalHeight}px`;
+		
+		// Scale context for DPI
+		ctx.scale(dpr, dpr);
 
 		// Clear
 		ctx.clearRect(0, 0, totalWidth, totalHeight);
@@ -112,6 +118,7 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			ctx.stroke();
 			
 			// Label
+			ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
 			ctx.fillText(tick.toFixed(1), MARGIN.left - 4, y + 3);
 		}
 
@@ -147,11 +154,11 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 			ctx.stroke();
 		}
 
-		// Draw current position markers
-		const lastData = data[data.length - 1];
-		if (lastData) {
+		// Draw current position markers at the rightmost point of each line
+		if (data.length > 0) {
+			const lastData = data[data.length - 1];
 			for (const flavor of flavors) {
-				const x = MARGIN.left + plotWidth;
+				const x = MARGIN.left + (lastData.distance / maxDistance) * plotWidth;
 				const y = MARGIN.top + plotHeight - lastData.probabilities[flavor] * plotHeight;
 
 				ctx.fillStyle = flavorColors[flavor];
@@ -164,13 +171,7 @@ const ProbabilityPlot: React.FC<ProbabilityPlotProps> = ({
 
 	return (
 		<div ref={containerRef} className="w-full">
-			<canvas
-				ref={canvasRef}
-				style={{
-					width: "100%",
-					height: `${height}px`,
-				}}
-			/>
+			<canvas ref={canvasRef} />
 		</div>
 	);
 };

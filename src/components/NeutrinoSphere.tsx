@@ -63,21 +63,22 @@ const NeutrinoSphere: React.FC = () => {
 			className="relative flex items-center justify-center"
 			style={{ width: "120px", height: "120px" }}
 		>
-			{/* Simple 3D-lit sphere - no fancy glows */}
+			{/* Simple 3D-lit sphere */}
 			<div
-				className="rounded-full"
+				className="rounded-full transition-all duration-150"
 				style={{
 					width: "90px",
 					height: "90px",
 					background: `radial-gradient(circle at 35% 30%, ${colorLight}, ${colorBase} 50%, ${colorDark} 100%)`,
 					boxShadow: `
-						0 0 30px 5px rgba(${r}, ${g}, ${b}, 0.4),
+						0 0 40px 10px rgba(${r}, ${g}, ${b}, 0.5),
+						0 0 80px 20px rgba(${r}, ${g}, ${b}, 0.2),
 						inset -8px -8px 20px rgba(0, 0, 0, 0.3),
 						inset 4px 4px 15px rgba(255, 255, 255, 0.1)
 					`,
 				}}
 			>
-				{/* Single subtle specular highlight */}
+				{/* Specular highlight */}
 				<div
 					className="absolute rounded-full"
 					style={{
