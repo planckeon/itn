@@ -124,14 +124,16 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 				</div>
 			)}
 
-			{/* Control bar - always visible */}
-			<div 
-				className="flex items-center justify-center gap-2 py-2.5 px-4 pointer-events-auto"
-				style={{
-					background: "rgba(15, 15, 25, 0.95)",
-					borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-				}}
-			>
+			{/* Control bar - floating pill, not full-width */}
+			<div className="flex justify-center pb-4 pointer-events-auto">
+				<div 
+					className="flex items-center gap-2 py-2 px-4 rounded-full"
+					style={{
+						background: "rgba(20, 20, 30, 0.6)",
+						backdropFilter: "blur(12px)",
+						border: "1px solid rgba(255, 255, 255, 0.1)",
+					}}
+				>
 				{/* Zoom controls */}
 				<div className="flex items-center gap-0.5 mr-1">
 					<button
@@ -244,6 +246,7 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 						❓
 					</button>
 				</div>
+			</div>
 			</div>
 
 			{/* Share modal */}
