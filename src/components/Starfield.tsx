@@ -6,9 +6,8 @@ interface Star {
 	x: number;
 	y: number;
 	z: number;
-	px: number; // Previous x (screen position)
-	py: number; // Previous y (screen position)
-	size: number;
+	px: number; // Previous screen x
+	py: number; // Previous screen y
 	brightness: number;
 }
 
@@ -20,23 +19,27 @@ const Starfield: React.FC = () => {
 	const animationIdRef = useRef<number | null>(null);
 
 	const numStars = 400;
+	const starfieldDepth = 1000;
 
 	// Keep speed ref updated
 	useEffect(() => {
 		speedRef.current = state.speed;
 	}, [state.speed]);
 
-	// Initialize stars
+	// Initialize stars in 3D spherical distribution
 	useEffect(() => {
 		const initialStars: Star[] = [];
 		for (let i = 0; i < numStars; i++) {
+			const r = 200 + Math.random() * (starfieldDepth - 200);
+			const theta = Math.random() * Math.PI;
+			const phi = Math.random() * Math.PI * 2;
+
 			initialStars.push({
-				x: Math.random() * (window.innerWidth * 2) - window.innerWidth,
-				y: Math.random() * (window.innerHeight * 2) - window.innerHeight,
-				z: Math.random() * 1000,
+				x: r * Math.sin(theta) * Math.cos(phi),
+				y: r * Math.sin(theta) * Math.sin(phi),
+				z: r * Math.cos(theta),
 				px: 0,
 				py: 0,
-				size: Math.random() * 2 + 0.5,
 				brightness: 0.7 + Math.random() * 0.3,
 			});
 		}
@@ -51,12 +54,24 @@ const Starfield: React.FC = () => {
 		const context = canvas.getContext("2d");
 		if (!context) return;
 
+		// Movement direction vector (diagonal, like original)
+		const dirX = 1, dirY = 0.5, dirZ = 1;
+		const norm = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
+		const dx = dirX / norm;
+		const dy = dirY / norm;
+		const dz = dirZ / norm;
+
 		const animate = () => {
-			const { width, height } = canvas.getBoundingClientRect();
-			canvas.width = width;
-			canvas.height = height;
+			const dpr = window.devicePixelRatio || 1;
+			const width = canvas.clientWidth;
+			const height = canvas.clientHeight;
+			
+			canvas.width = width * dpr;
+			canvas.height = height * dpr;
+			context.scale(dpr, dpr);
 
 			const speed = speedRef.current;
+			const v = 8 * speed * 0.1; // Movement velocity
 
 			// Clear with pure black
 			context.fillStyle = "#000";
@@ -64,23 +79,54 @@ const Starfield: React.FC = () => {
 
 			const centerX = width / 2;
 			const centerY = height / 2;
-			const maxDepth = 1000;
+			const focalLength = width * 0.8;
 
 			// Update and draw stars
-			for (let i = 0; i < starsRef.current.length; i++) {
-				const star = starsRef.current[i];
+			for (const star of starsRef.current) {
+				// Store previous screen position before moving
+				const prevZ = star.z + dz * v;
+				if (prevZ > 0) {
+					const prevScale = focalLength / prevZ;
+					star.px = centerX + (star.x + dx * v) * prevScale;
+					star.py = centerY + (star.y + dy * v) * prevScale;
+				}
 
-				// Calculate current screen position
-				const perspective = maxDepth / star.z;
-				const x = centerX + star.x * perspective;
-				const y = centerY + star.y * perspective;
+				// Update 3D position - move star in direction
+				star.x -= dx * v;
+				star.y -= dy * v;
+				star.z -= dz * v;
 
-				// Draw motion blur trail from previous to current position
+				// Reset stars that move past the viewer
+				const viewDot = star.x * dx + star.y * dy + star.z * dz;
+				if (viewDot < 0 || star.z < 1) {
+					const r = starfieldDepth * (0.9 + Math.random() * 0.2);
+					const theta = Math.PI * (0.2 + Math.random() * 0.6);
+					const phi = Math.random() * Math.PI * 2;
+
+					star.x = r * Math.sin(theta) * Math.cos(phi);
+					star.y = r * Math.sin(theta) * Math.sin(phi);
+					star.z = r * Math.cos(theta);
+					star.px = 0;
+					star.py = 0;
+					star.brightness = 0.7 + Math.random() * 0.3;
+					continue;
+				}
+
+				// Project to 2D
+				const scale = focalLength / star.z;
+				const x = centerX + star.x * scale;
+				const y = centerY + star.y * scale;
+
+				// Check if on screen
+				if (x < -50 || x > width + 50 || y < -50 || y > height + 50) continue;
+
+				// Draw motion blur trail
 				if (star.px !== 0 && star.py !== 0 && speed > 0.1) {
-					const trailAlpha = Math.min(0.9, speed * 0.4) * star.brightness;
-					
-					context.strokeStyle = `rgba(255, 255, 255, ${trailAlpha})`;
-					context.lineWidth = Math.max(1, star.size * perspective * 0.08);
+					const lineAlpha = Math.min(0.9, 0.3 + speed * 0.2) * star.brightness;
+					const lineWidth = Math.max(1, 1 + speed * 0.5);
+
+					context.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
+					context.lineWidth = lineWidth;
 					context.lineCap = "round";
 					context.beginPath();
 					context.moveTo(star.px, star.py);
@@ -88,31 +134,19 @@ const Starfield: React.FC = () => {
 					context.stroke();
 				}
 
-				// Draw the star point at current position
-				const alpha = star.brightness * (1 - star.z / maxDepth * 0.5);
-				const size = Math.max(0.5, star.size * perspective * 0.08);
-				
-				context.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+				// Draw the star point
+				const normalizedDepth = star.z / starfieldDepth;
+				const pointAlpha = (0.3 + 0.7 * (1 - normalizedDepth)) * star.brightness;
+				const pointSize = Math.max(0.5, 2 * (1 - normalizedDepth));
+
+				context.fillStyle = `rgba(255, 255, 255, ${pointAlpha})`;
 				context.beginPath();
-				context.arc(x, y, size, 0, Math.PI * 2);
+				context.arc(x, y, pointSize, 0, Math.PI * 2);
 				context.fill();
 
-				// Store current position as previous
+				// Update previous position for next frame
 				star.px = x;
 				star.py = y;
-
-				// Update z position (moving toward viewer)
-				star.z -= speed * 8;
-
-				// Wrap stars around when they pass the viewer
-				if (star.z <= 1) {
-					star.x = Math.random() * (width * 2) - width;
-					star.y = Math.random() * (height * 2) - height;
-					star.z = maxDepth;
-					star.px = 0;
-					star.py = 0;
-					star.brightness = 0.7 + Math.random() * 0.3;
-				}
 			}
 
 			animationIdRef.current = requestAnimationFrame(animate);
@@ -124,25 +158,6 @@ const Starfield: React.FC = () => {
 			if (animationIdRef.current) {
 				cancelAnimationFrame(animationIdRef.current);
 			}
-		};
-	}, []);
-
-	// Handle window resizing
-	useEffect(() => {
-		const handleResize = () => {
-			const canvas = canvasRef.current;
-			if (canvas) {
-				const { width, height } = canvas.getBoundingClientRect();
-				canvas.width = width;
-				canvas.height = height;
-			}
-		};
-
-		window.addEventListener("resize", handleResize);
-		handleResize();
-
-		return () => {
-			window.removeEventListener("resize", handleResize);
 		};
 	}, []);
 
