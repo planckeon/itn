@@ -88,7 +88,7 @@ interface BottomControlsProps {
 	onOpenHelp: () => void;
 }
 
-// Floating bottom controls - small pill-shaped control cluster
+// Three separate floating pill clusters - minimal and non-invasive
 function BottomControls({ 
 	panels, 
 	onTogglePanel, 
@@ -97,104 +97,107 @@ function BottomControls({
 	onOpenSettings, 
 	onOpenHelp 
 }: BottomControlsProps) {
-	const { state } = useSimulation();
-	const { probabilityHistory, distance } = state;
+	const { state, setZoom } = useSimulation();
+	const { zoom } = state;
 
-	const currentProbs = probabilityHistory.length > 0
-		? probabilityHistory[probabilityHistory.length - 1]
-		: { Pe: 1, Pmu: 0, Ptau: 0 };
+	const zoomIn = () => setZoom(Math.min(2, zoom + 0.15));
+	const zoomOut = () => setZoom(Math.max(0.5, zoom - 0.15));
+
+	const pillStyle = {
+		background: "rgba(20, 20, 30, 0.7)",
+		backdropFilter: "blur(12px)",
+		border: "1px solid rgba(255, 255, 255, 0.08)",
+	};
+
+	const btnBase = "w-8 h-8 rounded-full flex items-center justify-center text-sm";
+	const btnInactive = "text-white/40 hover:text-white hover:bg-white/10";
+	const btnActive = "text-white bg-white/15";
 
 	return (
-		<div 
-			className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3 py-2 rounded-full"
-			style={{
-				background: "rgba(20, 20, 30, 0.8)",
-				backdropFilter: "blur(12px)",
-				border: "1px solid rgba(255, 255, 255, 0.1)",
-			}}
-		>
-			{/* Quick stats */}
-			<div className="flex items-center gap-1.5 text-[10px] font-mono text-white/40 pr-2 border-r border-white/10">
-				<span>{distance.toFixed(0)} km</span>
-				<span className="text-blue-400">{(currentProbs.Pe * 100).toFixed(0)}%</span>
-				<span className="text-orange-400">{(currentProbs.Pmu * 100).toFixed(0)}%</span>
-				<span className="text-fuchsia-400">{(currentProbs.Ptau * 100).toFixed(0)}%</span>
+		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5">
+			{/* Zoom controls - left cluster */}
+			<div className="flex items-center rounded-full px-1" style={pillStyle}>
+				<button
+					type="button"
+					onClick={zoomOut}
+					className={`${btnBase} ${btnInactive} text-lg`}
+					title="Zoom out (−)"
+				>
+					−
+				</button>
+				<button
+					type="button"
+					onClick={zoomIn}
+					className={`${btnBase} ${btnInactive} text-lg`}
+					title="Zoom in (+)"
+				>
+					+
+				</button>
 			</div>
 
-			{/* Panel toggles */}
-			<button
-				type="button"
-				onClick={() => onTogglePanel("ternary")}
-				className={`w-7 h-7 rounded-full text-xs font-mono flex items-center justify-center ${
-					panels.ternary 
-						? "bg-white/20 text-white" 
-						: "text-white/50 hover:text-white/80 hover:bg-white/10"
-				}`}
-				title="Flavor Space"
-			>
-				△
-			</button>
-			<button
-				type="button"
-				onClick={() => onTogglePanel("probability")}
-				className={`w-7 h-7 rounded-full text-xs font-mono flex items-center justify-center ${
-					panels.probability 
-						? "bg-white/20 text-white" 
-						: "text-white/50 hover:text-white/80 hover:bg-white/10"
-				}`}
-				title="P(t) Plot"
-			>
-				〰
-			</button>
-			<button
-				type="button"
-				onClick={() => onTogglePanel("spectrum")}
-				className={`w-7 h-7 rounded-full text-xs font-mono flex items-center justify-center ${
-					panels.spectrum 
-						? "bg-white/20 text-white" 
-						: "text-white/50 hover:text-white/80 hover:bg-white/10"
-				}`}
-				title="P(E) Spectrum"
-			>
-				📊
-			</button>
+			{/* Panel toggles - center cluster */}
+			<div className="flex items-center rounded-full px-1" style={pillStyle}>
+				<button
+					type="button"
+					onClick={() => onTogglePanel("ternary")}
+					className={`${btnBase} ${panels.ternary ? btnActive : btnInactive}`}
+					title="Flavor triangle"
+				>
+					△
+				</button>
+				<button
+					type="button"
+					onClick={() => onTogglePanel("probability")}
+					className={`${btnBase} ${panels.probability ? btnActive : btnInactive}`}
+					title="Oscillation plot"
+				>
+					〰
+				</button>
+				<button
+					type="button"
+					onClick={() => onTogglePanel("spectrum")}
+					className={`${btnBase} ${panels.spectrum ? btnActive : btnInactive}`}
+					title="Energy spectrum"
+				>
+					📊
+				</button>
+			</div>
 
-			{/* Divider */}
-			<div className="w-px h-4 bg-white/10" />
-
-			{/* Menu buttons */}
-			<button
-				type="button"
-				onClick={onOpenShare}
-				className="w-7 h-7 rounded-full text-xs text-white/50 hover:text-white/80 hover:bg-white/10 flex items-center justify-center"
-				title="Share"
-			>
-				🔗
-			</button>
-			<button
-				type="button"
-				onClick={onOpenLearnMore}
-				className="w-7 h-7 rounded-full text-xs text-white/50 hover:text-white/80 hover:bg-white/10 flex items-center justify-center"
-				title="Learn More"
-			>
-				📚
-			</button>
-			<button
-				type="button"
-				onClick={onOpenSettings}
-				className="w-7 h-7 rounded-full text-xs text-white/50 hover:text-white/80 hover:bg-white/10 flex items-center justify-center"
-				title="Settings"
-			>
-				⚙️
-			</button>
-			<button
-				type="button"
-				onClick={onOpenHelp}
-				className="w-7 h-7 rounded-full text-xs text-white/50 hover:text-white/80 hover:bg-white/10 flex items-center justify-center"
-				title="Help"
-			>
-				❓
-			</button>
+			{/* Menu - right cluster */}
+			<div className="flex items-center rounded-full px-1" style={pillStyle}>
+				<button
+					type="button"
+					onClick={onOpenShare}
+					className={`${btnBase} ${btnInactive}`}
+					title="Share"
+				>
+					🔗
+				</button>
+				<button
+					type="button"
+					onClick={onOpenLearnMore}
+					className={`${btnBase} ${btnInactive}`}
+					title="Learn more"
+				>
+					📖
+				</button>
+				<button
+					type="button"
+					onClick={onOpenSettings}
+					className={`${btnBase} ${btnInactive}`}
+					title="Settings"
+				>
+					⚙️
+				</button>
+				<button
+					type="button"
+					onClick={onOpenHelp}
+					className={`${btnBase} ${btnInactive}`}
+					title="Help"
+				>
+					?
+				</button>
+			</div>
 		</div>
 	);
 }
