@@ -12,10 +12,12 @@
 		"test:coverage": "vitest run --coverage",
 		"format": "biome format",
 		"lint": "biome lint",
+		"lint:math": "npx tsx scripts/lint-math.ts",
 		"check": "biome check",
 		"format:write": "biome format --write .",
 		"lint:write": "biome lint --write .",
 		"check:write": "biome check --write .",
+		"check:all": "npm run lint && npm run lint:math && npm run test",
 		"stylelint": "stylelint **/*.css"
 	},
 	"devDependencies": {
