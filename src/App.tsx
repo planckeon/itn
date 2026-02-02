@@ -14,13 +14,25 @@ import { SimulationProvider, useSimulation } from "./context/SimulationContext";
 import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts";
 import { I18nProvider } from "./i18n";
 
-type BottomPanel = "ternary" | "probability" | "spectrum" | null;
+interface PanelState {
+	ternary: boolean;
+	probability: boolean;
+	spectrum: boolean;
+}
 
-// Compact bottom HUD with tabbed panels
+// Compact bottom HUD with toggle panels (any combination)
 function BottomHUD() {
 	const { state } = useSimulation();
 	const { probabilityHistory, energy, distance } = state;
-	const [activePanel, setActivePanel] = useState<BottomPanel>("probability");
+	const [panels, setPanels] = useState<PanelState>({
+		ternary: false,
+		probability: true,
+		spectrum: false,
+	});
+
+	const togglePanel = (panel: keyof PanelState) => {
+		setPanels(prev => ({ ...prev, [panel]: !prev[panel] }));
+	};
 
 	const probabilityData = probabilityHistory.map((item) => ({
 		distance: item.distance,
@@ -36,62 +48,66 @@ function BottomHUD() {
 		? probabilityHistory[probabilityHistory.length - 1]
 		: { Pe: 1, Pmu: 0, Ptau: 0 };
 
+	const anyPanelOpen = panels.ternary || panels.probability || panels.spectrum;
+
 	return (
 		<div className="fixed bottom-0 left-0 right-0 z-20">
-			{/* Expanded panel area */}
-			<div className="flex justify-center px-4 pb-2">
-				{activePanel === "ternary" && (
-					<div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
-						<TernaryPlot embedded />
-					</div>
-				)}
-				{activePanel === "probability" && (
-					<div 
-						className="w-full max-w-2xl rounded-xl px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-200"
-						style={{
-							background: "rgba(20, 20, 30, 0.9)",
-							border: "1px solid rgba(255, 255, 255, 0.1)",
-						}}
-					>
-						<div className="flex items-center justify-between mb-2">
-							<span className="text-white/70 text-sm font-mono">Oscillation</span>
-							<div className="flex items-center gap-3">
-								<div className="flex items-center gap-1">
-									<div className="w-2 h-2 rounded-full bg-blue-500" />
-									<span className="text-[10px] text-white/50">e</span>
-								</div>
-								<div className="flex items-center gap-1">
-									<div className="w-2 h-2 rounded-full bg-orange-400" />
-									<span className="text-[10px] text-white/50">μ</span>
-								</div>
-								<div className="flex items-center gap-1">
-									<div className="w-2 h-2 rounded-full bg-fuchsia-500" />
-									<span className="text-[10px] text-white/50">τ</span>
+			{/* Panel area - flexbox row for multiple panels */}
+			{anyPanelOpen && (
+				<div className="flex justify-center items-end gap-3 px-4 pb-2">
+					{panels.ternary && (
+						<div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+							<TernaryPlot embedded />
+						</div>
+					)}
+					{panels.probability && (
+						<div 
+							className="flex-1 max-w-xl min-w-[280px] rounded-xl px-4 py-3 animate-in fade-in slide-in-from-bottom-2 duration-200"
+							style={{
+								background: "rgba(20, 20, 30, 0.9)",
+								border: "1px solid rgba(255, 255, 255, 0.1)",
+							}}
+						>
+							<div className="flex items-center justify-between mb-2">
+								<span className="text-white/70 text-sm font-mono">Oscillation</span>
+								<div className="flex items-center gap-3">
+									<div className="flex items-center gap-1">
+										<div className="w-2 h-2 rounded-full bg-blue-500" />
+										<span className="text-[10px] text-white/50">e</span>
+									</div>
+									<div className="flex items-center gap-1">
+										<div className="w-2 h-2 rounded-full bg-orange-400" />
+										<span className="text-[10px] text-white/50">μ</span>
+									</div>
+									<div className="flex items-center gap-1">
+										<div className="w-2 h-2 rounded-full bg-fuchsia-500" />
+										<span className="text-[10px] text-white/50">τ</span>
+									</div>
 								</div>
 							</div>
+							<ProbabilityPlot
+								data={probabilityData}
+								flavors={["electron", "muon", "tau"]}
+								flavorColors={{
+									electron: "rgb(59, 130, 246)",
+									muon: "rgb(251, 146, 60)",
+									tau: "rgb(217, 70, 239)",
+								}}
+								height={70}
+								distanceLabel=""
+								probabilityLabel=""
+								energy={energy}
+								showOscillationLength={true}
+							/>
 						</div>
-						<ProbabilityPlot
-							data={probabilityData}
-							flavors={["electron", "muon", "tau"]}
-							flavorColors={{
-								electron: "rgb(59, 130, 246)",
-								muon: "rgb(251, 146, 60)",
-								tau: "rgb(217, 70, 239)",
-							}}
-							height={70}
-							distanceLabel=""
-							probabilityLabel=""
-							energy={energy}
-							showOscillationLength={true}
-						/>
-					</div>
-				)}
-				{activePanel === "spectrum" && (
-					<div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
-						<EnergySpectrumPlot embedded />
-					</div>
-				)}
-			</div>
+					)}
+					{panels.spectrum && (
+						<div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+							<EnergySpectrumPlot embedded />
+						</div>
+					)}
+				</div>
+			)}
 
 			{/* Tab bar - always visible */}
 			<div 
@@ -108,13 +124,13 @@ function BottomHUD() {
 					<span className="text-fuchsia-400">{(currentProbs.Ptau * 100).toFixed(0)}%</span>
 				</div>
 
-				{/* Tab buttons */}
+				{/* Toggle buttons */}
 				<div className="flex items-center gap-1">
 					<button
 						type="button"
-						onClick={() => setActivePanel(activePanel === "ternary" ? null : "ternary")}
+						onClick={() => togglePanel("ternary")}
 						className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-							activePanel === "ternary" 
+							panels.ternary 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
 						}`}
@@ -123,9 +139,9 @@ function BottomHUD() {
 					</button>
 					<button
 						type="button"
-						onClick={() => setActivePanel(activePanel === "probability" ? null : "probability")}
+						onClick={() => togglePanel("probability")}
 						className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-							activePanel === "probability" 
+							panels.probability 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
 						}`}
@@ -134,9 +150,9 @@ function BottomHUD() {
 					</button>
 					<button
 						type="button"
-						onClick={() => setActivePanel(activePanel === "spectrum" ? null : "spectrum")}
+						onClick={() => togglePanel("spectrum")}
 						className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
-							activePanel === "spectrum" 
+							panels.spectrum 
 								? "bg-white/20 text-white" 
 								: "text-white/50 hover:text-white/80 hover:bg-white/10"
 						}`}
