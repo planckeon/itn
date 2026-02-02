@@ -29,7 +29,10 @@ describe("debounce", () => {
 	});
 
 	it("should preserve function context and arguments", async () => {
-		const mockFn = vi.fn();
+		let capturedThis: unknown;
+		const mockFn = vi.fn(function (this: unknown) {
+			capturedThis = this;
+		});
 		const context = { value: 42 };
 		const debouncedFn = debounce(mockFn, 50);
 
@@ -38,7 +41,7 @@ describe("debounce", () => {
 		await new Promise((resolve) => setTimeout(resolve, 60));
 
 		expect(mockFn).toHaveBeenCalledWith("arg1", "arg2");
-		expect(mockFn.mock.instances[0]).toBe(context);
+		expect(capturedThis).toBe(context);
 	});
 
 	it("should handle different delay values", async () => {
