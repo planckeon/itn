@@ -29,30 +29,30 @@ function PlotWrapper() {
 	}));
 
 	return (
-		<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 w-[85vw] max-w-xl">
+		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-[70vw] max-w-md">
 			{/* Semi-transparent plot container */}
 			<div
-				className="rounded-xl px-4 py-3"
+				className="rounded-lg px-3 py-2"
 				style={{
 					background: "rgba(20, 20, 30, 0.85)",
 					border: "1px solid rgba(255, 255, 255, 0.1)",
 				}}
 			>
 				{/* Title and legend row */}
-				<div className="flex items-center justify-between mb-2">
-					<span className="text-white/70 text-sm font-mono">Probability</span>
-					<div className="flex items-center gap-4">
-						<div className="flex items-center gap-1.5">
-							<div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-							<span className="text-[10px] text-white/60">ν<sub>e</sub></span>
+				<div className="flex items-center justify-between mb-1">
+					<span className="text-white/70 text-xs font-mono">Probability</span>
+					<div className="flex items-center gap-3">
+						<div className="flex items-center gap-1">
+							<div className="w-2 h-2 rounded-full bg-blue-500" />
+							<span className="text-[9px] text-white/60">νₑ</span>
 						</div>
-						<div className="flex items-center gap-1.5">
-							<div className="w-2.5 h-2.5 rounded-full bg-orange-400" />
-							<span className="text-[10px] text-white/60">ν<sub>μ</sub></span>
+						<div className="flex items-center gap-1">
+							<div className="w-2 h-2 rounded-full bg-orange-400" />
+							<span className="text-[9px] text-white/60">νμ</span>
 						</div>
-						<div className="flex items-center gap-1.5">
-							<div className="w-2.5 h-2.5 rounded-full bg-fuchsia-500" />
-							<span className="text-[10px] text-white/60">ν<sub>τ</sub></span>
+						<div className="flex items-center gap-1">
+							<div className="w-2 h-2 rounded-full bg-fuchsia-500" />
+							<span className="text-[9px] text-white/60">ντ</span>
 						</div>
 					</div>
 				</div>
@@ -64,7 +64,7 @@ function PlotWrapper() {
 						muon: "rgb(251, 146, 60)",
 						tau: "rgb(217, 70, 239)",
 					}}
-					height={100}
+					height={80}
 					distanceLabel="Time →"
 					probabilityLabel=""
 					energy={energy}

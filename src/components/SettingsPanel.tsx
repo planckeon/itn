@@ -13,7 +13,7 @@ const SettingsPanel: React.FC = () => {
 			<button
 				type="button"
 				onClick={() => setIsOpen(true)}
-				className="fixed top-[140px] left-4 z-10 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105"
+				className="fixed top-[116px] left-4 z-10 px-2 py-1 rounded-md text-xs font-medium transition-all hover:scale-105"
 				style={{
 					background: "rgba(20, 20, 30, 0.9)",
 					border: "1px solid rgba(255, 255, 255, 0.1)",

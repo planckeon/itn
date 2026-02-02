@@ -22,13 +22,13 @@ const TopControlBar: React.FC = () => {
 				background: "rgba(18, 18, 28, 0.92)",
 				backdropFilter: "blur(12px)",
 				borderRadius: "10px",
-				padding: "14px 20px",
+				padding: "10px 14px",
 				border: "1px solid rgba(255, 255, 255, 0.08)",
 				boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
 			}}
 		>
-			{/* Desktop layout */}
-			<div className="hidden lg:flex items-center gap-5 text-white font-mono text-[13px]">
+			{/* Desktop layout - use xl breakpoint for full layout */}
+			<div className="hidden xl:flex items-center gap-4 text-white font-mono text-[12px]">
 				{/* Experiment Presets */}
 				<div className="flex items-center gap-2">
 					<label htmlFor="preset" className="text-white/80 whitespace-nowrap">
@@ -199,8 +199,8 @@ const TopControlBar: React.FC = () => {
 				</div>
 			</div>
 
-			{/* Mobile/Tablet layout - three rows */}
-			<div className="lg:hidden flex flex-col gap-3 text-white font-mono text-xs">
+			{/* Mobile/Tablet layout - three rows (now also for medium desktops) */}
+			<div className="xl:hidden flex flex-col gap-2 text-white font-mono text-xs">
 				{/* Row 1: Preset and ν/ν̄ toggle */}
 				<div className="flex items-center justify-between gap-3">
 					<div className="flex items-center gap-2">
