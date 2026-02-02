@@ -23,6 +23,7 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 - **Probability vs Distance** — P(νₑ), P(νμ), P(ντ) over time with oscillation length markers
 - **Ternary Flavor Triangle** — VISOS-style flavor space trajectory
 - **Energy Spectrum** — P vs E at current distance (bottom right)
+- **PMNS Matrix** — |U|² mixing matrix display (top right)
 
 ### Physics Controls
 - **Experiment Presets** — T2K, NOvA, DUNE, KamLAND configurations
@@ -33,7 +34,8 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 - **Energy & Speed** — Continuous sliders
 
 ### Quality of Life
-- **Keyboard Shortcuts** — See below
+- **Keyboard Shortcuts** — See below (press `?` for help)
+- **Help Modal** — Press `?` for shortcuts reference
 - **Info Tooltips** — Hover over (?) for physics explanations
 - **Mobile Responsive** — Full touch support with compact UI
 
@@ -49,6 +51,7 @@ A [Planckeon Labs](https://github.com/planckeon) project.
 | `1-4` | Apply presets (T2K, NOvA, DUNE, KamLAND) |
 | `↑/↓` | Adjust energy |
 | `←/→` | Adjust δCP |
+| `?` | Show help modal |
 
 ## Physics
 
@@ -89,8 +92,10 @@ src/
 │   ├── ProbabilityPlot.tsx    # P vs L plot with markers
 │   ├── TernaryPlot.tsx        # Flavor triangle
 │   ├── EnergySpectrumPlot.tsx # P vs E spectrum
+│   ├── PMNSMatrix.tsx         # |U|² mixing matrix
 │   ├── TopControlBar.tsx      # All controls
-│   └── InfoTooltip.tsx        # Physics explanations
+│   ├── InfoTooltip.tsx        # Physics explanations
+│   └── HelpModal.tsx          # Keyboard shortcuts modal
 ├── hooks/
 │   └── useKeyboardShortcuts.ts
 ├── context/
