@@ -137,12 +137,6 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		if (distance >= 0) {
 			const probabilities = getProbabilitiesForInitialFlavor(oscillationParams);
 
-			console.log(
-				"SimulationContext: Distance:",
-				distance,
-				"Probabilities:",
-				probabilities,
-			);
 			// Update probability history (add new point)
 			setProbabilityHistory((prevHistory) => {
 				const newHistory = [

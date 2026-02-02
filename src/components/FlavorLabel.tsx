@@ -13,7 +13,6 @@ const FlavorLabel: React.FC = () => {
 	// Determine the dominant flavor
 	let dominantFlavor = "Unknown";
 	const { Pe, Pmu, Ptau } = latestProbabilities;
-	console.log("FlavorLabel: latestProbabilities", latestProbabilities);
 
 	if (Pe > Pmu && Pe > Ptau) {
 		dominantFlavor = "Electron";
