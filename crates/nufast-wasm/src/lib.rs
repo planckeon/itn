@@ -78,6 +78,7 @@ impl OscParams {
 
 /// Calculate vacuum oscillation probabilities
 /// Returns [Pee, Pem, Pet, Pme, Pmm, Pmt, Pte, Ptm, Ptt]
+/// Ported directly from TypeScript NuFastPort.ts
 fn probability_vacuum(params: &OscParams, l: f64, e: f64) -> [f64; 9] {
     let s12sq = params.s12sq;
     let s13sq = params.s13sq;
@@ -86,29 +87,26 @@ fn probability_vacuum(params: &OscParams, l: f64, e: f64) -> [f64; 9] {
     let dm21sq = params.dm21sq;
     let dm31sq = params.dm31sq;
     
+    // Pre-calculate trig functions
     let c13sq = 1.0 - s13sq;
     let sind = delta.sin();
     let cosd = delta.cos();
     
-    // PMNS matrix elements squared
-    let ue1sq = c13sq * (1.0 - s12sq);
+    // Ueisq's
     let ue2sq = c13sq * s12sq;
     let ue3sq = s13sq;
+    let ue1sq = 1.0 - ue3sq - ue2sq;
     
+    // Umisq's and Jvac
     let um3sq = c13sq * s23sq;
     let temp_ut2sq = s13sq * s12sq * s23sq;
     let temp_um2sq = (1.0 - s12sq) * (1.0 - s23sq);
     let jrr = (temp_um2sq * temp_ut2sq).max(0.0).sqrt();
     let um2sq = temp_um2sq + temp_ut2sq - 2.0 * jrr * cosd;
     let um1sq = 1.0 - um3sq - um2sq;
-    
-    let ut3sq = c13sq * (1.0 - s23sq);
-    let ut2sq = 1.0 - ue2sq - um2sq;
-    let ut1sq = 1.0 - ue1sq - um1sq;
-    
     let jvac = 8.0 * jrr * c13sq * sind;
     
-    // Kinematic phases
+    // Kinematic terms
     let abs_e = e.abs();
     let lover4e = EV_SQ_KM_TO_GEV_OVER4 * l / abs_e;
     let d21 = dm21sq * lover4e;
@@ -120,48 +118,64 @@ fn probability_vacuum(params: &OscParams, l: f64, e: f64) -> [f64; 9] {
     let sin_d32 = d32.sin();
     let triple_sin = sin_d21 * sin_d31 * sin_d32;
     
+    // 2*sin^2(X)
     let sinsq_d21_2 = 2.0 * sin_d21 * sin_d21;
     let sinsq_d31_2 = 2.0 * sin_d31 * sin_d31;
     let sinsq_d32_2 = 2.0 * sin_d32 * sin_d32;
     
     let e_sign = if e >= 0.0 { 1.0 } else { -1.0 };
     
-    // Pee
-    let pee = 1.0 - 2.0 * (ue2sq * ue1sq * sinsq_d21_2 
-        + ue3sq * ue1sq * sinsq_d31_2 
-        + ue3sq * ue2sq * sinsq_d32_2);
+    // Calculate probabilities (NuFast formula)
+    let pme_cpc = (1.0 - um3sq - ue3sq - um2sq * ue1sq - um1sq * ue2sq) * sinsq_d21_2
+        + (1.0 - um2sq - ue2sq - um3sq * ue1sq - um1sq * ue3sq) * sinsq_d31_2
+        + (1.0 - um1sq - ue1sq - um3sq * ue2sq - um2sq * ue3sq) * sinsq_d32_2;
     
-    // Pmm
+    let pme_cpv = -jvac * triple_sin * e_sign;
+    
     let pmm = 1.0 - 2.0 * (um2sq * um1sq * sinsq_d21_2 
         + um3sq * um1sq * sinsq_d31_2 
         + um3sq * um2sq * sinsq_d32_2);
     
-    // Ptt
-    let ptt = 1.0 - 2.0 * (ut2sq * ut1sq * sinsq_d21_2 
-        + ut3sq * ut1sq * sinsq_d31_2 
-        + ut3sq * ut2sq * sinsq_d32_2);
+    let pee = 1.0 - 2.0 * (ue2sq * ue1sq * sinsq_d21_2 
+        + ue3sq * ue1sq * sinsq_d31_2 
+        + ue3sq * ue2sq * sinsq_d32_2);
     
-    // Pme (and Pem by CPT)
-    let pme_cpc = (1.0 - um3sq - ue3sq - um2sq * ue1sq - um1sq * ue2sq) * sinsq_d21_2
-        + (1.0 - um2sq - ue2sq - um3sq * ue1sq - um1sq * ue3sq) * sinsq_d31_2
-        + (1.0 - um1sq - ue1sq - um3sq * ue2sq - um2sq * ue3sq) * sinsq_d32_2;
-    let pme_cpv = -jvac * triple_sin * e_sign;
-    let pme = 0.5 * pme_cpc + pme_cpv;
-    let pem = 0.5 * pme_cpc - pme_cpv;
+    // Build probability matrix (same structure as TypeScript)
+    // Row 0: e → [e, μ, τ]
+    // Row 1: μ → [e, μ, τ]  
+    // Row 2: τ → [e, μ, τ]
+    let pem = pme_cpc - pme_cpv;  // e → μ
+    let pet = 1.0 - pee - pem;    // e → τ (unitarity)
     
-    // Pte (and Pet by CPT)
-    let _pte_cpc = (1.0 - ut3sq - ue3sq - ut2sq * ue1sq - ut1sq * ue2sq) * sinsq_d21_2
-        + (1.0 - ut2sq - ue2sq - ut3sq * ue1sq - ut1sq * ue3sq) * sinsq_d31_2
-        + (1.0 - ut1sq - ue1sq - ut3sq * ue2sq - ut2sq * ue3sq) * sinsq_d32_2;
-    // Simplified: use unitarity
-    let pet = 1.0 - pee - pem;
-    let pte = 1.0 - pee - pme;
+    let pme = pme_cpc + pme_cpv;  // μ → e
+    let pmt = 1.0 - pme - pmm;    // μ → τ (unitarity)
     
-    // Pmt (and Ptm by CPT)
-    let pmt = 1.0 - pmm - pme;
-    let ptm = 1.0 - pmm - pem;
+    let pte = 1.0 - pee - pme;    // τ → e (column unitarity)
+    let ptm = 1.0 - pem - pmm;    // τ → μ (column unitarity)
+    let ptt = 1.0 - pte - ptm;    // τ → τ (row unitarity)
     
-    [pee, pem, pet, pme, pmm, pmt, pte, ptm, ptt]
+    // Clamp all to [0, 1]
+    let clamp = |x: f64| x.clamp(0.0, 1.0);
+    
+    // Build and normalize rows
+    let mut result = [
+        clamp(pee), clamp(pem), clamp(pet),
+        clamp(pme), clamp(pmm), clamp(pmt),
+        clamp(pte), clamp(ptm), clamp(ptt),
+    ];
+    
+    // Ensure each row sums to 1
+    for row in 0..3 {
+        let start = row * 3;
+        let sum = result[start] + result[start + 1] + result[start + 2];
+        if (sum - 1.0).abs() > 1e-6 && sum > 0.0 {
+            result[start] /= sum;
+            result[start + 1] /= sum;
+            result[start + 2] /= sum;
+        }
+    }
+    
+    result
 }
 
 /// Calculate matter-modified oscillation probabilities
