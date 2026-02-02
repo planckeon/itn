@@ -24,7 +24,11 @@ const COLORS = {
 	current: "#ffffff",
 };
 
-const TernaryPlot: React.FC = () => {
+interface TernaryPlotProps {
+	embedded?: boolean;
+}
+
+const TernaryPlot: React.FC<TernaryPlotProps> = ({ embedded = false }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const { state } = useSimulation();
 
@@ -219,6 +223,29 @@ const TernaryPlot: React.FC = () => {
 		ctx.fillText("Flavor Space", centerX, height - 5);
 
 	}, [state.probabilityHistory]);
+
+	// When embedded, render just the panel content (no fixed positioning)
+	if (embedded) {
+		return (
+			<div
+				className="flex-shrink-0 rounded-lg"
+				style={{
+					background: "rgba(20, 20, 30, 0.9)",
+					borderRadius: "12px",
+					padding: "10px",
+					border: "1px solid rgba(255, 255, 255, 0.1)",
+				}}
+			>
+				<div className="absolute top-1 right-1">
+					<InfoTooltip text={PHYSICS_INFO.ternaryPlot} position="top" />
+				</div>
+				<canvas
+					ref={canvasRef}
+					style={{ width: "140px", height: "140px" }}
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<div

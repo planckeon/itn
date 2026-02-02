@@ -26,16 +26,17 @@ const MenuDrawer: React.FC<MenuDrawerProps> = ({ onOpenLearnMore, onOpenSettings
 	};
 
 	return (
-		<div className="fixed top-20 left-4 z-30">
+		<div className="fixed top-4 left-4 z-30">
 			{/* Toggle button */}
 			<button
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
 				className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-105"
 				style={{
-					background: isOpen ? "rgba(59, 130, 246, 0.3)" : "rgba(30, 30, 40, 0.9)",
-					border: "1px solid rgba(255, 255, 255, 0.15)",
-					backdropFilter: "blur(8px)",
+					background: isOpen ? "rgba(59, 130, 246, 0.3)" : "rgba(18, 18, 28, 0.92)",
+					border: "1px solid rgba(255, 255, 255, 0.08)",
+					backdropFilter: "blur(12px)",
+					boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
 				}}
 				title="Menu"
 			>

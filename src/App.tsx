@@ -14,8 +14,8 @@ import { SimulationProvider, useSimulation } from "./context/SimulationContext";
 import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts";
 import { I18nProvider } from "./i18n";
 
-// Wrapper component to access simulation context for the plot
-function PlotWrapper() {
+// Bottom HUD - unified row with all three panels
+function BottomHUD() {
 	const { state } = useSimulation();
 	const { probabilityHistory, energy } = state;
 
@@ -29,16 +29,18 @@ function PlotWrapper() {
 	}));
 
 	return (
-		<div className="fixed bottom-4 left-[200px] right-[280px] z-20 min-w-[240px]">
-			{/* Semi-transparent plot container */}
-			<div
-				className="rounded-xl px-4 py-3"
+		<div className="fixed bottom-4 left-4 right-4 z-20 flex items-end justify-center gap-3">
+			{/* Left: Ternary plot */}
+			<TernaryPlot embedded />
+
+			{/* Center: Probability plot - flexible width */}
+			<div 
+				className="flex-1 max-w-2xl min-w-[300px] rounded-xl px-4 py-3"
 				style={{
 					background: "rgba(20, 20, 30, 0.9)",
 					border: "1px solid rgba(255, 255, 255, 0.1)",
 				}}
 			>
-				{/* Title and legend row */}
 				<div className="flex items-center justify-between mb-2">
 					<span className="text-white/70 text-sm font-mono">Probability</span>
 					<div className="flex items-center gap-4">
@@ -71,6 +73,9 @@ function PlotWrapper() {
 					showOscillationLength={true}
 				/>
 			</div>
+
+			{/* Right: Energy spectrum */}
+			<EnergySpectrumPlot embedded />
 		</div>
 	);
 }
@@ -102,7 +107,7 @@ function AppContent() {
 			{/* Top control bar */}
 			<TopControlBar />
 
-			{/* Menu drawer - top left, consolidates Share/Learn/Settings/Help */}
+			{/* Menu drawer - top left */}
 			<MenuDrawer
 				onOpenLearnMore={() => setLearnOpen(true)}
 				onOpenSettings={() => setSettingsOpen(true)}
@@ -117,10 +122,8 @@ function AppContent() {
 				<VisualizationArea />
 			</main>
 
-			{/* Bottom row: Ternary (left) | Probability (center) | Spectrum (right) */}
-			<TernaryPlot />
-			<PlotWrapper />
-			<EnergySpectrumPlot />
+			{/* Bottom row: unified HUD */}
+			<BottomHUD />
 
 			{/* Modals controlled by menu drawer */}
 			<LearnMorePanel isOpen={learnOpen} onClose={() => setLearnOpen(false)} />

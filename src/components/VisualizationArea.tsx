@@ -37,8 +37,8 @@ const NeutrinoSymbol: React.FC<{ flavor: keyof typeof FLAVOR_CONFIG; className?:
 };
 
 const VisualizationArea: React.FC = () => {
-	const { state } = useSimulation();
-	const { probabilityHistory, distance, initialFlavor, matter, density, energy, isAntineutrino } = state;
+	const { state, setZoom } = useSimulation();
+	const { probabilityHistory, distance, initialFlavor, matter, density, energy, isAntineutrino, zoom } = state;
 
 	// Get latest probabilities
 	const latestProbs = useMemo(() => {
@@ -69,8 +69,20 @@ const VisualizationArea: React.FC = () => {
 		return proximity > 0.3;
 	}, [matter, density, energy, isAntineutrino]);
 
+	// Handle scroll zoom
+	const handleWheel = (e: React.WheelEvent) => {
+		e.preventDefault();
+		const delta = e.deltaY > 0 ? -0.1 : 0.1;
+		const newZoom = Math.max(0.5, Math.min(2, zoom + delta));
+		setZoom(newZoom);
+	};
+
 	return (
-		<div className="relative flex flex-col items-center justify-center">
+		<div 
+			className="relative flex flex-col items-center justify-center pointer-events-auto cursor-zoom-in"
+			onWheel={handleWheel}
+			style={{ transform: `scale(${zoom})`, transition: "transform 0.1s ease-out" }}
+		>
 			{/* The neutrino sphere - the star of the show */}
 			<NeutrinoSphere />
 

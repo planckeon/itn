@@ -33,7 +33,11 @@ Higher E = slower oscillation.`;
 /**
  * Shows P(ν_α → ν_β) vs Energy at fixed distance L
  */
-const EnergySpectrumPlot: React.FC = () => {
+interface EnergySpectrumPlotProps {
+	embedded?: boolean;
+}
+
+const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = false }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const { state } = useSimulation();
 
@@ -211,6 +215,29 @@ const EnergySpectrumPlot: React.FC = () => {
 		}
 
 	}, [spectrumData, state.distance, state.energy]);
+
+	// When embedded, render just the panel content (no fixed positioning)
+	if (embedded) {
+		return (
+			<div
+				className="flex-shrink-0 rounded-lg relative"
+				style={{
+					background: "rgba(20, 20, 30, 0.9)",
+					borderRadius: "12px",
+					padding: "8px",
+					border: "1px solid rgba(255, 255, 255, 0.1)",
+				}}
+			>
+				<div className="absolute top-1 right-1">
+					<InfoTooltip text={INFO_TEXT} position="left" />
+				</div>
+				<canvas
+					ref={canvasRef}
+					style={{ width: "220px", height: "140px" }}
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<div

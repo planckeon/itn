@@ -39,6 +39,7 @@ interface SimulationState {
 	deltaCP: number; // CP violation phase in degrees (0-360)
 	isAntineutrino: boolean; // true for antineutrino mode
 	massOrdering: MassOrdering; // normal or inverted
+	zoom: number; // zoom level (0.5 to 2.0, default 1.0)
 	time: number;
 	probabilityHistory: {
 		distance: number;
@@ -59,6 +60,7 @@ interface SimulationContextType {
 	setDeltaCP: (deltaCP: number) => void;
 	setIsAntineutrino: (isAntineutrino: boolean) => void;
 	setMassOrdering: (massOrdering: MassOrdering) => void;
+	setZoom: (zoom: number) => void;
 	resetSimulation: () => void;
 	applyPreset: (preset: ExperimentPreset) => void;
 }
@@ -171,6 +173,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 	const [deltaCP, setDeltaCP] = useState<number>(0); // degrees
 	const [isAntineutrino, setIsAntineutrino] = useState<boolean>(false);
 	const [massOrdering, setMassOrdering] = useState<MassOrdering>("normal");
+	const [zoom, setZoom] = useState<number>(1); // 0.5 to 2.0
 	const [time, setTime] = useState<number>(0); // seconds
 	const [distance, setDistance] = useState<number>(0); // km
 	const [probabilityHistory, setProbabilityHistory] = useState<
@@ -291,6 +294,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		deltaCP,
 		isAntineutrino,
 		massOrdering,
+		zoom,
 		time,
 		distance,
 		probabilityHistory,
@@ -306,6 +310,7 @@ export const SimulationProvider: React.FC<{ children: ReactNode }> = ({
 		setDeltaCP,
 		setIsAntineutrino,
 		setMassOrdering,
+		setZoom,
 		resetSimulation,
 		applyPreset,
 	};
