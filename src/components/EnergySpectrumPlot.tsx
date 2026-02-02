@@ -241,7 +241,7 @@ const EnergySpectrumPlot: React.FC<EnergySpectrumPlotProps> = ({ embedded = fals
 
 	return (
 		<div
-			className="absolute bottom-4 right-4 z-10"
+			className="relative"
 			style={{
 				background: "rgba(20, 20, 30, 0.85)",
 				backdropFilter: "blur(8px)",

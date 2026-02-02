@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useRef, useLayoutEffect, useCallback } from "react";
+import { useState, useRef, useLayoutEffect, useCallback, useEffect } from "react";
 
 interface InfoTooltipProps {
 	text: string;
@@ -14,17 +14,19 @@ interface TooltipPosition {
 	right?: number;
 }
 
+const TOOLTIP_WIDTH = 256;
+const TOOLTIP_HEIGHT = 140;
+const MARGIN = 12;
+const ARROW_SIZE = 8;
+const HIDE_DELAY_MS = 100; // Increased for smoother UX
+
 /**
  * Calculate tooltip position synchronously to avoid flicker
  */
 function calculatePosition(
 	button: DOMRect,
-	preferredPosition: "auto" | "top" | "bottom" | "left" | "right",
-	tooltipWidth: number,
-	tooltipHeight: number
+	preferredPosition: "auto" | "top" | "bottom" | "left" | "right"
 ): TooltipPosition {
-	const margin = 12;
-	const arrowSize = 8;
 	const viewportWidth = window.innerWidth;
 	const viewportHeight = window.innerHeight;
 
@@ -40,13 +42,13 @@ function calculatePosition(
 		finalPosition = preferredPosition;
 	} else {
 		// Priority: bottom > top > right > left
-		if (spaceBottom >= tooltipHeight + margin + arrowSize) {
+		if (spaceBottom >= TOOLTIP_HEIGHT + MARGIN + ARROW_SIZE) {
 			finalPosition = "bottom";
-		} else if (spaceTop >= tooltipHeight + margin + arrowSize) {
+		} else if (spaceTop >= TOOLTIP_HEIGHT + MARGIN + ARROW_SIZE) {
 			finalPosition = "top";
-		} else if (spaceRight >= tooltipWidth + margin + arrowSize) {
+		} else if (spaceRight >= TOOLTIP_WIDTH + MARGIN + ARROW_SIZE) {
 			finalPosition = "right";
-		} else if (spaceLeft >= tooltipWidth + margin + arrowSize) {
+		} else if (spaceLeft >= TOOLTIP_WIDTH + MARGIN + ARROW_SIZE) {
 			finalPosition = "left";
 		} else {
 			finalPosition = "bottom";
@@ -59,23 +61,23 @@ function calculatePosition(
 	switch (finalPosition) {
 		case "bottom":
 			return {
-				top: button.bottom + arrowSize,
-				left: Math.max(margin, Math.min(buttonCenterX - tooltipWidth / 2, viewportWidth - tooltipWidth - margin)),
+				top: button.bottom + ARROW_SIZE,
+				left: Math.max(MARGIN, Math.min(buttonCenterX - TOOLTIP_WIDTH / 2, viewportWidth - TOOLTIP_WIDTH - MARGIN)),
 			};
 		case "top":
 			return {
-				bottom: viewportHeight - button.top + arrowSize,
-				left: Math.max(margin, Math.min(buttonCenterX - tooltipWidth / 2, viewportWidth - tooltipWidth - margin)),
+				bottom: viewportHeight - button.top + ARROW_SIZE,
+				left: Math.max(MARGIN, Math.min(buttonCenterX - TOOLTIP_WIDTH / 2, viewportWidth - TOOLTIP_WIDTH - MARGIN)),
 			};
 		case "right":
 			return {
-				left: button.right + arrowSize,
-				top: Math.max(margin, Math.min(buttonCenterY - tooltipHeight / 2, viewportHeight - tooltipHeight - margin)),
+				left: button.right + ARROW_SIZE,
+				top: Math.max(MARGIN, Math.min(buttonCenterY - TOOLTIP_HEIGHT / 2, viewportHeight - TOOLTIP_HEIGHT - MARGIN)),
 			};
 		case "left":
 			return {
-				right: viewportWidth - button.left + arrowSize,
-				top: Math.max(margin, Math.min(buttonCenterY - tooltipHeight / 2, viewportHeight - tooltipHeight - margin)),
+				right: viewportWidth - button.left + ARROW_SIZE,
+				top: Math.max(MARGIN, Math.min(buttonCenterY - TOOLTIP_HEIGHT / 2, viewportHeight - TOOLTIP_HEIGHT - MARGIN)),
 			};
 	}
 }
@@ -85,49 +87,58 @@ function calculatePosition(
  * Positions synchronously to avoid flicker on hover
  */
 const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "auto" }) => {
-	const [isVisible, setIsVisible] = useState(false);
+	const [hoverState, setHoverState] = useState<"hidden" | "showing" | "visible">("hidden");
 	const [tooltipPos, setTooltipPos] = useState<TooltipPosition | null>(null);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const hideTimeoutRef = useRef<number | null>(null);
+	const showTimeoutRef = useRef<number | null>(null);
 
-	const tooltipWidth = 256;
-	const tooltipHeight = 140;
+	// Clear all timeouts
+	const clearAllTimeouts = useCallback(() => {
+		if (hideTimeoutRef.current !== null) {
+			window.clearTimeout(hideTimeoutRef.current);
+			hideTimeoutRef.current = null;
+		}
+		if (showTimeoutRef.current !== null) {
+			window.clearTimeout(showTimeoutRef.current);
+			showTimeoutRef.current = null;
+		}
+	}, []);
 
-	// Clear any pending hide timeout
-	const clearHideTimeout = useCallback(() => {
+	const showTooltip = useCallback(() => {
+		clearAllTimeouts();
+		if (buttonRef.current) {
+			const rect = buttonRef.current.getBoundingClientRect();
+			const pos = calculatePosition(rect, position);
+			setTooltipPos(pos);
+			setHoverState("visible");
+		}
+	}, [position, clearAllTimeouts]);
+
+	const hideTooltip = useCallback(() => {
+		clearAllTimeouts();
+		// Delay hide to prevent flicker when moving between button and tooltip
+		hideTimeoutRef.current = window.setTimeout(() => {
+			setHoverState("hidden");
+			setTooltipPos(null);
+		}, HIDE_DELAY_MS);
+	}, [clearAllTimeouts]);
+
+	const cancelHide = useCallback(() => {
 		if (hideTimeoutRef.current !== null) {
 			window.clearTimeout(hideTimeoutRef.current);
 			hideTimeoutRef.current = null;
 		}
 	}, []);
 
-	const showTooltip = useCallback(() => {
-		clearHideTimeout();
-		if (buttonRef.current) {
-			const rect = buttonRef.current.getBoundingClientRect();
-			const pos = calculatePosition(rect, position, tooltipWidth, tooltipHeight);
-			setTooltipPos(pos);
-			setIsVisible(true);
-		}
-	}, [position, clearHideTimeout]);
-
-	const hideTooltip = useCallback(() => {
-		clearHideTimeout();
-		// Small delay to prevent flicker when moving between button and tooltip
-		hideTimeoutRef.current = window.setTimeout(() => {
-			setIsVisible(false);
-			setTooltipPos(null);
-		}, 50);
-	}, [clearHideTimeout]);
-
 	// Recalculate position on scroll/resize while visible
 	useLayoutEffect(() => {
-		if (!isVisible || !buttonRef.current) return;
+		if (hoverState !== "visible" || !buttonRef.current) return;
 
 		const updatePosition = () => {
 			if (buttonRef.current) {
 				const rect = buttonRef.current.getBoundingClientRect();
-				const pos = calculatePosition(rect, position, tooltipWidth, tooltipHeight);
+				const pos = calculatePosition(rect, position);
 				setTooltipPos(pos);
 			}
 		};
@@ -139,19 +150,21 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "a
 			window.removeEventListener("scroll", updatePosition, true);
 			window.removeEventListener("resize", updatePosition);
 		};
-	}, [isVisible, position]);
+	}, [hoverState, position]);
 
-	// Cleanup timeout on unmount
-	useLayoutEffect(() => {
-		return () => clearHideTimeout();
-	}, [clearHideTimeout]);
+	// Cleanup timeouts on unmount
+	useEffect(() => {
+		return () => clearAllTimeouts();
+	}, [clearAllTimeouts]);
+
+	const isVisible = hoverState === "visible" && tooltipPos !== null;
 
 	return (
 		<>
 			<button
 				ref={buttonRef}
 				type="button"
-				className="w-4 h-4 rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white/90 text-[10px] font-bold transition-colors flex items-center justify-center"
+				className="w-4 h-4 rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white/90 text-[10px] font-bold flex items-center justify-center"
 				onMouseEnter={showTooltip}
 				onMouseLeave={hideTooltip}
 				onFocus={showTooltip}
@@ -161,13 +174,13 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "a
 				{children || "?"}
 			</button>
 			
-			{isVisible && tooltipPos && (
+			{isVisible && (
 				<div
 					className="text-xs text-white/90 font-sans leading-relaxed"
 					style={{
 						position: "fixed",
 						zIndex: 9999,
-						width: tooltipWidth,
+						width: TOOLTIP_WIDTH,
 						maxWidth: "calc(100vw - 24px)",
 						background: "rgba(20, 20, 30, 0.98)",
 						backdropFilter: "blur(8px)",
@@ -177,7 +190,7 @@ const InfoTooltip: React.FC<InfoTooltipProps> = ({ text, children, position = "a
 						padding: 12,
 						...tooltipPos,
 					}}
-					onMouseEnter={clearHideTimeout}
+					onMouseEnter={cancelHide}
 					onMouseLeave={hideTooltip}
 				>
 					<div className="whitespace-pre-wrap">{text}</div>
