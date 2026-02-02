@@ -81,26 +81,27 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 					{panels.ternary && <TernaryPanel />}
 					{panels.probability && (
 						<div 
-							className="flex-1 max-w-2xl min-w-[300px] rounded-xl px-4 py-3"
+							className="max-w-xl rounded-2xl px-4 py-3"
 							style={{
-								background: "rgba(20, 20, 30, 0.9)",
+								background: "rgba(20, 20, 30, 0.75)",
+								backdropFilter: "blur(12px)",
 								border: "1px solid rgba(255, 255, 255, 0.1)",
 							}}
 						>
 							<div className="flex items-center justify-between mb-2">
-								<span className="text-white/70 text-sm font-mono">Oscillation</span>
-								<div className="flex items-center gap-3">
+								<span className="text-white/60 text-xs font-medium tracking-wide">Oscillation</span>
+								<div className="flex items-center gap-2">
 									<div className="flex items-center gap-1">
-										<div className="w-2 h-2 rounded-full bg-blue-500" />
-										<span className="text-[10px] text-white/50">e</span>
+										<div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+										<span className="text-[9px] text-white/40">e</span>
 									</div>
 									<div className="flex items-center gap-1">
-										<div className="w-2 h-2 rounded-full bg-orange-400" />
-										<span className="text-[10px] text-white/50">μ</span>
+										<div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+										<span className="text-[9px] text-white/40">μ</span>
 									</div>
 									<div className="flex items-center gap-1">
-										<div className="w-2 h-2 rounded-full bg-fuchsia-500" />
-										<span className="text-[10px] text-white/50">τ</span>
+										<div className="w-1.5 h-1.5 rounded-full bg-fuchsia-400" />
+										<span className="text-[9px] text-white/40">τ</span>
 									</div>
 								</div>
 							</div>
@@ -108,11 +109,11 @@ function BottomHUD({ onOpenLearnMore, onOpenSettings, onOpenHelp }: BottomHUDPro
 								data={probabilityData}
 								flavors={["electron", "muon", "tau"]}
 								flavorColors={{
-									electron: "rgb(59, 130, 246)",
+									electron: "rgb(96, 165, 250)",
 									muon: "rgb(251, 146, 60)",
-									tau: "rgb(217, 70, 239)",
+									tau: "rgb(232, 121, 249)",
 								}}
-								height={120}
+								height={100}
 								distanceLabel=""
 								probabilityLabel=""
 								energy={energy}
