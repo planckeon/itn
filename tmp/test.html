@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <style>
+    body { background: #1a1a2e; color: white; font-family: sans-serif; padding: 20px; }
+    .math-block { margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-left: 2px solid rgba(100,150,255,0.3); border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>KaTeX Test - Display Math</h2>
+  
+  <p>Flavor states:</p>
+  <div id="eq1" class="math-block"></div>
+  
+  <p>PMNS superposition:</p>
+  <div id="eq2" class="math-block"></div>
+  
+  <p>Oscillation probability:</p>
+  <div id="eq3" class="math-block"></div>
+
+  <script>
+    katex.render("\\nu_e \\quad \\nu_\\mu \\quad \\nu_\\tau", document.getElementById("eq1"), {displayMode: true});
+    katex.render("|\\nu_\\alpha\\rangle = \\sum_{i=1}^{3} U_{\\alpha i} |\\nu_i\\rangle", document.getElementById("eq2"), {displayMode: true});
+    katex.render("P(\\nu_\\alpha \\to \\nu_\\beta) = \\sin^2(2\\theta) \\sin^2\\left(\\frac{\\Delta m^2 L}{4E}\\right)", document.getElementById("eq3"), {displayMode: true});
+  </script>
+</body>
+</html>
