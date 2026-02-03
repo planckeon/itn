@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 /* Main application styles */
+html,
 body {
 	margin: 0;
+	padding: 0;
+	min-height: 100vh;
+	background-color: #0a0a0f;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
 		Ubuntu, Cantarell, sans-serif;
 	-webkit-font-smoothing: antialiased;
@@ -15,6 +19,7 @@ body {
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
+	background-color: #0a0a0f;
 }
 
 /* Hide scrollbars for clean UI panels */
