@@ -347,6 +347,7 @@ const Starfield: React.FC = () => {
 				width: "100%",
 				height: "100%",
 				zIndex: 0,
+				backgroundColor: "#0a0a0f",
 			}}
 		/>
 	);
