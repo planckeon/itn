@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Build and Deploy](https://github.com/planckeon/itn/actions/workflows/deploy.yml/badge.svg)](https://github.com/planckeon/itn/actions/workflows/deploy.yml)
+[![Tests](https://img.shields.io/badge/tests-166%20passing-brightgreen)](https://github.com/planckeon/itn)
 
 **[▶ Launch Demo](https://planckeon.github.io/itn/)**
 
@@ -9,7 +10,7 @@
 
 An interactive visualization of 3-flavor neutrino oscillations. Watch a neutrino fly through space as its flavor changes, with real-time probability calculations.
 
-A [Planckeon Labs](https://github.com/planckeon) project.
+Built with React + TypeScript + Zig WASM. A [Planckeon Labs](https://github.com/planckeon) project.
 
 ## Features
 
@@ -81,12 +82,16 @@ Parameters:
 
 ## Physics
 
-Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://arxiv.org/abs/2405.02400)) for accurate 3-flavor neutrino oscillation probability calculations.
+Powered by [**nufast**](https://github.com/planckeon/nufast) compiled to WebAssembly—the same algorithm used by T2K and JUNO, running at **20 million calculations per second** in your browser.
+
+The WASM binary is **13 KB**. No CDN physics libraries, just math.
+
+Based on the **NuFast** algorithm ([arXiv:2405.02400](https://arxiv.org/abs/2405.02400)) by P.B. Denton.
 
 **Parameters (NuFit 5.2):**
 - θ₁₂ = 33.44°, θ₁₃ = 8.57°, θ₂₃ = 49.2°
 - Δm²₂₁ = 7.42×10⁻⁵ eV²
-- Δm²₃₁ = +2.517×10⁻³ eV² (NO) / -2.498×10⁻³ eV² (IO)
+- Δm²₃₁ = +2.517×10⁻³ eV² (NO) / −2.498×10⁻³ eV² (IO)
 
 ## Tech Stack
 
@@ -96,8 +101,10 @@ Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://a
 | Build | Vite |
 | Styling | Tailwind CSS |
 | Rendering | Canvas 2D (60fps) |
+| Physics | nufast WASM (Zig → WASM, 13 KB) |
+| Math | KaTeX |
 | State | React Context |
-| Testing | Vitest |
+| Testing | Vitest (166 tests) |
 
 ## Development
 
@@ -105,7 +112,7 @@ Uses a TypeScript port of the **NuFast** algorithm ([arXiv:2405.02400](https://a
 npm install      # Install dependencies
 npm run dev      # Dev server at localhost:5173
 npm run build    # Production build
-npm test         # Run tests (145 passing)
+npm test         # Run tests (166 passing)
 ```
 
 ## Project Structure
@@ -134,7 +141,10 @@ src/
 ├── context/
 │   └── SimulationContext.tsx  # All state + physics
 ├── physics/
-│   ├── NuFastPort.ts          # Core algorithm
+│   ├── nufast.js              # Zig WASM loader
+│   ├── nufast.wasm            # Physics engine (13 KB)
+│   ├── wasmBridge.ts          # WASM interface
+│   ├── prem.ts                # PREM Earth model
 │   └── types.ts               # Interfaces
 └── utils/                     # Helpers
 ```
