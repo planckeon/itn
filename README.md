@@ -139,6 +139,33 @@ src/
 └── utils/                     # Helpers
 ```
 
+## Citation
+
+If you use Imagining the Neutrino in your research or teaching, please cite:
+
+```bibtex
+@software{itn,
+  author = {Kataru, Baalateja},
+  title = {Imagining the Neutrino: Interactive 3-Flavor Oscillation Visualization},
+  year = {2026},
+  publisher = {GitHub},
+  url = {https://github.com/planckeon/itn}
+}
+```
+
+The physics engine is based on:
+
+```bibtex
+@article{Denton:2024xzk,
+  author = {Denton, Peter B. and Parke, Stephen J.},
+  title = "{NuFast: Fast and Accurate Neutrino Oscillation Probabilities}",
+  eprint = "2405.02400",
+  archivePrefix = "arXiv",
+  primaryClass = "hep-ph",
+  year = "2024"
+}
+```
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
