@@ -1,47 +1,12 @@
 /**
- * NuFast WASM Wrapper
- * 
+ * NuFast WASM Wrapper (Zig implementation)
+ *
  * Provides high-performance neutrino oscillation calculations via WebAssembly.
  * Falls back to TypeScript implementation if WASM fails to load.
  */
 
-// WASM module types
-interface WasmModule {
-  OscParams: new (
-    theta12_deg: number,
-    theta13_deg: number,
-    theta23_deg: number,
-    delta_cp_deg: number,
-    dm21sq: number,
-    dm31sq: number,
-    matter: boolean,
-    rho: number,
-    ye: number,
-    anti: boolean,
-  ) => WasmOscParams;
-  get_probabilities: (params: WasmOscParams, l: number, e: number, initial_flavor: number) => Float64Array;
-  calculate_energy_spectrum: (
-    params: WasmOscParams,
-    l: number,
-    initial_flavor: number,
-    e_min: number,
-    e_max: number,
-    num_points: number,
-  ) => Float64Array;
-  calculate_baseline_scan: (
-    params: WasmOscParams,
-    e: number,
-    initial_flavor: number,
-    l_min: number,
-    l_max: number,
-    num_points: number,
-  ) => Float64Array;
-  default: (url: string) => Promise<void>;
-}
-
-interface WasmOscParams {
-  free(): void;
-}
+import type { NuFast, VacuumParams, MatterParams, ProbabilityMatrix } from './nufast';
+import { loadNuFast } from './nufast';
 
 // Oscillation parameters interface (simplified for WASM)
 interface WasmOscillationParams {
@@ -61,8 +26,8 @@ interface WasmOscillationParams {
 // Loading state
 type WasmLoadingState = 'idle' | 'loading' | 'ready' | 'failed';
 
-let wasmModule: WasmModule | null = null;
-let wasmLoadPromise: Promise<WasmModule | null> | null = null;
+let nufast: NuFast | null = null;
+let wasmLoadPromise: Promise<NuFast | null> | null = null;
 let wasmLoadState: WasmLoadingState = 'idle';
 let wasmLoadCallbacks: ((state: WasmLoadingState) => void)[] = [];
 
@@ -74,7 +39,7 @@ export function onWasmStateChange(callback: (state: WasmLoadingState) => void): 
   // Immediately call with current state
   callback(wasmLoadState);
   return () => {
-    wasmLoadCallbacks = wasmLoadCallbacks.filter(cb => cb !== callback);
+    wasmLoadCallbacks = wasmLoadCallbacks.filter((cb) => cb !== callback);
   };
 }
 
@@ -96,37 +61,26 @@ export function getWasmLoadingState(): WasmLoadingState {
  * Initialize WASM module (call once at app startup)
  */
 export async function initWasm(): Promise<boolean> {
-  if (wasmModule) return true;
+  if (nufast) return true;
   if (wasmLoadState === 'failed') return false;
-  
+
   if (!wasmLoadPromise) {
     setWasmState('loading');
     wasmLoadPromise = loadWasmModule();
   }
-  
-  wasmModule = await wasmLoadPromise;
-  return wasmModule !== null;
+
+  nufast = await wasmLoadPromise;
+  return nufast !== null;
 }
 
-async function loadWasmModule(): Promise<WasmModule | null> {
+async function loadWasmModule(): Promise<NuFast | null> {
   try {
-    // Fetch the JS glue code
-    const response = await fetch('/wasm/nufast_wasm.js');
-    const jsCode = await response.text();
-    
-    // Create a blob URL and import it
-    const blob = new Blob([jsCode], { type: 'application/javascript' });
-    const blobUrl = URL.createObjectURL(blob);
-    
-    const wasmJs = await import(/* @vite-ignore */ blobUrl) as WasmModule;
-    URL.revokeObjectURL(blobUrl);
-    
-    // Initialize the WASM module
-    await wasmJs.default('/wasm/nufast_wasm_bg.wasm');
-    
-    console.log('✅ NuFast WASM loaded successfully');
+    // Load the Zig WASM using the provided loader
+    const instance = await loadNuFast('/wasm/nufast.wasm');
+
+    console.log('✅ NuFast WASM (Zig) loaded successfully');
     setWasmState('ready');
-    return wasmJs;
+    return instance;
   } catch (error) {
     console.warn('⚠️ WASM load failed, using TypeScript fallback:', error);
     setWasmState('failed');
@@ -138,7 +92,62 @@ async function loadWasmModule(): Promise<WasmModule | null> {
  * Check if WASM is available
  */
 export function isWasmReady(): boolean {
-  return wasmModule !== null;
+  return nufast !== null;
+}
+
+/**
+ * Convert degrees to radians
+ */
+function degToRad(deg: number): number {
+  return (deg * Math.PI) / 180;
+}
+
+/**
+ * Convert WasmOscillationParams to VacuumParams
+ */
+function toVacuumParams(params: WasmOscillationParams): VacuumParams {
+  const theta12 = degToRad(params.theta12_deg);
+  const theta13 = degToRad(params.theta13_deg);
+  const theta23 = degToRad(params.theta23_deg);
+  // Negate delta for antineutrino
+  const delta = degToRad(params.isAntineutrino ? -params.deltaCP_deg : params.deltaCP_deg);
+
+  return {
+    s12sq: Math.sin(theta12) ** 2,
+    s13sq: Math.sin(theta13) ** 2,
+    s23sq: Math.sin(theta23) ** 2,
+    delta,
+    Dmsq21: params.dm21sq_eV2,
+    Dmsq31: params.dm31sq_eV2,
+    antineutrino: params.isAntineutrino,
+  };
+}
+
+/**
+ * Convert WasmOscillationParams to MatterParams
+ */
+function toMatterParams(params: WasmOscillationParams): MatterParams {
+  return {
+    rho: params.rho,
+    Ye: params.Ye,
+    nNewton: 0,
+    antineutrino: params.isAntineutrino,
+  };
+}
+
+/**
+ * Extract probabilities for a given initial flavor from the 3x3 matrix
+ */
+function extractRow(
+  matrix: ProbabilityMatrix,
+  initialFlavorIndex: number,
+): { Pe: number; Pmu: number; Ptau: number } {
+  const row = initialFlavorIndex;
+  return {
+    Pe: matrix[row][0],
+    Pmu: matrix[row][1],
+    Ptau: matrix[row][2],
+  };
 }
 
 /**
@@ -151,47 +160,54 @@ export function wasmCalculateEnergySpectrum(
   eMax: number,
   numPoints: number,
 ): { energy: number; Pe: number; Pmu: number; Ptau: number }[] {
-  if (!wasmModule) {
+  if (!nufast) {
     throw new Error('WASM not loaded');
   }
-  
-  const oscParams = new wasmModule.OscParams(
-    params.theta12_deg,
-    params.theta13_deg,
-    params.theta23_deg,
-    params.deltaCP_deg,
-    params.dm21sq_eV2,
-    params.dm31sq_eV2,
-    params.matterEffect,
-    params.rho,
-    params.Ye,
-    params.isAntineutrino,
-  );
-  
-  try {
-    const result = wasmModule.calculate_energy_spectrum(
-      oscParams,
-      distance,
-      params.initialFlavorIndex,
-      eMin,
-      eMax,
-      numPoints,
-    );
-    
-    // Parse flat array: [E, Pe, Pmu, Ptau, E, Pe, Pmu, Ptau, ...]
-    const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] = [];
-    for (let i = 0; i < result.length; i += 4) {
-      points.push({
-        energy: result[i],
-        Pe: result[i + 1],
-        Pmu: result[i + 2],
-        Ptau: result[i + 3],
-      });
-    }
-    return points;
-  } finally {
-    oscParams.free();
+
+  // Set parameters
+  nufast.setVacuumParams(toVacuumParams(params));
+
+  if (params.matterEffect) {
+    nufast.setMatterParams(toMatterParams(params));
   }
+
+  // Generate energy array
+  const energies = new Float64Array(numPoints);
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / Math.max(numPoints - 1, 1);
+    energies[i] = eMin + t * (eMax - eMin);
+  }
+
+  // Use batch calculation for better performance
+  if (params.matterEffect) {
+    nufast.initMatterBatch();
+  } else {
+    nufast.initVacuumBatch();
+  }
+
+  // Calculate full matrices in batch
+  const matrices = nufast.vacuumBatchFull(distance, energies);
+
+  // Extract results for the requested initial flavor
+  const points: { energy: number; Pe: number; Pmu: number; Ptau: number }[] = [];
+  for (let i = 0; i < numPoints; i++) {
+    let matrix: ProbabilityMatrix;
+
+    if (params.matterEffect) {
+      // For matter, calculate individually (batch full not available for matter)
+      matrix = nufast.matterProbability(distance, energies[i]);
+    } else {
+      matrix = matrices[i];
+    }
+
+    const probs = extractRow(matrix, params.initialFlavorIndex);
+    points.push({
+      energy: energies[i],
+      ...probs,
+    });
+  }
+
+  return points;
 }
 
 /**
@@ -204,45 +220,33 @@ export function wasmCalculateBaselineScan(
   lMax: number,
   numPoints: number,
 ): { distance: number; Pe: number; Pmu: number; Ptau: number }[] {
-  if (!wasmModule) {
+  if (!nufast) {
     throw new Error('WASM not loaded');
   }
-  
-  const oscParams = new wasmModule.OscParams(
-    params.theta12_deg,
-    params.theta13_deg,
-    params.theta23_deg,
-    params.deltaCP_deg,
-    params.dm21sq_eV2,
-    params.dm31sq_eV2,
-    params.matterEffect,
-    params.rho,
-    params.Ye,
-    params.isAntineutrino,
-  );
-  
-  try {
-    const result = wasmModule.calculate_baseline_scan(
-      oscParams,
-      energy,
-      params.initialFlavorIndex,
-      lMin,
-      lMax,
-      numPoints,
-    );
-    
-    // Parse flat array: [L, Pe, Pmu, Ptau, L, Pe, Pmu, Ptau, ...]
-    const points: { distance: number; Pe: number; Pmu: number; Ptau: number }[] = [];
-    for (let i = 0; i < result.length; i += 4) {
-      points.push({
-        distance: result[i],
-        Pe: result[i + 1],
-        Pmu: result[i + 2],
-        Ptau: result[i + 3],
-      });
-    }
-    return points;
-  } finally {
-    oscParams.free();
+
+  // Set parameters
+  nufast.setVacuumParams(toVacuumParams(params));
+
+  if (params.matterEffect) {
+    nufast.setMatterParams(toMatterParams(params));
   }
+
+  const points: { distance: number; Pe: number; Pmu: number; Ptau: number }[] = [];
+
+  for (let i = 0; i < numPoints; i++) {
+    const t = i / Math.max(numPoints - 1, 1);
+    const distance = lMin + t * (lMax - lMin);
+
+    const matrix = params.matterEffect
+      ? nufast.matterProbability(distance, energy)
+      : nufast.vacuumProbability(distance, energy);
+
+    const probs = extractRow(matrix, params.initialFlavorIndex);
+    points.push({
+      distance,
+      ...probs,
+    });
+  }
+
+  return points;
 }

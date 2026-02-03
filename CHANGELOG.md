@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-02-03
+
+### Changed
+- **Zig WASM Engine** — Replaced Rust/wasm-bindgen with Zig WASM implementation
+  - WASM binary: 13KB (was 33KB from Rust) — 60% smaller
+  - Same physics accuracy, simpler loader
+  - Uses nufast Zig port from benchmarks
+- Removed `crates/nufast-wasm` Rust crate
+
+### Technical
+- wasmBridge.ts now imports from `nufast.js` (Zig-generated wrapper)
+- Unified `NuFast` class API with `setVacuumParams`, `vacuumProbability`, `matterProbability`
+- Batch calculations via `vacuumBatchFull` for energy spectra
+
 ## [1.5.0] - 2026-02-03
 
 ### Added
